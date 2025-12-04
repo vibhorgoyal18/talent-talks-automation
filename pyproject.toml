@@ -1,0 +1,28 @@
+[build-system]
+requires = ["setuptools>=64", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "talent-talks-automation"
+version = "0.1.0"
+description = "BDD UI automation framework with Behave, Playwright, and Allure reporting"
+authors = [
+    { name = "Your Name", email = "you@example.com" }
+]
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "behave>=1.2.7",
+    "playwright>=1.40",
+    "allure-behave>=2.13",
+    "openpyxl>=3.1",
+    "python-dotenv>=1.0",
+    "requests>=2.32"
+]
+
+[project.optional-dependencies]
+dev = [
+    "black>=24.3",
+    "isort>=5.13",
+    "mypy>=1.10"
+]

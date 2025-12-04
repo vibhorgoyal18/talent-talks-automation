@@ -1,0 +1,16 @@
+Feature: Login functionality # features/login.feature:1
+  As a site visitor
+  I want to login
+  So that I can access protected areas
+  @ui @smoke
+  Scenario Outline: Attempt to login with different credentials -- @1.1   # features/login.feature:14
+    Given I open the login page                                           # features/steps/login_steps.py:9
+    When I sign in with "valid_login"                                     # features/steps/login_steps.py:16
+    Then I should see "success"                                           # features/steps/login_steps.py:24
+
+  @ui @smoke
+  Scenario Outline: Attempt to login with different credentials -- @1.2   # features/login.feature:15
+    Given I open the login page                                           # features/steps/login_steps.py:9
+    When I sign in with "invalid_login"                                   # features/steps/login_steps.py:16
+    Then I should see "error"                                             # features/steps/login_steps.py:24
+
