@@ -17,7 +17,10 @@ def step_open_login_page(context):
 def step_sign_in(context, scenario_name: str):
     row = context.data_loader.find_by_key("login_data", "scenario", scenario_name)
     context.last_login_data = row
-    context.login_page.login(row["username"], row["password"])
+    # Convert to string in case Excel reads numbers
+    email = str(row["username"]) if row["username"] is not None else ""
+    password = str(row["password"]) if row["password"] is not None else ""
+    context.login_page.login(email, password)
     AllureManager.attach_text("Login data", str(row))
 
 

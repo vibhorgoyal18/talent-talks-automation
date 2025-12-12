@@ -19,7 +19,7 @@
 │   └── reporting/
 │       └── allure_manager.py # Helpers to attach screenshots/text/traces to Allure
 ├── data/
-│   └── test_data.xlsx        # Multi-sheet Excel test data (login_data, etc.)
+│   └── test_data.json        # JSON test data with sections (login_data, etc.)
 ├── docs/
 │   ├── configuration.md      # How to manage .env sections
 │   ├── dashboard_test_scenarios.md
@@ -33,7 +33,7 @@
 │   └── login_page.py         # Page Object Model abstraction
 └── utils/
     ├── config_loader.py      # Loads .env namespaces, exposes getters
-    ├── data_loader.py        # Excel reader with row lookup helpers
+    ├── data_loader.py        # JSON reader with row lookup helpers
     ├── mail_client.py        # Gmail client for polling interview invitation emails
     └── logger.py             # Shared logger setup (console + report/framework.log)
 ```
@@ -135,10 +135,18 @@ class YourPage:
 ```
 
 ### 4. Test Data
-- Add test data to `data/test_data.xlsx` in appropriate sheets
-- Each sheet should have a unique key column (e.g., `scenario`) for lookups
-- Access data: `context.data_loader.find_by_key("sheet_name", "key_col", "key_value")`
-- Returns a dictionary with column names as keys
+- Add test data to `data/test_data.json` in appropriate sections
+- Each section is an array of objects with a unique key field (e.g., `scenario`) for lookups
+- Access data: `context.data_loader.find_by_key("section_name", "key_col", "key_value")`
+- Returns a dictionary with field names as keys
+
+```json
+{
+  "login_data": [
+    {"scenario": "valid_login", "username": "user@example.com", "password": "pass"}
+  ]
+}
+```
 
 ### 5. Allure Reporting
 - Attach screenshots on failure (automatic via `environment.py`)
@@ -152,3 +160,14 @@ class YourPage:
 - **Trace recording**: Set `DEFAULT__TRACE=true` to record traces on failure
 - **Browser options**: `chromium` (default), `firefox`, `webkit`
 - View traces at https://trace.playwright.dev or run `playwright show-trace trace.zip`
+
+## Debugging Failed Tests
+
+When a test fails:
+1. **Use Playwright MCP tools** to inspect the page and identify the correct selectors
+2. Navigate to the failing URL using `mcp_playwright_browser_navigate`
+3. Take an accessibility snapshot using `mcp_playwright_browser_snapshot` to see available elements
+4. **Always read test credentials from `data/test_data.xlsx`** before using Playwright MCP to test login or authentication flows
+5. Update the page object selectors based on actual page structure
+6. Re-run the test to verify the fix
+7. Document any fixes in `CHANGELOG.md`

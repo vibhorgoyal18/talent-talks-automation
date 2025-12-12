@@ -1,0 +1,61 @@
+{
+  "login_data": [
+    {
+      "scenario": "valid_login",
+      "username": "jitender.sachdeva@vlinkinfo.com",
+      "password": "Vlink@123"
+    },
+    {
+      "scenario": "invalid_login",
+      "username": "invalid@test.com",
+      "password": "badPass"
+    }
+  ],
+  "job_opening_data": [
+    {
+      "scenario": "python_developer",
+      "job_name": "Python Developer",
+      "job_description": "Looking for an experienced Python developer with Django and FastAPI skills",
+      "interview_duration": 30,
+      "enable_resume_evaluation": true,
+      "resume_evaluation_percentage": 40,
+      "enable_code_evaluation": true,
+      "programming_language": "Python",
+      "tech_stack": ["Python", "Django", "FastAPI", "PostgreSQL"]
+    },
+    {
+      "scenario": "java_developer",
+      "job_name": "Java Developer",
+      "job_description": "Senior Java developer with Spring Boot and microservices experience",
+      "interview_duration": 45,
+      "enable_resume_evaluation": true,
+      "resume_evaluation_percentage": 30,
+      "enable_code_evaluation": true,
+      "programming_language": "Java",
+      "tech_stack": ["Java", "Spring Boot", "Kubernetes", "AWS"]
+    },
+    {
+      "scenario": "frontend_developer",
+      "job_name": "Frontend Developer",
+      "job_description": "React developer with TypeScript and modern frontend experience",
+      "interview_duration": 30,
+      "enable_resume_evaluation": true,
+      "resume_evaluation_percentage": 50,
+      "enable_code_evaluation": true,
+      "programming_language": "Javascript",
+      "tech_stack": ["React", "TypeScript", "Next.js", "Tailwind CSS"]
+    }
+  ],
+  "search_data": [
+    {
+      "scenario": "basic_search",
+      "query": "Selenium WebDriver",
+      "result_count": 10
+    },
+    {
+      "scenario": "advanced_search",
+      "query": "Behave BDD tutorial",
+      "result_count": 5
+    }
+  ]
+}

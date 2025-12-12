@@ -8,7 +8,7 @@ from core.reporting.allure_manager import AllureManager
 from core.web.browser_factory import BrowserFactory
 from core.web.playwright_wrapper import PlaywrightWrapper
 from utils.config_loader import get_config
-from utils.data_loader import ExcelDataLoader
+from utils.data_loader import JsonDataLoader
 from utils.logger import get_logger
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -45,7 +45,7 @@ def before_all(context):
     """Setup before all scenarios."""
     context.logger = get_logger()
     context.config_loader = get_config()
-    context.data_loader = ExcelDataLoader(ROOT / "data" / "test_data.xlsx")
+    context.data_loader = JsonDataLoader(ROOT / "data" / "test_data.json")
     context.base_url = context.config_loader.get("base_url")
 
 

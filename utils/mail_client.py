@@ -1,63 +1,253 @@
 from __future__ import annotations
 
+import email
+import imaplib
 from dataclasses import dataclass
-from typing import Any, Dict, List, Optional
+from email.header import decode_header
+from typing import List, Optional
 
-import requests
 
-
-class GmailClientError(RuntimeError):
-    """Raised for HTTP or data issues when calling Gmail API."""
+class MailClientError(RuntimeError):
+    """Raised for errors when accessing email."""
 
 
 @dataclass
-class GmailMessage:
+class EmailMessage:
+    """Represents an email message."""
     id: str
-    thread_id: Optional[str]
-    snippet: Optional[str]
-    payload: Dict[str, Any]
+    subject: str
+    sender: str
+    date: str
+    snippet: str
+    body: Optional[str] = None
 
 
-class GmailClient:
-    """Thin wrapper over Gmail REST API using an API key."""
+class GmailIMAPClient:
+    """Gmail client using IMAP for reading emails.
+    
+    Requires an App Password (not regular password) for Gmail accounts with 2FA.
+    Generate at: https://myaccount.google.com/apppasswords
+    """
 
-    BASE_URL = "https://gmail.googleapis.com/gmail/v1"
+    IMAP_SERVER = "imap.gmail.com"
+    IMAP_PORT = 993
 
-    def __init__(self, api_key: str, user_id: str = "me", timeout: int = 10) -> None:
-        if not api_key:
-            raise ValueError("Gmail API key must be provided")
-        self.api_key = api_key
-        self.user_id = user_id
+    def __init__(self, email_address: str, app_password: str, timeout: int = 30) -> None:
+        """Initialize Gmail IMAP client.
+        
+        Args:
+            email_address: Gmail address (e.g., user@gmail.com)
+            app_password: Gmail App Password (16 characters, no spaces)
+            timeout: Connection timeout in seconds
+        """
+        if not email_address or not app_password:
+            raise ValueError("Email address and app password must be provided")
+        self.email_address = email_address
+        self.app_password = app_password
         self.timeout = timeout
+        self._connection: Optional[imaplib.IMAP4_SSL] = None
 
-    def _request(self, path: str, params: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
-        params = params or {}
-        params.setdefault("key", self.api_key)
-        url = f"{self.BASE_URL}/users/{self.user_id}{path}"
-        response = requests.get(url, params=params, timeout=self.timeout)
-        if response.status_code != 200:
-            raise GmailClientError(f"Gmail API error {response.status_code}: {response.text}")
-        return response.json()
+    def connect(self) -> None:
+        """Connect and authenticate to Gmail IMAP server."""
+        try:
+            self._connection = imaplib.IMAP4_SSL(
+                self.IMAP_SERVER, self.IMAP_PORT
+            )
+            self._connection.login(self.email_address, self.app_password)
+        except imaplib.IMAP4.error as e:
+            raise MailClientError(f"Failed to connect to Gmail: {e}")
 
-    def list_messages(self, query: str = "", max_results: int = 5) -> List[Dict[str, Any]]:
-        params: Dict[str, Any] = {"maxResults": max_results}
-        if query:
-            params["q"] = query
-        data = self._request("/messages", params)
-        return data.get("messages", [])
+    def disconnect(self) -> None:
+        """Close the IMAP connection."""
+        if self._connection:
+            try:
+                self._connection.logout()
+            except Exception:
+                pass
+            self._connection = None
 
-    def get_message(self, message_id: str, fmt: str = "full") -> GmailMessage:
-        data = self._request(f"/messages/{message_id}", {"format": fmt})
-        return GmailMessage(
-            id=data.get("id", message_id),
-            thread_id=data.get("threadId"),
-            snippet=data.get("snippet"),
-            payload=data.get("payload", {}),
+    def _decode_header_value(self, value: str) -> str:
+        """Decode email header value."""
+        if not value:
+            return ""
+        decoded_parts = decode_header(value)
+        result = []
+        for part, charset in decoded_parts:
+            if isinstance(part, bytes):
+                result.append(part.decode(charset or "utf-8", errors="replace"))
+            else:
+                result.append(part)
+        return "".join(result)
+
+    def _get_email_body(self, msg: email.message.Message) -> str:
+        """Extract plain text body from email message."""
+        if msg.is_multipart():
+            for part in msg.walk():
+                content_type = part.get_content_type()
+                if content_type == "text/plain":
+                    payload = part.get_payload(decode=True)
+                    if payload:
+                        charset = part.get_content_charset() or "utf-8"
+                        return payload.decode(charset, errors="replace")
+        else:
+            payload = msg.get_payload(decode=True)
+            if payload:
+                charset = msg.get_content_charset() or "utf-8"
+                return payload.decode(charset, errors="replace")
+        return ""
+
+    def list_messages(
+        self, 
+        folder: str = "INBOX", 
+        max_results: int = 10,
+        search_criteria: str = "ALL"
+    ) -> List[EmailMessage]:
+        """List messages from a folder.
+        
+        Args:
+            folder: Mailbox folder (INBOX, SENT, etc.)
+            max_results: Maximum number of messages to return
+            search_criteria: IMAP search criteria (ALL, UNSEEN, FROM "email", SUBJECT "text", etc.)
+        
+        Returns:
+            List of EmailMessage objects
+        """
+        if not self._connection:
+            self.connect()
+        
+        try:
+            self._connection.select(folder, readonly=True)
+            _, message_numbers = self._connection.search(None, search_criteria)
+            
+            email_ids = message_numbers[0].split()
+            # Get the latest emails (reverse order)
+            email_ids = email_ids[-max_results:][::-1]
+            
+            messages = []
+            for email_id in email_ids:
+                _, msg_data = self._connection.fetch(email_id, "(RFC822)")
+                for response_part in msg_data:
+                    if isinstance(response_part, tuple):
+                        msg = email.message_from_bytes(response_part[1])
+                        
+                        subject = self._decode_header_value(msg.get("Subject", ""))
+                        sender = self._decode_header_value(msg.get("From", ""))
+                        date = msg.get("Date", "")
+                        body = self._get_email_body(msg)
+                        snippet = body[:200] + "..." if len(body) > 200 else body
+                        
+                        messages.append(EmailMessage(
+                            id=email_id.decode(),
+                            subject=subject,
+                            sender=sender,
+                            date=date,
+                            snippet=snippet.strip(),
+                            body=body
+                        ))
+            
+            return messages
+            
+        except imaplib.IMAP4.error as e:
+            raise MailClientError(f"Failed to fetch messages: {e}")
+
+    def get_message(self, message_id: str, folder: str = "INBOX") -> Optional[EmailMessage]:
+        """Get a specific message by ID."""
+        if not self._connection:
+            self.connect()
+        
+        try:
+            self._connection.select(folder, readonly=True)
+            _, msg_data = self._connection.fetch(message_id.encode(), "(RFC822)")
+            
+            for response_part in msg_data:
+                if isinstance(response_part, tuple):
+                    msg = email.message_from_bytes(response_part[1])
+                    
+                    subject = self._decode_header_value(msg.get("Subject", ""))
+                    sender = self._decode_header_value(msg.get("From", ""))
+                    date = msg.get("Date", "")
+                    body = self._get_email_body(msg)
+                    snippet = body[:200] + "..." if len(body) > 200 else body
+                    
+                    return EmailMessage(
+                        id=message_id,
+                        subject=subject,
+                        sender=sender,
+                        date=date,
+                        snippet=snippet.strip(),
+                        body=body
+                    )
+            return None
+            
+        except imaplib.IMAP4.error as e:
+            raise MailClientError(f"Failed to get message: {e}")
+
+    def search_messages(
+        self, 
+        subject: Optional[str] = None,
+        sender: Optional[str] = None,
+        unseen_only: bool = False,
+        max_results: int = 10
+    ) -> List[EmailMessage]:
+        """Search for messages with specific criteria.
+        
+        Args:
+            subject: Search for emails with this subject
+            sender: Search for emails from this sender
+            unseen_only: Only return unread emails
+            max_results: Maximum number of results
+        
+        Returns:
+            List of matching EmailMessage objects
+        """
+        criteria_parts = []
+        
+        if unseen_only:
+            criteria_parts.append("UNSEEN")
+        if subject:
+            criteria_parts.append(f'SUBJECT "{subject}"')
+        if sender:
+            criteria_parts.append(f'FROM "{sender}"')
+        
+        search_criteria = " ".join(criteria_parts) if criteria_parts else "ALL"
+        
+        return self.list_messages(
+            folder="INBOX",
+            max_results=max_results,
+            search_criteria=search_criteria
         )
 
-    def fetch_latest(self, query: str = "") -> Optional[GmailMessage]:
-        messages = self.list_messages(query=query, max_results=1)
-        if not messages:
-            return None
-        message_id = messages[0]["id"]
-        return self.get_message(message_id)
+    def wait_for_email(
+        self,
+        subject_contains: str,
+        timeout_seconds: int = 60,
+        poll_interval: int = 5
+    ) -> Optional[EmailMessage]:
+        """Wait for an email with a specific subject to arrive.
+        
+        Args:
+            subject_contains: Text that should be in the subject
+            timeout_seconds: Maximum time to wait
+            poll_interval: Seconds between checks
+        
+        Returns:
+            EmailMessage if found, None if timeout
+        """
+        import time
+        
+        start_time = time.time()
+        while time.time() - start_time < timeout_seconds:
+            messages = self.search_messages(subject=subject_contains, max_results=5)
+            for msg in messages:
+                if subject_contains.lower() in msg.subject.lower():
+                    return msg
+            time.sleep(poll_interval)
+        
+        return None
+
+    def __enter__(self):
+        self.connect()
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.disconnect()

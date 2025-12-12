@@ -15,7 +15,6 @@ dependencies = [
     "behave>=1.2.7",
     "playwright>=1.40",
     "allure-behave>=2.13",
-    "openpyxl>=3.1",
     "python-dotenv>=1.0",
     "requests>=2.32"
 ]
