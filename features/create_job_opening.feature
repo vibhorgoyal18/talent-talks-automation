@@ -28,3 +28,11 @@ Feature: Create Job Opening
     And I add technology "Python"
     And I add technology "Pytest"
     Then the Create Job Opening button should be enabled
+
+  @ui @job @smoke
+  Scenario: Verify newly created job opening appears in job openings list
+    When I create a job opening with "python_developer" data
+    Then the job opening should be created successfully
+    When I navigate to View Job Openings page
+    Then I should see the job opening "Python Developer" in the list
+    And the job opening "Python Developer" should have status "Active"

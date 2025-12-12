@@ -8,6 +8,7 @@ from core.reporting.allure_manager import AllureManager
 from pages.login_page import LoginPage
 from pages.dashboard_page import DashboardPage
 from pages.create_job_opening_page import CreateJobOpeningPage
+from pages.view_job_openings_page import ViewJobOpeningsPage
 from features.steps.step_context import StepContext
 
 if TYPE_CHECKING:
@@ -157,3 +158,53 @@ def step_verify_create_button_enabled(context: Context):
     assert create_job_page.is_create_button_enabled(), \
         "Create Job Opening button is not enabled"
     ctx.logger.info("Create Job Opening button is enabled")
+
+
+@when("I navigate to View Job Openings page")
+def step_navigate_to_view_job_openings(context: Context):
+    """Navigate to the View Job Openings page."""
+    ctx = StepContext(context)
+    
+    view_job_page = ViewJobOpeningsPage(ctx.wrapper, ctx.base_url)
+    view_job_page.open()
+    view_job_page.wait_for_page_load()
+    
+    assert view_job_page.is_loaded(), "View Job Openings page did not load"
+    ctx.logger.info("Navigated to View Job Openings page")
+
+
+@then('I should see the job opening "{job_name}" in the list')
+def step_verify_job_in_list(context: Context, job_name: str):
+    """Verify a job opening is present in the list."""
+    ctx = StepContext(context)
+    
+    view_job_page = ViewJobOpeningsPage(ctx.wrapper, ctx.base_url)
+    
+    # Wait a moment for the list to refresh
+    ctx.wrapper.page.wait_for_timeout(1000)
+    
+    assert view_job_page.is_job_opening_present(job_name), \
+        f"Job opening '{job_name}' not found in the list"
+    
+    ctx.logger.info(f"Job opening '{job_name}' found in the list")
+    AllureManager.attach_screenshot(ctx.wrapper, "Job Opening List")
+
+
+@then('the job opening "{job_name}" should have status "{expected_status}"')
+def step_verify_job_status(context: Context, job_name: str, expected_status: str):
+    """Verify a job opening has the expected status."""
+    ctx = StepContext(context)
+    
+    view_job_page = ViewJobOpeningsPage(ctx.wrapper, ctx.base_url)
+    
+    actual_status = view_job_page.get_job_opening_status(job_name)
+    
+    assert actual_status is not None, \
+        f"Could not find status for job opening '{job_name}'"
+    
+    # Normalize status comparison (case-insensitive)
+    assert actual_status.upper() == expected_status.upper(), \
+        f"Expected status '{expected_status}' but got '{actual_status}' for job '{job_name}'"
+    
+    ctx.logger.info(f"Job opening '{job_name}' has correct status: {expected_status}")
+    AllureManager.attach_text("Job Opening Status", f"{job_name}: {actual_status}")
