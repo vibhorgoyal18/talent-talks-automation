@@ -1,0 +1,187 @@
+USING RUNNER: behave.runner:Runner
+Feature: Create Job Opening # features/create_job_opening.feature:1
+  As an HR manager
+  I want to create new job openings
+  So that I can start the recruitment process for positions2025-12-13 18:05:12,058 - INFO - talent-talks-automation - Starting scenario: Create job opening and verify it appears in the list -- @1.1 
+
+  @ui @job @smoke @e2e
+  Scenario Outline: Create job opening and verify it appears in the list -- @1.1             # features/create_job_opening.feature:21
+    Given I am logged in as a valid user                                                     # features/steps/create_job_opening_steps.py:20
+2025-12-13 18:05:16,162 - INFO - talent-talks-automation - Successfully logged in as valid user
+    And I navigate to the Create Job Opening page                                            # features/steps/create_job_opening_steps.py:39
+2025-12-13 18:05:16,226 - INFO - talent-talks-automation - Navigated to Create Job Opening page
+    When I create a job opening with "python_developer" data                                 # features/steps/create_job_opening_steps.py:52
+2025-12-13 18:05:16,365 - INFO - talent-talks-automation - Created job opening: Python Developer - 20251213_180516
+    Then the job opening should be created successfully                                      # features/steps/create_job_opening_steps.py:82
+2025-12-13 18:05:21,368 - INFO - talent-talks-automation - No success message, waiting for redirect: Success message not displayed after creating job
+2025-12-13 18:05:21,370 - INFO - talent-talks-automation - Redirected to: https://talenttalks.vlinkinfo.com/templates
+2025-12-13 18:05:21,371 - INFO - talent-talks-automation - Job created and redirected to job listings
+    When I navigate to View Job Openings page                                                # features/steps/create_job_opening_steps.py:188
+2025-12-13 18:05:21,371 - INFO - talent-talks-automation - Current URL before navigation: https://talenttalks.vlinkinfo.com/templates
+2025-12-13 18:05:21,371 - INFO - talent-talks-automation - Already on templates page, reloading for fresh data
+2025-12-13 18:05:22,728 - INFO - talent-talks-automation - Navigated to View Job Openings page
+    Then I should see the job opening "Python Developer" in the list                         # features/steps/create_job_opening_steps.py:217
+2025-12-13 18:05:22,733 - INFO - talent-talks-automation - Job opening 'Python Developer - 20251213_180516' found in the list
+    And the job opening "Python Developer" should have status "Active"                       # features/steps/create_job_opening_steps.py:234
+2025-12-13 18:05:22,821 - INFO - talent-talks-automation - Job opening 'Python Developer - 20251213_180516' has correct status: Active
+    When I schedule an interview for the job opening with "python_developer" candidate data  # features/steps/create_job_opening_steps.py:257
+2025-12-13 18:05:23,206 - INFO - talent-talks-automation - Schedule Interview page loaded
+      Traceback (most recent call last):
+        File "/Users/vibhorgoyal/PersonalWorkspace/talent-talks-automation/.venv/lib/python3.13/site-packages/behave/model.py", line 1991, in run
+          match.run(runner.context)
+          ~~~~~~~~~^^^^^^^^^^^^^^^^
+        File "/Users/vibhorgoyal/PersonalWorkspace/talent-talks-automation/.venv/lib/python3.13/site-packages/behave/matchers.py", line 105, in run
+          self.func(context, *args, **kwargs)
+          ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+        File "features/steps/create_job_opening_steps.py", line 285, in step_schedule_interview_with_candidate
+          schedule_page.schedule_interview(
+          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+              job_name=job_name,
+              ^^^^^^^^^^^^^^^^^^
+          ...<3 lines>...
+              interview_time=interview_time
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+          )
+          ^
+        File "/Users/vibhorgoyal/PersonalWorkspace/talent-talks-automation/pages/schedule_interview_page.py", line 94, in schedule_interview
+          self.select_interview_date(interview_date)
+          ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+        File "/Users/vibhorgoyal/PersonalWorkspace/talent-talks-automation/pages/schedule_interview_page.py", line 68, in select_interview_date
+          self.wrapper.type_text(self.INTERVIEW_DATE_INPUT, date)
+          ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        File "/Users/vibhorgoyal/PersonalWorkspace/talent-talks-automation/core/web/playwright_wrapper.py", line 24, in type_text
+          self.page.fill(selector, text, timeout=self.timeout)
+          ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        File "/Users/vibhorgoyal/PersonalWorkspace/talent-talks-automation/.venv/lib/python3.13/site-packages/playwright/sync_api/_generated.py", line 10142, in fill
+          self._sync(
+          ~~~~~~~~~~^
+              self._impl_obj.fill(
+              ^^^^^^^^^^^^^^^^^^^^
+          ...<6 lines>...
+              )
+              ^
+          )
+          ^
+        File "/Users/vibhorgoyal/PersonalWorkspace/talent-talks-automation/.venv/lib/python3.13/site-packages/playwright/_impl/_sync_base.py", line 115, in _sync
+          return task.result()
+                 ~~~~~~~~~~~^^
+        File "/Users/vibhorgoyal/PersonalWorkspace/talent-talks-automation/.venv/lib/python3.13/site-packages/playwright/_impl/_page.py", line 896, in fill
+          return await self._main_frame.fill(**locals_to_params(locals()))
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        File "/Users/vibhorgoyal/PersonalWorkspace/talent-talks-automation/.venv/lib/python3.13/site-packages/playwright/_impl/_frame.py", line 590, in fill
+          await self._fill(**locals_to_params(locals()))
+        File "/Users/vibhorgoyal/PersonalWorkspace/talent-talks-automation/.venv/lib/python3.13/site-packages/playwright/_impl/_frame.py", line 602, in _fill
+          await self._channel.send("fill", self._timeout, locals_to_params(locals()))
+        File "/Users/vibhorgoyal/PersonalWorkspace/talent-talks-automation/.venv/lib/python3.13/site-packages/playwright/_impl/_connection.py", line 69, in send
+          return await self._connection.wrap_api_call(
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+          ...<3 lines>...
+          )
+          ^
+        File "/Users/vibhorgoyal/PersonalWorkspace/talent-talks-automation/.venv/lib/python3.13/site-packages/playwright/_impl/_connection.py", line 559, in wrap_api_call
+          raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+      playwright._impl._errors.Error: Page.fill: Error: Malformed value
+      Call log:
+        - waiting for locator("role=textbox[name='Interview Date']")
+          - locator resolved to <input value="" id=":rc:" required="" type="date" aria-invalid="false" name="interviewDate" class="MuiInputBase-input MuiOutlinedInput-input css-fkazb1"/>
+          - fill("12/14/2025")
+        - attempting fill action
+          - waiting for element to be visible, enabled and editable
+
+2025-12-13 18:05:23,822 - INFO - talent-talks-automation - Finished scenario: Create job opening and verify it appears in the list -- @1.1  - Status: Status.error
+    Then the interview should be scheduled successfully                                      # None
+    And the interview invitation email should be sent to "vibhorgoyal.talenttalks@gmail.com" # None
+2025-12-13 18:05:24,908 - INFO - talent-talks-automation - Starting scenario: Create job opening and verify it appears in the list -- @1.2 
+
+  @ui @job @smoke @e2e
+  Scenario Outline: Create job opening and verify it appears in the list -- @1.2             # features/create_job_opening.feature:22
+    Given I am logged in as a valid user                                                     # features/steps/create_job_opening_steps.py:20
+2025-12-13 18:05:28,830 - INFO - talent-talks-automation - Successfully logged in as valid user
+    And I navigate to the Create Job Opening page                                            # features/steps/create_job_opening_steps.py:39
+2025-12-13 18:05:28,891 - INFO - talent-talks-automation - Navigated to Create Job Opening page
+    When I create a job opening with "java_developer" data                                   # features/steps/create_job_opening_steps.py:52
+2025-12-13 18:05:29,016 - INFO - talent-talks-automation - Created job opening: Java Developer - 20251213_180528
+    Then the job opening should be created successfully                                      # features/steps/create_job_opening_steps.py:82
+2025-12-13 18:05:34,022 - INFO - talent-talks-automation - No success message, waiting for redirect: Success message not displayed after creating job
+2025-12-13 18:05:34,026 - INFO - talent-talks-automation - Redirected to: https://talenttalks.vlinkinfo.com/templates
+2025-12-13 18:05:34,029 - INFO - talent-talks-automation - Job created and redirected to job listings
+    When I navigate to View Job Openings page                                                # features/steps/create_job_opening_steps.py:188
+2025-12-13 18:05:34,029 - INFO - talent-talks-automation - Current URL before navigation: https://talenttalks.vlinkinfo.com/templates
+2025-12-13 18:05:34,029 - INFO - talent-talks-automation - Already on templates page, reloading for fresh data
+2025-12-13 18:05:35,434 - INFO - talent-talks-automation - Navigated to View Job Openings page
+    Then I should see the job opening "Java Developer" in the list                           # features/steps/create_job_opening_steps.py:217
+2025-12-13 18:05:35,440 - INFO - talent-talks-automation - Job opening 'Java Developer - 20251213_180528' found in the list
+    And the job opening "Java Developer" should have status "Active"                         # features/steps/create_job_opening_steps.py:234
+2025-12-13 18:05:35,523 - INFO - talent-talks-automation - Job opening 'Java Developer - 20251213_180528' has correct status: Active
+    When I schedule an interview for the job opening with "java_developer" candidate data    # features/steps/create_job_opening_steps.py:257
+2025-12-13 18:05:35,873 - INFO - talent-talks-automation - Schedule Interview page loaded
+      Traceback (most recent call last):
+        File "/Users/vibhorgoyal/PersonalWorkspace/talent-talks-automation/.venv/lib/python3.13/site-packages/behave/model.py", line 1991, in run
+          match.run(runner.context)
+          ~~~~~~~~~^^^^^^^^^^^^^^^^
+        File "/Users/vibhorgoyal/PersonalWorkspace/talent-talks-automation/.venv/lib/python3.13/site-packages/behave/matchers.py", line 105, in run
+          self.func(context, *args, **kwargs)
+          ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+        File "features/steps/create_job_opening_steps.py", line 285, in step_schedule_interview_with_candidate
+          schedule_page.schedule_interview(
+          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+              job_name=job_name,
+              ^^^^^^^^^^^^^^^^^^
+          ...<3 lines>...
+              interview_time=interview_time
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+          )
+          ^
+        File "/Users/vibhorgoyal/PersonalWorkspace/talent-talks-automation/pages/schedule_interview_page.py", line 94, in schedule_interview
+          self.select_interview_date(interview_date)
+          ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+        File "/Users/vibhorgoyal/PersonalWorkspace/talent-talks-automation/pages/schedule_interview_page.py", line 68, in select_interview_date
+          self.wrapper.type_text(self.INTERVIEW_DATE_INPUT, date)
+          ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        File "/Users/vibhorgoyal/PersonalWorkspace/talent-talks-automation/core/web/playwright_wrapper.py", line 24, in type_text
+          self.page.fill(selector, text, timeout=self.timeout)
+          ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        File "/Users/vibhorgoyal/PersonalWorkspace/talent-talks-automation/.venv/lib/python3.13/site-packages/playwright/sync_api/_generated.py", line 10142, in fill
+          self._sync(
+          ~~~~~~~~~~^
+              self._impl_obj.fill(
+              ^^^^^^^^^^^^^^^^^^^^
+          ...<6 lines>...
+              )
+              ^
+          )
+          ^
+        File "/Users/vibhorgoyal/PersonalWorkspace/talent-talks-automation/.venv/lib/python3.13/site-packages/playwright/_impl/_sync_base.py", line 115, in _sync
+          return task.result()
+                 ~~~~~~~~~~~^^
+        File "/Users/vibhorgoyal/PersonalWorkspace/talent-talks-automation/.venv/lib/python3.13/site-packages/playwright/_impl/_page.py", line 896, in fill
+          return await self._main_frame.fill(**locals_to_params(locals()))
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        File "/Users/vibhorgoyal/PersonalWorkspace/talent-talks-automation/.venv/lib/python3.13/site-packages/playwright/_impl/_frame.py", line 590, in fill
+          await self._fill(**locals_to_params(locals()))
+        File "/Users/vibhorgoyal/PersonalWorkspace/talent-talks-automation/.venv/lib/python3.13/site-packages/playwright/_impl/_frame.py", line 602, in _fill
+          await self._channel.send("fill", self._timeout, locals_to_params(locals()))
+        File "/Users/vibhorgoyal/PersonalWorkspace/talent-talks-automation/.venv/lib/python3.13/site-packages/playwright/_impl/_connection.py", line 69, in send
+          return await self._connection.wrap_api_call(
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+          ...<3 lines>...
+          )
+          ^
+        File "/Users/vibhorgoyal/PersonalWorkspace/talent-talks-automation/.venv/lib/python3.13/site-packages/playwright/_impl/_connection.py", line 559, in wrap_api_call
+          raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+      playwright._impl._errors.Error: Page.fill: Error: Malformed value
+      Call log:
+        - waiting for locator("role=textbox[name='Interview Date']")
+          - locator resolved to <input value="" id=":rc:" required="" type="date" aria-invalid="false" name="interviewDate" class="MuiInputBase-input MuiOutlinedInput-input css-fkazb1"/>
+          - fill("12/14/2025")
+        - attempting fill action
+          - waiting for element to be visible, enabled and editable
+
+2025-12-13 18:05:36,494 - INFO - talent-talks-automation - Finished scenario: Create job opening and verify it appears in the list -- @1.2  - Status: Status.error
+    Then the interview should be scheduled successfully                                      # None
+    And the interview invitation email should be sent to "vibhorgoyal.talenttalks@gmail.com" # None
+2025-12-13 18:05:37,308 - INFO - talent-talks-automation - Starting scenario: Create job opening and verify it appears in the list -- @1.3 
+
+  @ui @job @smoke @e2e
+  Scenario Outline: Create job opening and verify it appears in the list -- @1.3              # features/create_job_opening.feature:23
+    Given I am logged in as a valid user                                                      # features/steps/create_job_opening_steps.py:20

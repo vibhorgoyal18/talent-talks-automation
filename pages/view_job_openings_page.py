@@ -22,7 +22,7 @@ class ViewJobOpeningsPage:
     CLOSED_TAB = "role=button[name='Closed']"
 
     # Search and filters
-    SEARCH_INPUT = "role=textbox[name='Search job openings']"
+    SEARCH_INPUT = "role=textbox[name='Search by Job Opening name, description, tech stack, or created date...']"
     FILTER_BUTTON = "role=button[name='Filter']"
 
     # Table
@@ -61,23 +61,26 @@ class ViewJobOpeningsPage:
             job_name: Name of the job opening
             
         Returns:
-            Status string (ACTIVE, IN-ACTIVE, ON-HOLD, CLOSED) or None if not found
+            Status string (ACTIVE, INACTIVE, ON-HOLD, CLOSED) or None if not found
         """
-        # First, ensure the job opening exists
-        if not self.is_job_opening_present(job_name):
-            return None
-        
         try:
-            # Find the row containing the job name
-            # The status is in a combobox in the Status column
-            row_locator = self.wrapper.page.locator(f"role=row:has(role=heading[name='{job_name}'])")
-            if row_locator.count() == 0:
+            # Find all rows
+            all_rows = self.wrapper.page.locator("role=row")
+            
+            # Filter to find the row containing the specific job name heading
+            job_row = all_rows.filter(has=self.wrapper.page.locator(f"role=heading[name='{job_name}']"))
+            
+            if job_row.count() == 0:
                 return None
             
+            # Get the first matching row (or last if multiple)
+            row_to_use = job_row.last if job_row.count() > 1 else job_row.first
+            
             # Get the status combobox from that row
-            status_cell = row_locator.locator("role=cell >> role=combobox").first
-            if status_cell.count() > 0:
-                status_text = status_cell.inner_text()
+            status_locator = row_to_use.locator("role=combobox")
+            
+            if status_locator.count() > 0:
+                status_text = status_locator.first.inner_text()
                 return status_text.strip()
             
             return None

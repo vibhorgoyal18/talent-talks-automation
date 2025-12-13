@@ -12,6 +12,9 @@ Feature: Create Job Opening
     When I navigate to View Job Openings page
     Then I should see the job opening "<job_name>" in the list
     And the job opening "<job_name>" should have status "Active"
+    When I schedule an interview for the job opening with "<scenario>" candidate data
+    Then the interview should be scheduled successfully
+    And the interview invitation email should be sent to "vibhorgoyal.talenttalks@gmail.com"
 
     Examples:
       | scenario           | job_name           |

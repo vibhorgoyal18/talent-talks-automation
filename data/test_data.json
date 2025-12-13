@@ -18,10 +18,10 @@
       "job_description": "Looking for an experienced Python developer with Django and FastAPI skills",
       "interview_duration": 30,
       "enable_resume_evaluation": true,
-      "resume_evaluation_percentage": 40,
-      "enable_code_evaluation": true,
-      "programming_language": "Python",
-      "tech_stack": ["Python", "Django", "FastAPI", "PostgreSQL"]
+      "resume_evaluation_percentage": 100,
+      "enable_code_evaluation": false,
+      "programming_language": "",
+      "tech_stack": []
     },
     {
       "scenario": "java_developer",
@@ -29,10 +29,10 @@
       "job_description": "Senior Java developer with Spring Boot and microservices experience",
       "interview_duration": 45,
       "enable_resume_evaluation": true,
-      "resume_evaluation_percentage": 30,
-      "enable_code_evaluation": true,
-      "programming_language": "Java",
-      "tech_stack": ["Java", "Spring Boot", "Kubernetes", "AWS"]
+      "resume_evaluation_percentage": 100,
+      "enable_code_evaluation": false,
+      "programming_language": "",
+      "tech_stack": []
     },
     {
       "scenario": "frontend_developer",
@@ -40,10 +40,30 @@
       "job_description": "React developer with TypeScript and modern frontend experience",
       "interview_duration": 30,
       "enable_resume_evaluation": true,
-      "resume_evaluation_percentage": 50,
-      "enable_code_evaluation": true,
-      "programming_language": "Javascript",
-      "tech_stack": ["React", "TypeScript", "Next.js", "Tailwind CSS"]
+      "resume_evaluation_percentage": 100,
+      "enable_code_evaluation": false,
+      "programming_language": "",
+      "tech_stack": []
+    }
+  ],
+  "candidate_data": [
+    {
+      "scenario": "python_developer",
+      "candidate_name": "Test Candidate Python",
+      "candidate_email": "vibhorgoyal.talenttalks@gmail.com",
+      "candidate_phone": "+919876543210"
+    },
+    {
+      "scenario": "java_developer",
+      "candidate_name": "Test Candidate Java",
+      "candidate_email": "vibhorgoyal.talenttalks@gmail.com",
+      "candidate_phone": "+919876543211"
+    },
+    {
+      "scenario": "frontend_developer",
+      "candidate_name": "Test Candidate Frontend",
+      "candidate_email": "vibhorgoyal.talenttalks@gmail.com",
+      "candidate_phone": "+919876543212"
     }
   ],
   "search_data": [
