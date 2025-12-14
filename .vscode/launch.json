@@ -1,0 +1,39 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Debug Behave Tests",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "behave",
+      "args": ["features/login.feature", "--no-capture"],
+      "console": "integratedTerminal",
+      "env": {
+        "PWDEBUG": "1"
+      }
+    },
+    {
+      "name": "Debug Behave (Headed)",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "behave",
+      "args": ["${file}", "--no-capture"],
+      "console": "integratedTerminal",
+      "env": {
+        "DEFAULT__HEADLESS": "false",
+        "DEFAULT__SLOW_MO": "500"
+      }
+    },
+    {
+      "name": "Debug Current Feature",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "behave",
+      "args": ["${file}", "--no-capture"],
+      "console": "integratedTerminal",
+      "env": {
+        "PWDEBUG": "1"
+      }
+    }
+  ]
+}

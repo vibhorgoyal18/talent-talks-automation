@@ -1,0 +1,55 @@
+{
+    // Cucumber/Gherkin autocomplete settings for step navigation
+    "cucumberautocomplete.steps": [
+        "features/steps/**/*.py",
+        "features/steps/*.py"
+    ],
+    "cucumberautocomplete.syncfeatures": "features/**/*.feature",
+    "cucumberautocomplete.strictGherkinCompletion": false,
+    "cucumberautocomplete.strictGherkinValidation": false,
+    "cucumberautocomplete.smartSnippets": true,
+    "cucumberautocomplete.stepsInvariants": true,
+    "cucumberautocomplete.customParameters": [
+        {
+            "parameter": "\"([^\"]*)\"",
+            "value": "\"([^\"]*)\""
+        },
+        {
+            "parameter": "'([^']*)'",
+            "value": "'([^']*)'"
+        },
+        {
+            "parameter": "{[^}]+}",
+            "value": ".*"
+        }
+    ],
+    "cucumberautocomplete.skipDocStringsFormat": true,
+    "cucumberautocomplete.gherkinDefinitionPart": "@(given|when|then|step)\\(",
+    "cucumberautocomplete.stepRegExSymbol": "['\"]",
+    
+    // Enable definition provider for feature files
+    "cucumberautocomplete.formatConfOverride": {
+        "And": 3,
+        "But": "relative",
+        "Given": 1,
+        "Then": 3,
+        "When": 2
+    },
+    
+    // Python settings
+    "python.analysis.extraPaths": [
+        "${workspaceFolder}",
+        "${workspaceFolder}/features/steps"
+    ],
+    "python.analysis.typeCheckingMode": "off",
+    
+    // BDD Goto Step settings
+    "bddGotoStep.featureGlob": "**/*.feature",
+    "bddGotoStep.stepGlob": "features/steps/**/*.py",
+    "bddGotoStep.stepPattern": "@(given|when|then|step)\\s*\\(['\"](.+)['\"]\\)",
+    
+    // File associations
+    "files.associations": {
+        "*.feature": "feature"
+    }
+}
