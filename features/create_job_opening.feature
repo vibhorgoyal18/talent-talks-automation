@@ -31,6 +31,7 @@ Feature: Create Job Opening
     And I fill in "Candidate Email" with value from scenario "candidate_email"
     And I fill in "Interview Date" with tomorrow's date
     And I fill in "Interview Time" with "10:00"
+    And I upload the file from "cv_file" to "Select CV File"
     And I click the "Schedule Interview" button
     And I wait for 2 seconds
     Then the interview invitation email should be sent to "vibhorgoyal.talenttalks@gmail.com"

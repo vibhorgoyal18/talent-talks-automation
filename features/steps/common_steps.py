@@ -107,6 +107,38 @@ def step_click_button(context: Context, button_name: str):
     ctx.logger.info(f"Clicked button: '{button_name}'")
 
 
+@when('I upload the file from "{context_key}" to "{button_label}"')
+def step_upload_file(context: Context, context_key: str, button_label: str):
+    """Upload a file by clicking a button and providing the file path from context."""
+    ctx = StepContext(context)
+    
+    # Get the file path from context.current_scenario_data
+    file_path = context.current_scenario_data.get(context_key)
+    if not file_path:
+        raise ValueError(f"File path for '{context_key}' not found in context")
+    
+    # Convert relative path to absolute path
+    import os
+    if not os.path.isabs(file_path):
+        file_path = os.path.abspath(file_path)
+    
+    if not os.path.exists(file_path):
+        raise FileNotFoundError(f"File not found: {file_path}")
+    
+    # Find the file input associated with the button
+    # The button is typically a wrapper around an actual file input
+    button_selector = f"role=button[name='{button_label}']"
+    
+    # Use Playwright's file chooser API
+    # First, set up the file chooser handler
+    ctx.wrapper.page.on("filechooser", lambda file_chooser: file_chooser.set_files(file_path))
+    
+    # Click the button to trigger the file chooser
+    ctx.wrapper.click(button_selector)
+    
+    ctx.logger.info(f"Uploaded file '{file_path}' using button '{button_label}'")
+
+
 @then('I should see the "{text}" message')
 def step_verify_message(context: Context, text: str):
     """Verify that a specific message is visible on the page."""

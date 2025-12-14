@@ -1,0 +1,19 @@
+TEST CANDIDATE RESUME
+=====================
+
+Contact Information:
+Email: test@example.com
+Phone: +1234567890
+
+Professional Experience:
+- Software Engineer at Tech Company (2020-2023)
+- Worked on automation testing frameworks
+- Python, Selenium, Playwright expertise
+
+Skills:
+- Programming: Python, JavaScript, Java
+- Testing: Selenium, Playwright, Behave BDD
+- Tools: Git, Docker, CI/CD
+
+Education:
+- Bachelor's in Computer Science
