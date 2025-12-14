@@ -39,7 +39,7 @@ Feature: Create Job Opening
     
     # Verify Interview in View Interviews Page
     When I navigate to View Interviews page
-    Then I should see the interview stored in context in the list
+    Then I should see the recently created interview
     
     # Email Verification - Verify Interview Link
     Given I connect to Gmail inbox

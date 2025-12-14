@@ -505,9 +505,9 @@ def step_verify_interview_in_list(context: Context, candidate_name: str):
     AllureManager.attach_screenshot(ctx.wrapper, "Interview List")
 
 
-@then("I should see the interview stored in context in the list")
-def step_verify_interview_from_context(context: Context):
-    """Verify the scheduled interview is present in the list using data from context."""
+@then("I should see the recently created interview")
+def step_verify_recently_created_interview(context: Context):
+    """Verify the recently scheduled interview is present in the list using data from context."""
     ctx = StepContext(context)
     
     # Get candidate name from context
