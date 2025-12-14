@@ -9,14 +9,14 @@ Feature: Create Job Opening # features/create_job_opening.feature:1
     When I load job opening data for "python_developer"                                       # features/steps/create_job_opening_steps.py:52
     And I fill in "Job Opening Name" with value from scenario "job_name"                      # features/steps/common_steps.py:35
     And I fill in "Enter or paste job description" with value from scenario "job_description" # features/steps/common_steps.py:35
-    And I set "Interview Duration (minutes)" to 30                                            # features/steps/common_steps.py:181
-    And I check the "Enable Resume Evaluation" checkbox                                       # features/steps/common_steps.py:191
-    And I set "Resume Evaluation Percentage" to 100                                           # features/steps/common_steps.py:181
+    And I set "Interview Duration (minutes)" to 30                                            # features/steps/common_steps.py:187
+    And I check the "Enable Resume Evaluation" checkbox                                       # features/steps/common_steps.py:197
+    And I set "Resume Evaluation Percentage" to 100                                           # features/steps/common_steps.py:187
     And I click the "Create Job Opening" button                                               # features/steps/common_steps.py:92
-    And I wait for 2 seconds                                                                  # features/steps/common_steps.py:164
+    And I wait for 2 seconds                                                                  # features/steps/common_steps.py:170
     When I navigate to View Job Openings page                                                 # features/steps/create_job_opening_steps.py:221
-    Then I should see the item stored as "created_job_name" in the list                       # features/steps/common_steps.py:251
-    And the item stored as "created_job_name" should have status "Active"                     # features/steps/common_steps.py:268
+    Then I should see the item stored as "created_job_name" in the list                       # features/steps/common_steps.py:257
+    And the item stored as "created_job_name" should have status "Active"                     # features/steps/common_steps.py:274
     When I load candidate data for "python_developer"                                         # features/steps/create_job_opening_steps.py:294
     And I navigate to "/interviews/new" page                                                  # features/steps/common_steps.py:15
     And I select from "Select Job Opening" the value stored as "created_job_name"             # features/steps/common_steps.py:69
@@ -26,3 +26,12 @@ Feature: Create Job Opening # features/create_job_opening.feature:1
     And I fill in "Interview Time" with "10:00"                                               # features/steps/common_steps.py:24
     And I upload the file from "cv_file" to "Select CV File"                                  # features/steps/common_steps.py:110
     And I click the "Schedule Interview" button                                               # features/steps/common_steps.py:92
+    And I wait for 2 seconds                                                                  # features/steps/common_steps.py:170
+    Given I connect to Gmail inbox                                                            # features/steps/email_steps.py:9
+    When I wait for email with subject containing "Interview Invitation" for 60 seconds       # features/steps/email_steps.py:89
+    Then the email should be received                                                         # features/steps/email_steps.py:112
+      ASSERT FAILED: Email was not received
+
+    And the email should contain interview link                                               # None
+    And the email should be sent to "vibhorgoyal.talenttalks@gmail.com"                       # None
+
