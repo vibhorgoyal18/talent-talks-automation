@@ -12,9 +12,18 @@ Feature: Create Job Opening
     When I navigate to View Job Openings page
     Then I should see the job opening "<job_name>" in the list
     And the job opening "<job_name>" should have status "Active"
-    When I schedule an interview for the job opening with "<scenario>" candidate data
-    Then the interview should be scheduled successfully
-    And the interview invitation email should be sent to "vibhorgoyal.talenttalks@gmail.com"
+    
+    # Schedule Interview - Granular Steps
+    When I load candidate data for "<scenario>"
+    And I navigate to "/interviews/new" page
+    And I select from "Select Job Opening" the value stored as "created_job_name"
+    And I fill in "Candidate Name" with value from scenario "candidate_name"
+    And I fill in "Candidate Email" with value from scenario "candidate_email"
+    And I fill in "Interview Date" with tomorrow's date
+    And I fill in "Interview Time" with "10:00"
+    And I click the "Schedule Interview" button
+    And I wait for 2 seconds
+    Then the interview invitation email should be sent to "vibhorgoyal.talenttalks@gmail.com"
 
     Examples:
       | scenario           | job_name           |

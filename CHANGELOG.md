@@ -5,6 +5,13 @@ All notable changes and fixes to this project will be documented in this file.
 ## [Unreleased]
 
 ### Added
+- **2025-12-14**: Created generic, reusable step definitions in `common_steps.py`
+  - Generic steps for filling input fields by label: `I fill in "{field_label}" with "{value}"`
+  - Generic steps for selecting from dropdowns: `I select "{option}" from "{dropdown_label}"`
+  - Generic button click step: `I click the "{button_name}" button`
+  - Generic navigation step: `I navigate to "{page_path}" page`
+  - Steps for using context/scenario data in fields
+  - More atomic, BDD-compliant approach with separate step for each action
 - **2025-12-13**: Extended E2E scenario with interview scheduling functionality
   - Created `ScheduleInterviewPage` page object for interview scheduling form
   - Added step definitions for scheduling interviews and email verification
@@ -13,6 +20,11 @@ All notable changes and fixes to this project will be documented in this file.
   - All interview invitations sent to: vibhorgoyal.talenttalks@gmail.com
 
 ### Changed
+- **2025-12-14**: Refactored interview scheduling steps to be more granular and reusable
+  - Replaced monolithic `I schedule an interview...` step with 8 atomic steps
+  - Each field fill, dropdown select, and button click is now a separate step
+  - Steps accept field labels/button names directly in Gherkin for better readability
+  - Old monolithic step marked as DEPRECATED but kept for backward compatibility
 - **2025-12-12**: Implemented timestamp-based unique job names to avoid duplicate verification issues
   - Job names now include timestamp: "Job Name - YYYYMMDD_HHMMSS"
   - Updated verification steps to use unique names stored in context

@@ -254,9 +254,44 @@ def step_verify_job_status(context: Context, job_name: str, expected_status: str
     AllureManager.attach_text("Job Opening Status", f"{actual_job_name}: {actual_status}")
 
 
+@when('I load candidate data for "{scenario}"')
+def step_load_candidate_data(context: Context, scenario: str):
+    """Load candidate data from test data and store in context."""
+    ctx = StepContext(context)
+    
+    # Load candidate data
+    candidate_data = ctx.data_loader.find_by_key("candidate_data", "scenario", scenario)
+    
+    # Store in context for use by generic steps
+    context.current_scenario_data = candidate_data
+    context.candidate_email = candidate_data["candidate_email"]
+    
+    ctx.logger.info(f"Loaded candidate data for scenario: {scenario}")
+    ctx.logger.info(f"Candidate: {candidate_data['candidate_name']}, Email: {candidate_data['candidate_email']}")
+
+
+@when('I fill in "{field_label}" with tomorrow\'s date')
+def step_fill_in_tomorrows_date(context: Context, field_label: str):
+    """Fill in a date field with tomorrow's date in YYYY-MM-DD format."""
+    ctx = StepContext(context)
+    
+    from datetime import datetime, timedelta
+    tomorrow = datetime.now() + timedelta(days=1)
+    date_value = tomorrow.strftime("%Y-%m-%d")
+    
+    selector = f"role=textbox[name='{field_label}']"
+    ctx.wrapper.type_text(selector, date_value)
+    ctx.logger.info(f"Filled in '{field_label}' with tomorrow's date: {date_value}")
+
+
 @when('I schedule an interview for the job opening with "{scenario}" candidate data')
 def step_schedule_interview_with_candidate(context: Context, scenario: str):
-    """Schedule an interview using candidate data from JSON file."""
+    """
+    DEPRECATED: Monolithic step - kept for backward compatibility.
+    Use granular steps instead (load data, navigate, fill fields, click button).
+    
+    Schedule an interview using candidate data from JSON file.
+    """
     ctx = StepContext(context)
     
     # Load candidate data
