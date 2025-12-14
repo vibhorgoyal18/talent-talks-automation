@@ -27,11 +27,3 @@ Feature: Create Job Opening # features/create_job_opening.feature:1
     And I upload the file from "cv_file" to "Select CV File"                                  # features/steps/common_steps.py:110
     And I upload the file from "photo_file" to "Select Image"                                 # features/steps/common_steps.py:110
     And I click the "Schedule Interview" button                                               # features/steps/common_steps.py:92
-    Then the interview should be scheduled successfully                                       # features/steps/create_job_opening_steps.py:379
-    And I wait for 3 seconds                                                                  # None
-    Given I connect to Gmail inbox                                                            # None
-    When I wait for email with subject containing "Interview Invitation" for 60 seconds       # None
-    Then the email should be received                                                         # None
-    And the email should contain interview link                                               # None
-    And the email should be sent to "vibhorgoyal.talenttalks@gmail.com"                       # None
-

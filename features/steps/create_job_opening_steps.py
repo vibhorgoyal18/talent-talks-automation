@@ -391,6 +391,13 @@ def step_verify_interview_scheduled(context: Context):
         toast_message = schedule_page.get_toast_message()
         ctx.logger.info(f"Success toast displayed: {toast_message}")
         AllureManager.attach_text("Success Toast", toast_message)
+        
+        # Verify the expected message
+        expected_message = "Interview scheduled successfully"
+        assert expected_message.lower() in toast_message.lower(), \
+            f"Expected toast message '{expected_message}' but got '{toast_message}'"
+        ctx.logger.info(f"Verified toast message: {expected_message}")
+        
     elif schedule_page.is_error_toast_displayed():
         error_message = schedule_page.get_toast_message()
         AllureManager.attach_screenshot(ctx.wrapper, "Error Toast")
@@ -404,7 +411,7 @@ def step_verify_interview_scheduled(context: Context):
             ctx.logger.info("Navigated away from schedule page - interview likely scheduled")
         else:
             AllureManager.attach_screenshot(ctx.wrapper, "No Success Indicator")
-            ctx.logger.warning("No success toast displayed and still on schedule page")
+            raise AssertionError("No success toast displayed and still on schedule page")
     
     # Store that we attempted to schedule
     ctx.logger.info("Interview scheduling step completed")
