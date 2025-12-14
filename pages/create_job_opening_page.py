@@ -36,7 +36,7 @@ class CreateJobOpeningPage:
 
     # Actions
     CANCEL_BUTTON = "role=button[name='Cancel']"
-    CREATE_JOB_BUTTON = "role=button[name='Create Job Opening']"
+    CREATE_JOB_BUTTON = "form >> role=button[name='Create Job Opening']"
 
     # Success/Error messages
     SUCCESS_MESSAGE = "[role='alert']"
@@ -128,6 +128,14 @@ class CreateJobOpeningPage:
 
     def click_create_job_opening(self) -> None:
         """Click the Create Job Opening button."""
+        # Wait for button to be enabled
+        locator = self.wrapper.locator(self.CREATE_JOB_BUTTON)
+        locator.wait_for(state="visible", timeout=5000)
+        
+        # Check if button is enabled
+        if not locator.is_enabled():
+            raise Exception("Create Job Opening button is disabled - check allocation percentages")
+        
         self.wrapper.click(self.CREATE_JOB_BUTTON)
 
     def is_create_button_enabled(self) -> bool:

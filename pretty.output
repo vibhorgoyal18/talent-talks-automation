@@ -2,71 +2,42 @@ Feature: Create Job Opening # features/create_job_opening.feature:1
   As an HR manager
   I want to create new job openings
   So that I can start the recruitment process for positions
-  Feature: Create Job Opening  # features/create_job_opening.feature:1
+  @ui @job @smoke @e2e
+  Scenario Outline: Create job opening and verify it appears in the list -- @1.1             # features/create_job_opening.feature:21
+    Given I am logged in as a valid user                                                     # features/steps/create_job_opening_steps.py:20
+    And I navigate to the Create Job Opening page                                            # features/steps/create_job_opening_steps.py:39
+    When I create a job opening with "python_developer" data                                 # features/steps/create_job_opening_steps.py:52
+    Then the job opening should be created successfully                                      # features/steps/create_job_opening_steps.py:82
+    When I navigate to View Job Openings page                                                # features/steps/create_job_opening_steps.py:188
+    Then I should see the job opening "Python Developer" in the list                         # features/steps/create_job_opening_steps.py:217
+    And the job opening "Python Developer" should have status "Active"                       # features/steps/create_job_opening_steps.py:234
+    When I schedule an interview for the job opening with "python_developer" candidate data  # features/steps/create_job_opening_steps.py:257
+    Then the interview should be scheduled successfully                                      # features/steps/create_job_opening_steps.py:307
+    And the interview invitation email should be sent to "vibhorgoyal.talenttalks@gmail.com" # features/steps/create_job_opening_steps.py:330
 
-  @ui @job
-  Scenario Outline: Create a new job opening with different configurations -- @1.1   # features/create_job_opening.feature:17
-    Given I am logged in as a valid user                                             # features/steps/create_job_opening_steps.py:17
-    And I navigate to the Create Job Opening page                                    # features/steps/create_job_opening_steps.py:36
-    When I create a job opening with "python_developer" data                         # features/steps/create_job_opening_steps.py:49
-    Then the job opening should be created successfully                              # features/steps/create_job_opening_steps.py:72
+  @ui @job @smoke @e2e
+  Scenario Outline: Create job opening and verify it appears in the list -- @1.2             # features/create_job_opening.feature:22
+    Given I am logged in as a valid user                                                     # features/steps/create_job_opening_steps.py:20
+    And I navigate to the Create Job Opening page                                            # features/steps/create_job_opening_steps.py:39
+    When I create a job opening with "java_developer" data                                   # features/steps/create_job_opening_steps.py:52
+    Then the job opening should be created successfully                                      # features/steps/create_job_opening_steps.py:82
+    When I navigate to View Job Openings page                                                # features/steps/create_job_opening_steps.py:188
+    Then I should see the job opening "Java Developer" in the list                           # features/steps/create_job_opening_steps.py:217
+    And the job opening "Java Developer" should have status "Active"                         # features/steps/create_job_opening_steps.py:234
+    When I schedule an interview for the job opening with "java_developer" candidate data    # features/steps/create_job_opening_steps.py:257
+    Then the interview should be scheduled successfully                                      # features/steps/create_job_opening_steps.py:307
+    And the interview invitation email should be sent to "vibhorgoyal.talenttalks@gmail.com" # features/steps/create_job_opening_steps.py:330
 
-  @ui @job
-  Scenario Outline: Create a new job opening with different configurations -- @1.2   # features/create_job_opening.feature:18
-    Given I am logged in as a valid user                                             # features/steps/create_job_opening_steps.py:17
-    And I navigate to the Create Job Opening page                                    # features/steps/create_job_opening_steps.py:36
-    When I create a job opening with "java_developer" data                           # features/steps/create_job_opening_steps.py:49
-    Then the job opening should be created successfully                              # features/steps/create_job_opening_steps.py:72
-
-  @ui @job
-  Scenario Outline: Create a new job opening with different configurations -- @1.3   # features/create_job_opening.feature:19
-    Given I am logged in as a valid user                                             # features/steps/create_job_opening_steps.py:17
-    And I navigate to the Create Job Opening page                                    # features/steps/create_job_opening_steps.py:36
-    When I create a job opening with "frontend_developer" data                       # features/steps/create_job_opening_steps.py:49
-    Then the job opening should be created successfully                              # features/steps/create_job_opening_steps.py:72
-
-  @ui @job @smoke
-  Scenario: Create a simple job opening                                                # features/create_job_opening.feature:22
-    Given I am logged in as a valid user                                               # features/steps/create_job_opening_steps.py:17
-    And I navigate to the Create Job Opening page                                      # features/steps/create_job_opening_steps.py:36
-    When I enter job name "QA Engineer"                                                # features/steps/create_job_opening_steps.py:91
-    And I enter job description "Looking for a QA Engineer with automation experience" # features/steps/create_job_opening_steps.py:101
-    And I set interview duration to 30 minutes                                         # features/steps/create_job_opening_steps.py:111
-    And I enable resume evaluation with 50 percent                                     # features/steps/create_job_opening_steps.py:121
-    And I add technology "Selenium"                                                    # features/steps/create_job_opening_steps.py:141
-    And I add technology "Python"                                                      # features/steps/create_job_opening_steps.py:141
-    And I add technology "Pytest"                                                      # features/steps/create_job_opening_steps.py:141
-    Then the Create Job Opening button should be enabled                               # features/steps/create_job_opening_steps.py:151
-
-Feature: Email inbox verification # features/email.feature:1
-  As a tester
-  I want to read emails from Gmail inbox
-  So that I can verify email notifications are received
-  @email
-  Scenario: Fetch latest emails from inbox  # features/email.feature:7
-    Given I connect to Gmail inbox          # features/steps/email_steps.py:9
-    When I fetch the latest "5" emails      # features/steps/email_steps.py:26
-    Then I should see the email list        # features/steps/email_steps.py:40
-
-  @email
-  Scenario: Search for specific email                   # features/email.feature:13
-    Given I connect to Gmail inbox                      # features/steps/email_steps.py:9
-    When I search for emails with subject "TalentTalks" # features/steps/email_steps.py:33
-    Then I should see matching emails                   # features/steps/email_steps.py:63
-
-Feature: Login functionality # features/login.feature:1
-  As a site visitor
-  I want to login
-  So that I can access protected areas
-  @ui
-  Scenario: Login with invalid credentials shows error  # features/login.feature:7
-    Given I open the login page                         # features/steps/login_steps.py:9
-    When I sign in with "invalid_login"                 # features/steps/login_steps.py:16
-    Then I should see "error"                           # features/steps/login_steps.py:27
-
-  @ui
-  Scenario: Login with valid credentials redirects to dashboard  # features/login.feature:13
-    Given I open the login page                                  # features/steps/login_steps.py:9
-    When I sign in with "valid_login"                            # features/steps/login_steps.py:16
-    Then I should see "success"                                  # features/steps/login_steps.py:27
+  @ui @job @smoke @e2e
+  Scenario Outline: Create job opening and verify it appears in the list -- @1.3              # features/create_job_opening.feature:23
+    Given I am logged in as a valid user                                                      # features/steps/create_job_opening_steps.py:20
+    And I navigate to the Create Job Opening page                                             # features/steps/create_job_opening_steps.py:39
+    When I create a job opening with "frontend_developer" data                                # features/steps/create_job_opening_steps.py:52
+    Then the job opening should be created successfully                                       # features/steps/create_job_opening_steps.py:82
+    When I navigate to View Job Openings page                                                 # features/steps/create_job_opening_steps.py:188
+    Then I should see the job opening "Frontend Developer" in the list                        # features/steps/create_job_opening_steps.py:217
+    And the job opening "Frontend Developer" should have status "Active"                      # features/steps/create_job_opening_steps.py:234
+    When I schedule an interview for the job opening with "frontend_developer" candidate data # features/steps/create_job_opening_steps.py:257
+    Then the interview should be scheduled successfully                                       # features/steps/create_job_opening_steps.py:307
+    And the interview invitation email should be sent to "vibhorgoyal.talenttalks@gmail.com"  # features/steps/create_job_opening_steps.py:330
 
