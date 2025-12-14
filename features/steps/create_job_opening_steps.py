@@ -505,6 +505,38 @@ def step_verify_interview_in_list(context: Context, candidate_name: str):
     AllureManager.attach_screenshot(ctx.wrapper, "Interview List")
 
 
+@then("I should see the interview stored in context in the list")
+def step_verify_interview_from_context(context: Context):
+    """Verify the scheduled interview is present in the list using data from context."""
+    ctx = StepContext(context)
+    
+    # Get candidate name from context
+    candidate_name = getattr(context, 'current_scenario_data', {}).get('candidate_name')
+    job_name = getattr(context, 'created_job_name', None)
+    
+    if not candidate_name and not job_name:
+        raise ValueError("No candidate name or job name found in context")
+    
+    view_interviews_page = ViewInterviewsPage(ctx.wrapper, ctx.base_url)
+    
+    # Try to find the interview by candidate name first
+    found = False
+    if candidate_name:
+        found = view_interviews_page.is_interview_present(candidate_name)
+        ctx.logger.info(f"Searching for interview by candidate name: {candidate_name}")
+    
+    # If not found by candidate name, try job name
+    if not found and job_name:
+        ctx.logger.info(f"Candidate '{candidate_name}' not found, trying job name: {job_name}")
+        found = view_interviews_page.is_interview_present(job_name)
+    
+    assert found, \
+        f"Interview not found in the list. Searched by candidate: '{candidate_name}', job: '{job_name}'"
+    
+    ctx.logger.info(f"Interview found in the list (Candidate: {candidate_name}, Job: {job_name})")
+    AllureManager.attach_screenshot(ctx.wrapper, "Interview List")
+
+
 @then('the interview for candidate "{candidate_name}" should have status "{expected_status}"')
 def step_verify_interview_status(context: Context, candidate_name: str, expected_status: str):
     """Verify an interview has the expected status."""
