@@ -49,9 +49,42 @@ def step_navigate_to_create_job_opening(context: Context):
     ctx.logger.info("Navigated to Create Job Opening page")
 
 
+@when('I load job opening data for "{scenario}"')
+def step_load_job_opening_data(context: Context, scenario: str):
+    """Load job opening data from test data and store in context with unique timestamp."""
+    ctx = StepContext(context)
+    
+    # Load job opening data
+    job_data = ctx.data_loader.find_by_key("job_opening_data", "scenario", scenario)
+    
+    # Append timestamp to job name to make it unique
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    unique_job_name = f"{job_data['job_name']} - {timestamp}"
+    
+    # Store the unique name in context
+    context.created_job_name = unique_job_name
+    
+    # Store all job data in context for use by generic steps
+    context.current_scenario_data = {
+        "job_name": unique_job_name,
+        "job_description": job_data["job_description"],
+        "interview_duration": job_data["interview_duration"],
+        "enable_resume_evaluation": job_data.get("enable_resume_evaluation", False),
+        "resume_evaluation_percentage": job_data.get("resume_evaluation_percentage", 0),
+    }
+    
+    ctx.logger.info(f"Loaded job opening data for scenario: {scenario}")
+    ctx.logger.info(f"Unique job name: {unique_job_name}")
+
+
 @when('I create a job opening with "{scenario}" data')
 def step_create_job_opening_with_data(context: Context, scenario: str):
-    """Create a job opening using data from JSON file."""
+    """
+    DEPRECATED: Monolithic step - kept for backward compatibility.
+    Use granular steps instead (load data, fill each field, click button).
+    
+    Create a job opening using data from JSON file.
+    """
     ctx = StepContext(context)
     
     job_data = ctx.data_loader.find_by_key("job_opening_data", "scenario", scenario)
@@ -187,28 +220,32 @@ def step_verify_create_button_enabled(context: Context):
 
 @when("I navigate to View Job Openings page")
 def step_navigate_to_view_job_openings(context: Context):
-    """Navigate to the View Job Openings page."""
+    """Navigate to the View Job Openings page by clicking the sidebar button."""
     ctx = StepContext(context)
     
+    from pages.dashboard_page import DashboardPage
+    
     view_job_page = ViewJobOpeningsPage(ctx.wrapper, ctx.base_url)
+    dashboard_page = DashboardPage(ctx.wrapper, ctx.base_url)
     
-    current_url = ctx.wrapper.page.url
-    ctx.logger.info(f"Current URL before navigation: {current_url}")
+    # Wait longer for the job to be saved in the database (increased from 3s to 5s)
+    ctx.logger.info("Waiting for job to be saved in database")
+    ctx.wrapper.page.wait_for_timeout(5000)
     
-    # If we're already on the templates page (after job creation redirect),
-    # just reload to get fresh data
-    if "/templates" in current_url:
-        ctx.logger.info("Already on templates page, reloading for fresh data")
-        ctx.wrapper.page.reload(wait_until="networkidle")
-        view_job_page.wait_for_page_load()
-    else:
-        # Navigate to the page
-        # Wait a bit for the job to be saved in the database
-        ctx.wrapper.page.wait_for_timeout(2000)
-        view_job_page.open()
-        # Wait for the page to load with network idle
-        ctx.wrapper.page.wait_for_load_state("networkidle")
-        view_job_page.wait_for_page_load()
+    # Click the View Job Openings button in the sidebar to navigate
+    ctx.logger.info("Clicking View Job Openings button in sidebar")
+    dashboard_page.click_view_job_openings()
+    
+    # Wait for navigation and page load
+    ctx.wrapper.page.wait_for_load_state("networkidle")
+    view_job_page.wait_for_page_load()
+    
+    # If we have a created job name in context, search for it to ensure it's visible
+    if hasattr(context, 'created_job_name'):
+        ctx.logger.info(f"Searching for job: {context.created_job_name}")
+        view_job_page.search_job_opening(context.created_job_name)
+        # Wait a bit for search results
+        ctx.wrapper.page.wait_for_timeout(1000)
     
     assert view_job_page.is_loaded(), "View Job Openings page did not load"
     ctx.logger.info("Navigated to View Job Openings page")

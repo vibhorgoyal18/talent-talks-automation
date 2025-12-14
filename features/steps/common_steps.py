@@ -94,7 +94,13 @@ def step_click_button(context: Context, button_name: str):
     """Click a button by its accessible name."""
     ctx = StepContext(context)
     
-    selector = f"role=button[name='{button_name}']"
+    # Special handling for buttons that appear in multiple places
+    # "Create Job Opening" appears in both sidebar and form - use form button
+    if button_name == "Create Job Opening":
+        selector = "form >> role=button[name='Create Job Opening']"
+    else:
+        selector = f"role=button[name='{button_name}']"
+    
     ctx.wrapper.click(selector)
     ctx.logger.info(f"Clicked button: '{button_name}'")
 
@@ -127,3 +133,125 @@ def step_wait_seconds(context: Context, seconds: int):
     ctx = StepContext(context)
     ctx.wrapper.page.wait_for_timeout(seconds * 1000)
     ctx.logger.info(f"Waited for {seconds} seconds")
+
+
+@when('I reload the page')
+def step_reload_page(context: Context):
+    """Reload the current page."""
+    ctx = StepContext(context)
+    ctx.wrapper.page.reload(wait_until="networkidle")
+    ctx.wrapper.page.wait_for_load_state("networkidle")
+    ctx.logger.info("Page reloaded")
+
+
+@when('I set "{field_label}" to {value:d}')
+def step_set_numeric_field(context: Context, field_label: str, value: int):
+    """Set a numeric input field (spinbutton) by its label."""
+    ctx = StepContext(context)
+    
+    selector = f"role=spinbutton[name='{field_label}']"
+    ctx.wrapper.page.fill(selector, str(value), timeout=ctx.wrapper.timeout)
+    ctx.logger.info(f"Set '{field_label}' to {value}")
+
+
+@when('I check the "{checkbox_label}" checkbox')
+def step_check_checkbox(context: Context, checkbox_label: str):
+    """Check a checkbox by its label."""
+    ctx = StepContext(context)
+    
+    selector = f"role=checkbox[name='{checkbox_label}']"
+    ctx.wrapper.page.check(selector, timeout=ctx.wrapper.timeout)
+    ctx.logger.info(f"Checked checkbox: '{checkbox_label}'")
+
+
+@when('I uncheck the "{checkbox_label}" checkbox')
+def step_uncheck_checkbox(context: Context, checkbox_label: str):
+    """Uncheck a checkbox by its label."""
+    ctx = StepContext(context)
+    
+    selector = f"role=checkbox[name='{checkbox_label}']"
+    ctx.wrapper.page.uncheck(selector, timeout=ctx.wrapper.timeout)
+    ctx.logger.info(f"Unchecked checkbox: '{checkbox_label}'")
+
+
+@then('I should see "{text}" in the page')
+def step_verify_text_in_page(context: Context, text: str):
+    """Verify that specific text appears anywhere on the page."""
+    ctx = StepContext(context)
+    
+    assert ctx.wrapper.is_visible(f"text={text}", timeout=3000), \
+        f"Text '{text}' not found on the page"
+    ctx.logger.info(f"Verified text is present: '{text}'")
+
+
+@then('I should see a heading with "{heading_text}"')
+def step_verify_heading(context: Context, heading_text: str):
+    """Verify that a heading with specific text is visible."""
+    ctx = StepContext(context)
+    
+    selector = f"role=heading[name='{heading_text}']"
+    assert ctx.wrapper.is_visible(selector, timeout=3000), \
+        f"Heading '{heading_text}' not found"
+    ctx.logger.info(f"Verified heading: '{heading_text}'")
+
+
+@then('the "{element_type}" with name "{element_name}" should have value "{expected_value}"')
+def step_verify_element_value(context: Context, element_type: str, element_name: str, expected_value: str):
+    """Verify an element (combobox, textbox, etc.) has a specific value."""
+    ctx = StepContext(context)
+    
+    selector = f"role={element_type}[name='{element_name}']"
+    element = ctx.wrapper.page.locator(selector)
+    
+    # Get the text content or value depending on element type
+    if element_type.lower() == "combobox":
+        actual_value = element.text_content()
+    else:
+        actual_value = element.input_value()
+    
+    assert actual_value == expected_value, \
+        f"Expected '{expected_value}' but got '{actual_value}' for {element_type} '{element_name}'"
+    ctx.logger.info(f"Verified {element_type} '{element_name}' has value: '{expected_value}'")
+
+
+@then('I should see the item stored as "{context_key}" in the list')
+def step_verify_item_in_list(context: Context, context_key: str):
+    """Verify that an item (identified by context key) is visible as a heading in a list."""
+    ctx = StepContext(context)
+    
+    # Get value from context
+    item_name = getattr(context, context_key, None)
+    if not item_name:
+        raise ValueError(f"Context key '{context_key}' not found or is empty")
+    
+    selector = f"role=heading[name='{item_name}']"
+    # Increased timeout to 15 seconds for newly created items that may need backend processing
+    assert ctx.wrapper.is_visible(selector, timeout=15000), \
+        f"Item '{item_name}' not found in the list"
+    ctx.logger.info(f"Verified item is in list: '{item_name}' (from context.{context_key})")
+
+
+@then('the item stored as "{context_key}" should have status "{expected_status}"')
+def step_verify_item_status(context: Context, context_key: str, expected_status: str):
+    """Verify that an item has a specific status in a combobox."""
+    ctx = StepContext(context)
+    
+    # Get value from context
+    item_name = getattr(context, context_key, None)
+    if not item_name:
+        raise ValueError(f"Context key '{context_key}' not found or is empty")
+    
+    # Find the row containing the item heading
+    all_rows = ctx.wrapper.page.locator("role=row")
+    job_row = all_rows.filter(has=ctx.wrapper.page.locator(f"role=heading[name='{item_name}']"))
+    
+    # Get the status combobox from that row
+    status_locator = job_row.locator("role=combobox")
+    
+    if status_locator.count() > 0:
+        actual_status = status_locator.first.text_content()
+        assert actual_status.upper() == expected_status.upper(), \
+            f"Expected status '{expected_status}' but got '{actual_status}' for item '{item_name}'"
+        ctx.logger.info(f"Verified item '{item_name}' has status: '{expected_status}'")
+    else:
+        raise AssertionError(f"Could not find status for item '{item_name}'")
