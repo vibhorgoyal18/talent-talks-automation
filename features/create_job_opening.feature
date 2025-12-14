@@ -34,7 +34,13 @@ Feature: Create Job Opening
     And I upload the file from "cv_file" to "Select CV File"
     And I click the "Schedule Interview" button
     And I wait for 2 seconds
-    Then the interview invitation email should be sent to "vibhorgoyal.talenttalks@gmail.com"
+    
+    # Email Verification - Verify Interview Link
+    Given I connect to Gmail inbox
+    When I wait for email with subject containing "Interview Invitation" for 60 seconds
+    Then the email should be received
+    And the email should contain interview link
+    And the email should be sent to "vibhorgoyal.talenttalks@gmail.com"
 
     Examples:
       | scenario           | job_name           |
