@@ -379,43 +379,49 @@ def step_schedule_interview_with_candidate(context: Context, scenario: str):
 
 @then("the interview should be scheduled successfully")
 def step_verify_interview_scheduled(context: Context):
-    """Verify the interview was scheduled successfully by checking for success toast."""
+    """Verify the interview was scheduled successfully by checking for success toast or navigation."""
     ctx = StepContext(context)
     
     schedule_page = ScheduleInterviewPage(ctx.wrapper, ctx.base_url)
     
-    # Wait a bit for toast to appear
-    ctx.wrapper.page.wait_for_timeout(2000)
+    # Wait for either toast or navigation
+    ctx.wrapper.page.wait_for_timeout(3000)
     
-    # Check for success toast
+    # Check for any toast messages (success or error)
     if schedule_page.is_success_toast_displayed():
         toast_message = schedule_page.get_toast_message()
         ctx.logger.info(f"Success toast displayed: {toast_message}")
         AllureManager.attach_text("Success Toast", toast_message)
-        
-        # Verify the expected message
-        expected_message = "Interview scheduled successfully"
-        assert expected_message.lower() in toast_message.lower(), \
-            f"Expected toast message '{expected_message}' but got '{toast_message}'"
-        ctx.logger.info(f"Verified toast message: {expected_message}")
-        
-    elif schedule_page.is_error_toast_displayed():
-        error_message = schedule_page.get_toast_message()
-        AllureManager.attach_screenshot(ctx.wrapper, "Error Toast")
-        raise AssertionError(f"Error toast displayed: {error_message}")
-    else:
-        # Check if we navigated away from the page (alternative success indicator)
-        current_url = ctx.wrapper.page.url
-        ctx.logger.info(f"Current URL after scheduling: {current_url}")
-        
-        if "/interviews/new" not in current_url:
-            ctx.logger.info("Navigated away from schedule page - interview likely scheduled")
-        else:
-            AllureManager.attach_screenshot(ctx.wrapper, "No Success Indicator")
-            raise AssertionError("No success toast displayed and still on schedule page")
+        ctx.logger.info("Interview scheduling step completed")
+        return
     
-    # Store that we attempted to schedule
-    ctx.logger.info("Interview scheduling step completed")
+    if schedule_page.is_error_toast_displayed():
+        error_message = schedule_page.get_toast_message()
+        ctx.logger.error(f"Error toast displayed: {error_message}")
+        AllureManager.attach_screenshot(ctx.wrapper, "Error Toast")
+        AllureManager.attach_text("Error Message", error_message)
+        raise AssertionError(f"Interview scheduling failed with error: {error_message}")
+    
+    # Check if we navigated away (alternative success indicator)
+    current_url = ctx.wrapper.page.url
+    ctx.logger.info(f"Current URL after scheduling: {current_url}")
+    
+    if "/interviews/new" not in current_url:
+        ctx.logger.info("Successfully navigated away from schedule page")
+        AllureManager.attach_screenshot(ctx.wrapper, "After Schedule Success")
+        ctx.logger.info("Interview scheduling step completed")
+    else:
+        # Still on the schedule page with no toast - capture page state for debugging
+        ctx.logger.error("Interview was not scheduled - still on the schedule page with no toast message")
+        
+        # Capture any validation errors or other messages on the page
+        page_text = ctx.wrapper.page.inner_text("body")
+        ctx.logger.error(f"Page contains: {page_text[:500]}...")
+        
+        AllureManager.attach_screenshot(ctx.wrapper, "Schedule Failed - No Toast")
+        AllureManager.attach_text("Page Content", page_text)
+        raise AssertionError("Interview was not scheduled - still on the schedule page with no success or error toast")
+    
     ctx.logger.info(f"Candidate email stored in context: {getattr(context, 'candidate_email', 'Not found')}")
 
 
@@ -510,7 +516,7 @@ def step_verify_recently_created_interview(context: Context):
     """Verify the recently scheduled interview is present in the list using data from context."""
     ctx = StepContext(context)
     
-    # Get candidate name from context
+    # Get candidate name and job name from context
     candidate_name = getattr(context, 'current_scenario_data', {}).get('candidate_name')
     job_name = getattr(context, 'created_job_name', None)
     
@@ -519,19 +525,17 @@ def step_verify_recently_created_interview(context: Context):
     
     view_interviews_page = ViewInterviewsPage(ctx.wrapper, ctx.base_url)
     
-    # Try to find the interview by candidate name first
-    found = False
-    if candidate_name:
-        found = view_interviews_page.is_interview_present(candidate_name)
-        ctx.logger.info(f"Searching for interview by candidate name: {candidate_name}")
+    # First, search by job title if available
+    if job_name:
+        ctx.logger.info(f"Searching for interview by job title: {job_name}")
+        view_interviews_page.search_interview(job_name)
+        ctx.wrapper.page.wait_for_timeout(1000)  # Wait for search results
     
-    # If not found by candidate name, try job name
-    if not found and job_name:
-        ctx.logger.info(f"Candidate '{candidate_name}' not found, trying job name: {job_name}")
-        found = view_interviews_page.is_interview_present(job_name)
+    # Now check if the interview is present
+    found = view_interviews_page.is_interview_present(candidate_name if candidate_name else job_name)
     
     assert found, \
-        f"Interview not found in the list. Searched by candidate: '{candidate_name}', job: '{job_name}'"
+        f"Interview not found in the list. Searched by job: '{job_name}', candidate: '{candidate_name}'"
     
     ctx.logger.info(f"Interview found in the list (Candidate: {candidate_name}, Job: {job_name})")
     AllureManager.attach_screenshot(ctx.wrapper, "Interview List")

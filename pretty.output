@@ -29,8 +29,8 @@ Feature: Create Job Opening # features/create_job_opening.feature:1
     And I click the "Schedule Interview" button                                               # features/steps/common_steps.py:92
     Then the interview should be scheduled successfully                                       # features/steps/create_job_opening_steps.py:380
     When I wait for 3 seconds                                                                 # features/steps/common_steps.py:170
-    When I navigate to View Interviews page                                                   # features/steps/create_job_opening_steps.py:454
-    Then I should see the interview stored in context in the list                             # features/steps/create_job_opening_steps.py:508
+    When I navigate to View Interviews page                                                   # features/steps/create_job_opening_steps.py:460
+    Then I should see the recently created interview                                          # features/steps/create_job_opening_steps.py:514
     Given I connect to Gmail inbox                                                            # features/steps/email_steps.py:9
     When I wait for email with subject containing "Interview Invitation" for 60 seconds       # features/steps/email_steps.py:89
     Then the email should be received                                                         # features/steps/email_steps.py:112
