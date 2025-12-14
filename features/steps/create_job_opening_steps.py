@@ -11,6 +11,7 @@ from pages.dashboard_page import DashboardPage
 from pages.create_job_opening_page import CreateJobOpeningPage
 from pages.view_job_openings_page import ViewJobOpeningsPage
 from pages.schedule_interview_page import ScheduleInterviewPage
+from pages.view_interviews_page import ViewInterviewsPage
 from features.steps.step_context import StepContext
 
 if TYPE_CHECKING:
@@ -448,4 +449,81 @@ def step_verify_interview_email_sent(context: Context, email: str):
     
     AllureManager.attach_text("Email Verification", f"Interview invitation should be sent to: {email}")
     ctx.logger.info(f"Interview invitation email verification completed for: {email}")
+
+
+@when("I navigate to View Interviews page")
+def step_navigate_to_view_interviews(context: Context):
+    """Navigate to the View Interviews page by clicking the sidebar button."""
+    ctx = StepContext(context)
+    
+    from pages.dashboard_page import DashboardPage
+    
+    view_interviews_page = ViewInterviewsPage(ctx.wrapper, ctx.base_url)
+    dashboard_page = DashboardPage(ctx.wrapper, ctx.base_url)
+    
+    # Wait a moment for the interview to be saved in the database
+    ctx.logger.info("Waiting for interview to be saved in database")
+    ctx.wrapper.page.wait_for_timeout(3000)
+    
+    # Click the View Interviews button in the sidebar to navigate
+    ctx.logger.info("Clicking View Interviews button in sidebar")
+    dashboard_page.click_view_interviews()
+    
+    # Wait for navigation and page load
+    ctx.wrapper.page.wait_for_load_state("networkidle")
+    view_interviews_page.wait_for_page_load()
+    
+    assert view_interviews_page.is_loaded(), "View Interviews page did not load"
+    ctx.logger.info("Navigated to View Interviews page")
+
+
+@then('I should see the interview for candidate "{candidate_name}" in the list')
+def step_verify_interview_in_list(context: Context, candidate_name: str):
+    """Verify an interview for a specific candidate is present in the list."""
+    ctx = StepContext(context)
+    
+    # Use the candidate name from context if available
+    actual_candidate_name = getattr(context, 'current_scenario_data', {}).get('candidate_name', candidate_name)
+    
+    view_interviews_page = ViewInterviewsPage(ctx.wrapper, ctx.base_url)
+    
+    # Also try to search by job name if available
+    job_name = getattr(context, 'created_job_name', None)
+    
+    # Try to find the interview by candidate name first
+    found = view_interviews_page.is_interview_present(actual_candidate_name)
+    
+    # If not found by candidate name, try job name
+    if not found and job_name:
+        ctx.logger.info(f"Candidate '{actual_candidate_name}' not found, trying job name: {job_name}")
+        found = view_interviews_page.is_interview_present(job_name)
+    
+    assert found, \
+        f"Interview for candidate '{actual_candidate_name}' not found in the list"
+    
+    ctx.logger.info(f"Interview for candidate '{actual_candidate_name}' found in the list")
+    AllureManager.attach_screenshot(ctx.wrapper, "Interview List")
+
+
+@then('the interview for candidate "{candidate_name}" should have status "{expected_status}"')
+def step_verify_interview_status(context: Context, candidate_name: str, expected_status: str):
+    """Verify an interview has the expected status."""
+    ctx = StepContext(context)
+    
+    # Use the candidate name from context if available
+    actual_candidate_name = getattr(context, 'current_scenario_data', {}).get('candidate_name', candidate_name)
+    
+    view_interviews_page = ViewInterviewsPage(ctx.wrapper, ctx.base_url)
+    
+    actual_status = view_interviews_page.get_interview_status(actual_candidate_name)
+    
+    assert actual_status is not None, \
+        f"Could not find status for interview with candidate '{actual_candidate_name}'"
+    
+    # Normalize status comparison (case-insensitive)
+    assert actual_status.upper() == expected_status.upper(), \
+        f"Expected status '{expected_status}' but got '{actual_status}' for candidate '{actual_candidate_name}'"
+    
+    ctx.logger.info(f"Interview for candidate '{actual_candidate_name}' has correct status: {expected_status}")
+    AllureManager.attach_text("Interview Status", f"{actual_candidate_name}: {actual_status}")
 

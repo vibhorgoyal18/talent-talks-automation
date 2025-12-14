@@ -37,6 +37,10 @@ Feature: Create Job Opening
     Then the interview should be scheduled successfully
     When I wait for 3 seconds
     
+    # Verify Interview in View Interviews Page
+    When I navigate to View Interviews page
+    Then I should see the interview for candidate "Test Candidate Python" in the list
+    
     # Email Verification - Verify Interview Link
     Given I connect to Gmail inbox
     When I wait for email with subject containing "Interview Invitation" for 60 seconds
