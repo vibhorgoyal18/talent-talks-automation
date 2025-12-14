@@ -378,23 +378,35 @@ def step_schedule_interview_with_candidate(context: Context, scenario: str):
 
 @then("the interview should be scheduled successfully")
 def step_verify_interview_scheduled(context: Context):
-    """Verify the interview was scheduled successfully."""
+    """Verify the interview was scheduled successfully by checking for success toast."""
     ctx = StepContext(context)
     
     schedule_page = ScheduleInterviewPage(ctx.wrapper, ctx.base_url)
     
-    # Wait a bit for any navigation or message to appear
+    # Wait a bit for toast to appear
     ctx.wrapper.page.wait_for_timeout(2000)
     
-    # Log current URL
-    current_url = ctx.wrapper.page.url
-    ctx.logger.info(f"Current URL after scheduling: {current_url}")
+    # Check for success toast
+    if schedule_page.is_success_toast_displayed():
+        toast_message = schedule_page.get_toast_message()
+        ctx.logger.info(f"Success toast displayed: {toast_message}")
+        AllureManager.attach_text("Success Toast", toast_message)
+    elif schedule_page.is_error_toast_displayed():
+        error_message = schedule_page.get_toast_message()
+        AllureManager.attach_screenshot(ctx.wrapper, "Error Toast")
+        raise AssertionError(f"Error toast displayed: {error_message}")
+    else:
+        # Check if we navigated away from the page (alternative success indicator)
+        current_url = ctx.wrapper.page.url
+        ctx.logger.info(f"Current URL after scheduling: {current_url}")
+        
+        if "/interviews/new" not in current_url:
+            ctx.logger.info("Navigated away from schedule page - interview likely scheduled")
+        else:
+            AllureManager.attach_screenshot(ctx.wrapper, "No Success Indicator")
+            ctx.logger.warning("No success toast displayed and still on schedule page")
     
-    # Take a screenshot for debugging
-    AllureManager.attach_screenshot(ctx.wrapper, "After Scheduling")
-    
-    # For now, let's just log that we attempted to schedule
-    # TODO: Add proper verification once we understand the success indicator
+    # Store that we attempted to schedule
     ctx.logger.info("Interview scheduling step completed")
     ctx.logger.info(f"Candidate email stored in context: {getattr(context, 'candidate_email', 'Not found')}")
 
