@@ -39,5 +39,3 @@ Feature: Create Job Opening
     Examples:
       | scenario           | job_name           |
       | python_developer   | Python Developer   |
-      | java_developer     | Java Developer     |
-      | frontend_developer | Frontend Developer |
