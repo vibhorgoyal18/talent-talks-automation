@@ -35,7 +35,7 @@ Feature: Create Job Opening
     And I upload the file from "photo_file" to "Select Image"
     And I click the "Schedule Interview" button
     Then the interview should be scheduled successfully
-    And I wait for 3 seconds
+    When I wait for 3 seconds
     
     # Email Verification - Verify Interview Link
     Given I connect to Gmail inbox

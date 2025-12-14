@@ -3,7 +3,7 @@ Feature: Create Job Opening # features/create_job_opening.feature:1
   I want to create new job openings
   So that I can start the recruitment process for positions
   @ui @job @smoke @e2e
-  Scenario Outline: Create job opening and verify it appears in the list -- @1.1              # features/create_job_opening.feature:47
+  Scenario Outline: Create job opening and verify it appears in the list -- @1.1              # features/create_job_opening.feature:49
     Given I am logged in as a valid user                                                      # features/steps/create_job_opening_steps.py:20
     And I navigate to the Create Job Opening page                                             # features/steps/create_job_opening_steps.py:39
     When I load job opening data for "python_developer"                                       # features/steps/create_job_opening_steps.py:52
@@ -25,13 +25,13 @@ Feature: Create Job Opening # features/create_job_opening.feature:1
     And I fill in "Interview Date" with tomorrow's date                                       # features/steps/create_job_opening_steps.py:310
     And I fill in "Interview Time" with "10:00"                                               # features/steps/common_steps.py:24
     And I upload the file from "cv_file" to "Select CV File"                                  # features/steps/common_steps.py:110
+    And I upload the file from "photo_file" to "Select Image"                                 # features/steps/common_steps.py:110
     And I click the "Schedule Interview" button                                               # features/steps/common_steps.py:92
-    And I wait for 2 seconds                                                                  # features/steps/common_steps.py:170
-    Given I connect to Gmail inbox                                                            # features/steps/email_steps.py:9
-    When I wait for email with subject containing "Interview Invitation" for 60 seconds       # features/steps/email_steps.py:89
-    Then the email should be received                                                         # features/steps/email_steps.py:112
-      ASSERT FAILED: Email was not received
-
+    Then the interview should be scheduled successfully                                       # features/steps/create_job_opening_steps.py:379
+    And I wait for 3 seconds                                                                  # None
+    Given I connect to Gmail inbox                                                            # None
+    When I wait for email with subject containing "Interview Invitation" for 60 seconds       # None
+    Then the email should be received                                                         # None
     And the email should contain interview link                                               # None
     And the email should be sent to "vibhorgoyal.talenttalks@gmail.com"                       # None
 
