@@ -95,9 +95,11 @@ def step_click_button(context: Context, button_name: str):
     ctx = StepContext(context)
     
     # Special handling for buttons that appear in multiple places
-    # "Create Job Opening" appears in both sidebar and form - use form button
+    # These buttons appear in both sidebar and form - use form button
     if button_name == "Create Job Opening":
         selector = "form >> role=button[name='Create Job Opening']"
+    elif button_name == "Schedule Interview":
+        selector = "form >> role=button[name='Schedule Interview']"
     else:
         selector = f"role=button[name='{button_name}']"
     

@@ -9,14 +9,14 @@ Feature: Create Job Opening # features/create_job_opening.feature:1
     When I load job opening data for "python_developer"                                       # features/steps/create_job_opening_steps.py:52
     And I fill in "Job Opening Name" with value from scenario "job_name"                      # features/steps/common_steps.py:35
     And I fill in "Enter or paste job description" with value from scenario "job_description" # features/steps/common_steps.py:35
-    And I set "Interview Duration (minutes)" to 30                                            # features/steps/common_steps.py:147
-    And I check the "Enable Resume Evaluation" checkbox                                       # features/steps/common_steps.py:157
-    And I set "Resume Evaluation Percentage" to 100                                           # features/steps/common_steps.py:147
+    And I set "Interview Duration (minutes)" to 30                                            # features/steps/common_steps.py:149
+    And I check the "Enable Resume Evaluation" checkbox                                       # features/steps/common_steps.py:159
+    And I set "Resume Evaluation Percentage" to 100                                           # features/steps/common_steps.py:149
     And I click the "Create Job Opening" button                                               # features/steps/common_steps.py:92
-    And I wait for 2 seconds                                                                  # features/steps/common_steps.py:130
+    And I wait for 2 seconds                                                                  # features/steps/common_steps.py:132
     When I navigate to View Job Openings page                                                 # features/steps/create_job_opening_steps.py:221
-    Then I should see the item stored as "created_job_name" in the list                       # features/steps/common_steps.py:217
-    And the item stored as "created_job_name" should have status "Active"                     # features/steps/common_steps.py:234
+    Then I should see the item stored as "created_job_name" in the list                       # features/steps/common_steps.py:219
+    And the item stored as "created_job_name" should have status "Active"                     # features/steps/common_steps.py:236
     When I load candidate data for "python_developer"                                         # features/steps/create_job_opening_steps.py:294
     And I navigate to "/interviews/new" page                                                  # features/steps/common_steps.py:15
     And I select from "Select Job Opening" the value stored as "created_job_name"             # features/steps/common_steps.py:69
@@ -25,47 +25,58 @@ Feature: Create Job Opening # features/create_job_opening.feature:1
     And I fill in "Interview Date" with tomorrow's date                                       # features/steps/create_job_opening_steps.py:310
     And I fill in "Interview Time" with "10:00"                                               # features/steps/common_steps.py:24
     And I click the "Schedule Interview" button                                               # features/steps/common_steps.py:92
-    And I wait for 2 seconds                                                                  # features/steps/common_steps.py:130
+    And I wait for 2 seconds                                                                  # features/steps/common_steps.py:132
     Then the interview invitation email should be sent to "vibhorgoyal.talenttalks@gmail.com" # features/steps/create_job_opening_steps.py:402
 
   @ui @job @smoke @e2e
   Scenario Outline: Create job opening and verify it appears in the list -- @1.2              # features/create_job_opening.feature:41
-    Given I am logged in as a valid user                                                      # features/steps/create_job_opening_steps.py:20
-    And I navigate to the Create Job Opening page                                             # features/steps/create_job_opening_steps.py:39
-    When I load job opening data for "java_developer"                                         # features/steps/create_job_opening_steps.py:52
-    And I fill in "Job Opening Name" with value from scenario "job_name"                      # features/steps/common_steps.py:35
-    And I fill in "Enter or paste job description" with value from scenario "job_description" # features/steps/common_steps.py:35
-    And I set "Interview Duration (minutes)" to 30                                            # features/steps/common_steps.py:147
-    And I check the "Enable Resume Evaluation" checkbox                                       # features/steps/common_steps.py:157
-    And I set "Resume Evaluation Percentage" to 100                                           # features/steps/common_steps.py:147
-    And I click the "Create Job Opening" button                                               # features/steps/common_steps.py:92
-    And I wait for 2 seconds                                                                  # features/steps/common_steps.py:130
-    When I navigate to View Job Openings page                                                 # features/steps/create_job_opening_steps.py:221
-    Then I should see the item stored as "created_job_name" in the list                       # features/steps/common_steps.py:217
-    And the item stored as "created_job_name" should have status "Active"                     # features/steps/common_steps.py:234
-    When I load candidate data for "java_developer"                                           # features/steps/create_job_opening_steps.py:294
-    And I navigate to "/interviews/new" page                                                  # features/steps/common_steps.py:15
-    And I select from "Select Job Opening" the value stored as "created_job_name"             # features/steps/common_steps.py:69
-    And I fill in "Candidate Name" with value from scenario "candidate_name"                  # features/steps/common_steps.py:35
-    And I fill in "Candidate Email" with value from scenario "candidate_email"                # features/steps/common_steps.py:35
-    And I fill in "Interview Date" with tomorrow's date                                       # features/steps/create_job_opening_steps.py:310
-    And I fill in "Interview Time" with "10:00"                                               # features/steps/common_steps.py:24
-    And I click the "Schedule Interview" button                                               # features/steps/common_steps.py:92
-    And I wait for 2 seconds                                                                  # features/steps/common_steps.py:130
-    Then the interview invitation email should be sent to "vibhorgoyal.talenttalks@gmail.com" # features/steps/create_job_opening_steps.py:402
+    Given I am logged in as a valid user                                                      # None
+    And I navigate to the Create Job Opening page                                             # None
+    When I load job opening data for "java_developer"                                         # None
+    And I fill in "Job Opening Name" with value from scenario "job_name"                      # None
+    And I fill in "Enter or paste job description" with value from scenario "job_description" # None
+    And I set "Interview Duration (minutes)" to 30                                            # None
+    And I check the "Enable Resume Evaluation" checkbox                                       # None
+    And I set "Resume Evaluation Percentage" to 100                                           # None
+    And I click the "Create Job Opening" button                                               # None
+    And I wait for 2 seconds                                                                  # None
+    When I navigate to View Job Openings page                                                 # None
+    Then I should see the item stored as "created_job_name" in the list                       # None
+    And the item stored as "created_job_name" should have status "Active"                     # None
+    When I load candidate data for "java_developer"                                           # None
+    And I navigate to "/interviews/new" page                                                  # None
+    And I select from "Select Job Opening" the value stored as "created_job_name"             # None
+    And I fill in "Candidate Name" with value from scenario "candidate_name"                  # None
+    And I fill in "Candidate Email" with value from scenario "candidate_email"                # None
+    And I fill in "Interview Date" with tomorrow's date                                       # None
+    And I fill in "Interview Time" with "10:00"                                               # None
+    And I click the "Schedule Interview" button                                               # None
+    And I wait for 2 seconds                                                                  # None
+    Then the interview invitation email should be sent to "vibhorgoyal.talenttalks@gmail.com" # None
 
   @ui @job @smoke @e2e
   Scenario Outline: Create job opening and verify it appears in the list -- @1.3              # features/create_job_opening.feature:42
-    Given I am logged in as a valid user                                                      # features/steps/create_job_opening_steps.py:20
-    And I navigate to the Create Job Opening page                                             # features/steps/create_job_opening_steps.py:39
-    When I load job opening data for "frontend_developer"                                     # features/steps/create_job_opening_steps.py:52
-    And I fill in "Job Opening Name" with value from scenario "job_name"                      # features/steps/common_steps.py:35
-    And I fill in "Enter or paste job description" with value from scenario "job_description" # features/steps/common_steps.py:35
-    And I set "Interview Duration (minutes)" to 30                                            # features/steps/common_steps.py:147
-    And I check the "Enable Resume Evaluation" checkbox                                       # features/steps/common_steps.py:157
-    And I set "Resume Evaluation Percentage" to 100                                           # features/steps/common_steps.py:147
-    And I click the "Create Job Opening" button                                               # features/steps/common_steps.py:92
-    And I wait for 2 seconds                                                                  # features/steps/common_steps.py:130
-    When I navigate to View Job Openings page                                                 # features/steps/create_job_opening_steps.py:221
-      ABORTED: By user (KeyboardInterrupt).
+    Given I am logged in as a valid user                                                      # None
+    And I navigate to the Create Job Opening page                                             # None
+    When I load job opening data for "frontend_developer"                                     # None
+    And I fill in "Job Opening Name" with value from scenario "job_name"                      # None
+    And I fill in "Enter or paste job description" with value from scenario "job_description" # None
+    And I set "Interview Duration (minutes)" to 30                                            # None
+    And I check the "Enable Resume Evaluation" checkbox                                       # None
+    And I set "Resume Evaluation Percentage" to 100                                           # None
+    And I click the "Create Job Opening" button                                               # None
+    And I wait for 2 seconds                                                                  # None
+    When I navigate to View Job Openings page                                                 # None
+    Then I should see the item stored as "created_job_name" in the list                       # None
+    And the item stored as "created_job_name" should have status "Active"                     # None
+    When I load candidate data for "frontend_developer"                                       # None
+    And I navigate to "/interviews/new" page                                                  # None
+    And I select from "Select Job Opening" the value stored as "created_job_name"             # None
+    And I fill in "Candidate Name" with value from scenario "candidate_name"                  # None
+    And I fill in "Candidate Email" with value from scenario "candidate_email"                # None
+    And I fill in "Interview Date" with tomorrow's date                                       # None
+    And I fill in "Interview Time" with "10:00"                                               # None
+    And I click the "Schedule Interview" button                                               # None
+    And I wait for 2 seconds                                                                  # None
+    Then the interview invitation email should be sent to "vibhorgoyal.talenttalks@gmail.com" # None
 
