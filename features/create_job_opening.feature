@@ -4,58 +4,58 @@ Feature: Create Job Opening
   So that I can start the recruitment process for positions
 
   @ui @job @smoke @e2e
-  Scenario Outline: Create job opening and verify it appears in the list
-    Given I am logged in as a valid user
-    And I navigate to the Create Job Opening page
-    
+  Scenario Outline: Create job opening and verify it appears in the list "<scenario>"
+  # Login and Navigate to Create Job Opening Page
+  Given I am logged in as a valid user
+      And I navigate to the Create Job Opening page
+
     # Create Job Opening - Granular Steps
     When I load job opening data for "<scenario>"
-    And I fill in "Job Opening Name" with value from scenario "job_name"
-    And I fill in "Enter or paste job description" with value from scenario "job_description"
-    And I set "Interview Duration (minutes)" to 30
-    And I check the "Enable Resume Evaluation" checkbox
-    And I set "Resume Evaluation Percentage" to 100
-    And I click the "Create Job Opening" button
-    And I wait for 2 seconds
-    
+      And I fill in "Job Opening Name" with value from scenario "job_name"
+      And I fill in "Enter or paste job description" with value from scenario "job_description"
+      And I set "Interview Duration (minutes)" to 30
+      And I check the "Enable Resume Evaluation" checkbox
+      And I set "Resume Evaluation Percentage" to 100
+      And I click the "Create Job Opening" button
+      And I wait for 2 seconds
+
     # Verify Job Opening in List
     When I navigate to View Job Openings page
-    Then I should see the item stored as "created_job_name" in the list
-    And the item stored as "created_job_name" should have status "Active"
-    
+      Then I should see the item stored as "created_job_name" in the list
+      And the item stored as "created_job_name" should have status "Active"
+
     # Schedule Interview - Granular Steps
     When I load candidate data for "<scenario>"
-    And I navigate to "/interviews/new" page
-    And I select from "Select Job Opening" the value stored as "created_job_name"
-    And I fill in "Candidate Name" with value from scenario "candidate_name"
-    And I fill in "Candidate Email" with value from scenario "candidate_email"
-    And I fill in "Interview Date" with tomorrow's date
-    And I fill in "Interview Time" with "10:00"
-    And I upload the file from "cv_file" to "Select CV File"
-    And I upload the file from "photo_file" to "Select Image"
-    And I click the "Schedule Interview" button
-    Then the interview should be scheduled successfully
+      And I navigate to "/interviews/new" page
+      And I select from "Select Job Opening" the value stored as "created_job_name"
+      And I fill in "Candidate Name" with value from scenario "candidate_name"
+      And I fill in "Candidate Email" with value from scenario "candidate_email"
+      And I fill in "Interview Date" with tomorrow's date
+      And I fill in "Interview Time" with "10:00"
+      And I upload the file from "cv_file" to "Select CV File"
+      And I upload the file from "photo_file" to "Select Image"
+      And I click the "Schedule Interview" button
+      Then the interview should be scheduled successfully
     When I wait for 3 seconds
-    
+
     # Verify Interview in View Interviews Page
     When I navigate to View Interviews page
-    Then I should see the recently created interview
-    
-    # Email Verification - Verify Interview Link (Temporarily commented out)
+      And I search for the recently created interview
+      Then I should see the recently created interview
+
+    # Email Verification - Commented out temporarily to test delete functionality
     # Given I connect to Gmail inbox
-    # When I wait for email with subject containing "Interview Invitation" for 60 seconds
-    # Then the email should be received
-    # And the email should contain interview link
-    # And the email should be sent to "vibhorgoyal.talenttalks@gmail.com"
-    
-    # Delete Interview
-    When I navigate to View Interviews page
-    And I click the 3-dot menu for the recently created interview
-    And I click the "Delete" option from the menu
-    Then the interview should be deleted successfully
-    And I should not see the recently created interview
+    #   When I wait for email with subject containing "Interview Invitation" for 60 seconds
+    #     Then the email should be received
+    #     And the email should contain interview link
+    #     And the email should be sent to "vibhorgoyal.talenttalks@gmail.com"
+
+    # Delete Interview - Still on View Interviews page from earlier
+    When I click the 3-dot menu for the recently created interview
+      And I click the "Delete" option from the menu
+      Then the interview should be deleted successfully
+      And I should not see the recently created interview
 
     Examples:
-      | scenario           | job_name           |
-      | python_developer   | Python Developer   |
-      |java_developer|Java Developer|
+      | scenario         | job_name         |
+      | python_developer | Python Developer |

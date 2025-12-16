@@ -113,35 +113,35 @@ class ViewInterviewsPage:
 
     def click_three_dot_menu_for_interview(self, identifier: str) -> None:
         """Click the 3-dot menu button for a specific interview.
+        Assumes the interview is already visible (e.g., from a previous search).
         
         Args:
             identifier: Can be candidate name or job opening name to identify the interview row
         """
-        # First search for the interview to make sure it's visible
-        if self.wrapper.is_visible(self.SEARCH_INPUT, timeout=2000):
-            self.search_interview(identifier)
-            self.wrapper.page.wait_for_timeout(1000)
+        # Use XPath to find the row containing the identifier text, then find the button in the last cell
+        # The XPath navigates: tr containing text -> last td (Actions column) -> button
+        xpath = f"//tr[contains(., '{identifier}')]/td[last()]//button[last()]"
         
-        # Find the row containing the interview
         try:
-            # Find the row with the identifier text
-            row = self.wrapper.page.locator(f"role=row:has-text('{identifier}')").first
+            action_button = self.wrapper.page.locator(f"xpath={xpath}").first
             
-            if not row.is_visible():
-                raise Exception(f"Interview row with identifier '{identifier}' not found")
+            # Wait for action button to be visible
+            action_button.wait_for(state="visible", timeout=10000)
             
-            # Find the button in the last cell (Actions column) of this row
-            # The actions button is in the last cell with class MuiButtonBase
-            action_button = row.locator("button").last
-            
-            if not action_button.is_visible():
-                raise Exception(f"Action button not found in interview row for '{identifier}'")
+            # Scroll into view if needed
+            action_button.scroll_into_view_if_needed()
+            self.wrapper.page.wait_for_timeout(500)
             
             # Click the menu button
             action_button.click()
-            self.wrapper.page.wait_for_timeout(500)
+            self.wrapper.page.wait_for_timeout(1000)
             
         except Exception as e:
+            # Try to take a screenshot for debugging
+            try:
+                self.wrapper.page.screenshot(path="debug_interview_not_found.png")
+            except:
+                pass
             raise Exception(f"Failed to click 3-dot menu for interview '{identifier}': {str(e)}")
 
     def click_delete_from_menu(self) -> None:
@@ -153,8 +153,8 @@ class ViewInterviewsPage:
             # Click the Delete menuitem
             delete_option = self.wrapper.page.locator(self.DELETE_MENU_OPTION).first
             
-            if not delete_option.is_visible(timeout=2000):
-                raise Exception("Delete option not found in dropdown menu")
+            # Wait for delete option to be visible
+            delete_option.wait_for(state="visible", timeout=3000)
             
             delete_option.click()
             
@@ -184,10 +184,10 @@ class ViewInterviewsPage:
             for selector in confirm_selectors:
                 try:
                     confirm_button = self.wrapper.page.locator(selector).first
-                    if confirm_button.is_visible(timeout=2000):
-                        confirm_button.click()
-                        confirmed = True
-                        break
+                    confirm_button.wait_for(state="visible", timeout=2000)
+                    confirm_button.click()
+                    confirmed = True
+                    break
                 except Exception:
                     continue
             

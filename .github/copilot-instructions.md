@@ -109,6 +109,8 @@ def step_verify(context):
 - Constructor must accept `wrapper: PlaywrightWrapper` and `base_url: str`
 - Define locators as class constants (CSS selectors, text selectors, or XPath)
 - Use `self.wrapper` methods: `click()`, `type_text()`, `get_text()`, `is_visible()`, `go_to()`
+- **Selector Strategy**: If a CSS path or role-based selector doesn't work reliably (e.g., for dynamic tables or complex nested structures), use relative XPath instead. XPath provides more robust navigation through DOM hierarchy.
+  - Example: `xpath=//tr[contains(., 'identifier')]/td[last()]//button[last()]` to find a button in the last cell of a table row containing specific text
 
 ```python
 from core.web.playwright_wrapper import PlaywrightWrapper
@@ -120,6 +122,8 @@ class YourPage:
     ELEMENT_SELECTOR = "#element-id"
     BUTTON_SELECTOR = "button.submit"
     LINK_BY_TEXT = "text=Click Here"
+    # Use XPath for complex navigation
+    ACTION_BUTTON_XPATH = "xpath=//tr[contains(., '{identifier}')]/td[last()]//button[last()]"
 
     def __init__(self, wrapper: PlaywrightWrapper, base_url: str) -> None:
         self.wrapper = wrapper

@@ -521,6 +521,27 @@ def step_verify_interview_in_list(context: Context, candidate_name: str):
     AllureManager.attach_screenshot(ctx.wrapper, "Interview List")
 
 
+@when("I search for the recently created interview")
+def step_search_recently_created_interview(context: Context):
+    """Search for the recently created interview using the job title."""
+    ctx = StepContext(context)
+    
+    # Get job name from context
+    job_name = getattr(context, 'created_job_name', None)
+    candidate_name = getattr(context, 'current_scenario_data', {}).get('candidate_name', '')
+    
+    if not job_name:
+        raise ValueError("No job name found in context. Make sure job was created first.")
+    
+    view_interviews_page = ViewInterviewsPage(ctx.wrapper, ctx.base_url)
+    
+    ctx.logger.info(f"Searching for interview by job title: {job_name}")
+    view_interviews_page.search_interview(job_name)
+    ctx.wrapper.page.wait_for_timeout(2000)  # Wait longer for search results to stabilize
+    
+    ctx.logger.info(f"Search completed for: {job_name}")
+
+
 @then("I should see the recently created interview")
 def step_verify_recently_created_interview(context: Context):
     """Verify the recently scheduled interview is present in the list using data from context."""
@@ -535,17 +556,12 @@ def step_verify_recently_created_interview(context: Context):
     
     view_interviews_page = ViewInterviewsPage(ctx.wrapper, ctx.base_url)
     
-    # First, search by job title if available
-    if job_name:
-        ctx.logger.info(f"Searching for interview by job title: {job_name}")
-        view_interviews_page.search_interview(job_name)
-        ctx.wrapper.page.wait_for_timeout(1000)  # Wait for search results
-    
-    # Now check if the interview is present
+    # The search should have already been done by a previous step (if needed)
+    # Just verify the interview is visible
     found = view_interviews_page.is_interview_present(candidate_name if candidate_name else job_name)
     
     assert found, \
-        f"Interview not found in the list. Searched by job: '{job_name}', candidate: '{candidate_name}'"
+        f"Interview not found in the list. Job: '{job_name}', candidate: '{candidate_name}'"
     
     ctx.logger.info(f"Interview found in the list (Candidate: {candidate_name}, Job: {job_name})")
     AllureManager.attach_screenshot(ctx.wrapper, "Interview List")
@@ -579,14 +595,14 @@ def step_click_three_dot_menu_for_interview(context: Context):
     """Click the 3-dot menu button for the recently created interview."""
     ctx = StepContext(context)
     
-    # Get identifier from context (prefer job name, fallback to candidate name)
-    job_name = getattr(context, 'created_job_name', None)
+    # Get identifier from context (prefer candidate name since it's more unique in the table)
     candidate_name = getattr(context, 'current_scenario_data', {}).get('candidate_name')
+    job_name = getattr(context, 'created_job_name', None)
     
-    identifier = job_name if job_name else candidate_name
+    identifier = candidate_name if candidate_name else job_name
     
     if not identifier:
-        raise ValueError("No interview identifier (job name or candidate name) found in context")
+        raise ValueError("No interview identifier (candidate name or job name) found in context")
     
     view_interviews_page = ViewInterviewsPage(ctx.wrapper, ctx.base_url)
     view_interviews_page.click_three_dot_menu_for_interview(identifier)
