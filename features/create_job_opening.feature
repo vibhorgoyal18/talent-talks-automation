@@ -40,19 +40,18 @@ Feature: Create Job Opening
 
     # Verify Interview in View Interviews Page
     When I navigate to View Interviews page
+      And I search for the recently created interview
       Then I should see the recently created interview
 
-    # Email Verification - Verify Interview Link (Commented out - takes too long in CI)
+    # Email Verification - Commented out temporarily to test delete functionality
     # Given I connect to Gmail inbox
     #   When I wait for email with subject containing "Interview Invitation" for 60 seconds
-    #   Then the email should be received
+    #     Then the email should be received
     #     And the email should contain interview link
     #     And the email should be sent to "vibhorgoyal.talenttalks@gmail.com"
 
-    # Delete Interview
-    When I navigate to View Interviews page
-      And I wait for 2 seconds
-      And I click the 3-dot menu for the recently created interview
+    # Delete Interview - Still on View Interviews page from earlier
+    When I click the 3-dot menu for the recently created interview
       And I click the "Delete" option from the menu
       Then the interview should be deleted successfully
       And I should not see the recently created interview

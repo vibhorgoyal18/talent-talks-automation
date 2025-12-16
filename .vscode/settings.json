@@ -51,5 +51,8 @@
     // File associations
     "files.associations": {
         "*.feature": "feature"
-    }
+    },
+    
+    // Enable format on save
+    "editor.formatOnSave": true
 }
