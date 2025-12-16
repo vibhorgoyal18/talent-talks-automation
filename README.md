@@ -1,6 +1,10 @@
 # TalentTalks Automation Framework
 
+[![Test and Generate Allure Report](https://github.com/vibhorgoyal18/talent-talks-automation/actions/workflows/test-and-report.yml/badge.svg)](https://github.com/vibhorgoyal18/talent-talks-automation/actions/workflows/test-and-report.yml)
+
 BDD UI automation framework using Behave (Gherkin), Playwright, Allure reporting, and Excel-driven test data. Designed for cross-team collaboration around the TalentTalks hiring platform.
+
+📊 **[View Latest Test Report](https://vibhorgoyal18.github.io/talent-talks-automation/)**
 
 ## Tech Stack
 
@@ -110,31 +114,29 @@ BDD UI automation framework using Behave (Gherkin), Playwright, Allure reporting
 The framework includes automated testing with Allure report publishing via GitHub Actions:
 
 - **Workflow:** `.github/workflows/test-and-report.yml`
-- **Triggers:** Push to `main`, `feature/*` branches, or pull requests
+- **Triggers:** Push to `main`, `feature/*`, `fix/*` branches, or pull requests
+- **Live Report:** 📊 https://vibhorgoyal18.github.io/talent-talks-automation/
 - **Features:**
   - Runs tests with Playwright in headless mode
-  - Generates Allure reports with test history
-  - Publishes reports to GitHub Pages at `https://<username>.github.io/<repo-name>/`
+  - Generates Allure reports with test history and trend analysis
+  - Automatically publishes reports to GitHub Pages
   
-### Setup Instructions:
+### Setup Instructions (Already Configured):
 
-1. **Enable GitHub Actions write permissions:**
-   - Go to repository Settings → Actions → General
-   - Under Workflow permissions, select "Read and write permissions"
-   - Click Save
+✅ **GitHub Actions write permissions enabled**
+✅ **GitHub Pages configured** (serves from `gh-pages` branch)
+✅ **Workflow tested and working**
 
-2. **Configure GitHub Pages:**
-   - After first workflow run, go to Settings → Pages
-   - Under Build and deployment:
-     - Source: "Deploy from a branch"
-     - Branch: `gh-pages`, directory: `/ (root)`
-   - Click Save
+### Viewing Reports:
 
-3. **Add secrets (optional):**
-   - Go to Settings → Secrets and variables → Actions
-   - Add `BASE_URL` for test environment (defaults to production if not set)
+- **Latest Report:** https://vibhorgoyal18.github.io/talent-talks-automation/
+- **All Workflow Runs:** [Actions Tab](https://github.com/vibhorgoyal18/talent-talks-automation/actions)
 
-The Allure report will be available at your GitHub Pages URL after each test run.
+### Optional Configuration:
+
+- **Add secrets (optional):**
+  - Go to Settings → Secrets and variables → Actions
+  - Add `BASE_URL` for test environment (defaults to production if not set)
 
 ## Data & Configuration Strategy
 
