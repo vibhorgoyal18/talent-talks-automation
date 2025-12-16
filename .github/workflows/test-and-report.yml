@@ -41,6 +41,8 @@ jobs:
           DEFAULT__HEADLESS: 'true'
           DEFAULT__TIMEOUT: '30'
           DEFAULT__TRACE: 'false'
+          DEFAULT__GMAIL_EMAIL: ${{ secrets.GMAIL_EMAIL }}
+          DEFAULT__GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
         run: |
           behave features/ --format allure_behave.formatter:AllureFormatter -o allure-results
       
