@@ -23,7 +23,14 @@ class ConfigLoader:
         else:
             raise FileNotFoundError("Neither .env nor .env.example found at project root")
 
+        # Load from .env file
         raw_values = dotenv_values(self._config_path)
+        
+        # Override with OS environment variables (for CI/CD)
+        for key, value in os.environ.items():
+            if "__" in key or key.lower() in ["base_url", "headless", "timeout", "trace", "browser", "slow_mo"]:
+                raw_values[key] = value
+        
         self._namespaced = self._build_namespaced(raw_values)
 
     @staticmethod
