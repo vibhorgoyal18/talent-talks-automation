@@ -50,6 +50,10 @@ Feature: Create Job Opening
     #     And the email should contain interview link
     #     And the email should be sent to "vibhorgoyal.talenttalks@gmail.com"
 
+    # Resend Interview Invite - Test resend functionality
+    When I click the 3-dot menu for the recently created interview
+      And I click the "Send Invite" option from the menu
+
     # Delete Interview - Still on View Interviews page from earlier
     When I click the 3-dot menu for the recently created interview
       And I click the "Delete" option from the menu

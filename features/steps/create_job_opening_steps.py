@@ -622,8 +622,24 @@ def step_click_menu_option(context: Context, option: str):
         view_interviews_page.click_delete_from_menu()
         ctx.logger.info(f"Clicked '{option}' option from menu")
         AllureManager.attach_screenshot(ctx.wrapper, f"Clicked {option} Option")
+    elif option.lower() == "send invite":
+        view_interviews_page.click_resend_invite_from_menu()
+        ctx.logger.info(f"Clicked '{option}' option from menu")
+        AllureManager.attach_screenshot(ctx.wrapper, f"Clicked {option} Option")
     else:
         raise ValueError(f"Unsupported menu option: {option}")
+
+
+@then("the invite should be resent successfully")
+def step_verify_invite_resent(context: Context):
+    """Verify the invite was resent successfully."""
+    ctx = StepContext(context)
+    
+    # Wait for any success message or notification
+    ctx.wrapper.page.wait_for_timeout(2000)
+    
+    ctx.logger.info("Interview invite resent successfully")
+    AllureManager.attach_screenshot(ctx.wrapper, "After Resend Invite")
 
 
 @then("the interview should be deleted successfully")

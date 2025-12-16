@@ -25,6 +25,7 @@ class ViewInterviewsPage:
     # The 3-dot menu button is in the Actions column (last cell of each row)
     THREE_DOT_MENU = "xpath=//button[@aria-label or contains(@class, 'MuiButtonBase')]"
     DELETE_MENU_OPTION = "role=menuitem[name='Delete']"
+    RESEND_INVITE_MENU_OPTION = "role=menuitem[name='Send Invite']"
     CONFIRM_DELETE_BUTTON = "role=button[name='Delete']"
 
     def __init__(self, wrapper: PlaywrightWrapper, base_url: str) -> None:
@@ -163,6 +164,26 @@ class ViewInterviewsPage:
             
         except Exception as e:
             raise Exception(f"Failed to click Delete option: {str(e)}")
+
+    def click_resend_invite_from_menu(self) -> None:
+        """Click the Resend Invite option from the opened dropdown menu."""
+        try:
+            # Wait for the dropdown menu to appear
+            self.wrapper.page.wait_for_timeout(500)
+            
+            # Click the Resend Invite menuitem
+            resend_option = self.wrapper.page.locator(self.RESEND_INVITE_MENU_OPTION).first
+            
+            # Wait for resend option to be visible
+            resend_option.wait_for(state="visible", timeout=3000)
+            
+            resend_option.click()
+            
+            # Wait a moment for the action to complete
+            self.wrapper.page.wait_for_timeout(1000)
+            
+        except Exception as e:
+            raise Exception(f"Failed to click Resend Invite option: {str(e)}")
 
     def confirm_delete(self) -> None:
         """Confirm the delete action if a confirmation dialog appears."""
