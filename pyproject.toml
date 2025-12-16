@@ -25,3 +25,7 @@ dev = [
     "isort>=5.13",
     "mypy>=1.10"
 ]
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["core*", "pages*", "utils*", "features*"]
+exclude = ["__pycache__*", "*.pyc"]
