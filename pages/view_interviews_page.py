@@ -124,8 +124,8 @@ class ViewInterviewsPage:
         
         # Find the row containing the interview
         try:
-            # Find the row with the identifier text
-            row = self.wrapper.page.locator(f"role=row:has-text('{identifier}')").first
+            # Find the row with the identifier text - use proper selector syntax
+            row = self.wrapper.page.locator(f"tr:has-text('{identifier}')").first
             
             # Wait for the row to be visible
             row.wait_for(state="visible", timeout=5000)
