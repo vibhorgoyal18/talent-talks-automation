@@ -127,15 +127,15 @@ class ViewInterviewsPage:
             # Find the row with the identifier text
             row = self.wrapper.page.locator(f"role=row:has-text('{identifier}')").first
             
-            if not row.is_visible():
-                raise Exception(f"Interview row with identifier '{identifier}' not found")
+            # Wait for the row to be visible
+            row.wait_for(state="visible", timeout=5000)
             
             # Find the button in the last cell (Actions column) of this row
             # The actions button is in the last cell with class MuiButtonBase
             action_button = row.locator("button").last
             
-            if not action_button.is_visible():
-                raise Exception(f"Action button not found in interview row for '{identifier}'")
+            # Wait for action button to be visible
+            action_button.wait_for(state="visible", timeout=3000)
             
             # Click the menu button
             action_button.click()
@@ -153,8 +153,8 @@ class ViewInterviewsPage:
             # Click the Delete menuitem
             delete_option = self.wrapper.page.locator(self.DELETE_MENU_OPTION).first
             
-            if not delete_option.is_visible(timeout=2000):
-                raise Exception("Delete option not found in dropdown menu")
+            # Wait for delete option to be visible
+            delete_option.wait_for(state="visible", timeout=3000)
             
             delete_option.click()
             
@@ -184,10 +184,10 @@ class ViewInterviewsPage:
             for selector in confirm_selectors:
                 try:
                     confirm_button = self.wrapper.page.locator(selector).first
-                    if confirm_button.is_visible(timeout=2000):
-                        confirm_button.click()
-                        confirmed = True
-                        break
+                    confirm_button.wait_for(state="visible", timeout=2000)
+                    confirm_button.click()
+                    confirmed = True
+                    break
                 except Exception:
                     continue
             
