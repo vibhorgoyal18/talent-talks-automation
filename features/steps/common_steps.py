@@ -109,7 +109,7 @@ def step_click_button(context: Context, button_name: str):
 
 @when('I upload the file from "{context_key}" to "{button_label}"')
 def step_upload_file(context: Context, context_key: str, button_label: str):
-    """Upload a file by clicking a button and providing the file path from context."""
+    """Upload a file by directly setting files on the file input element."""
     ctx = StepContext(context)
     
     # Get the file path from context.current_scenario_data
@@ -125,18 +125,24 @@ def step_upload_file(context: Context, context_key: str, button_label: str):
     if not os.path.exists(file_path):
         raise FileNotFoundError(f"File not found: {file_path}")
     
-    # Find the file input associated with the button
-    # The button is typically a wrapper around an actual file input
-    button_selector = f"role=button[name='{button_label}']"
+    # Determine which file input to use based on button label
+    if "CV" in button_label or "cv" in button_label.lower():
+        # CV file upload (first file input, accepts .pdf)
+        file_input = ctx.wrapper.page.locator('input[type="file"][accept=".pdf"]').first
+    elif "Image" in button_label or "Photo" in button_label:
+        # Image file upload (accepts image types)
+        file_input = ctx.wrapper.page.locator('input[type="file"]').nth(1)
+    else:
+        # Fallback: use first file input
+        file_input = ctx.wrapper.page.locator('input[type="file"]').first
     
-    # Use Playwright's file chooser API
-    # First, set up the file chooser handler
-    ctx.wrapper.page.on("filechooser", lambda file_chooser: file_chooser.set_files(file_path))
+    # Directly set the file on the input element
+    file_input.set_input_files(file_path)
     
-    # Click the button to trigger the file chooser
-    ctx.wrapper.click(button_selector)
+    # Wait a moment for the file to be processed
+    ctx.wrapper.page.wait_for_timeout(500)
     
-    ctx.logger.info(f"Uploaded file '{file_path}' using button '{button_label}'")
+    ctx.logger.info(f"Uploaded file '{file_path}' using '{button_label}'")
 
 
 @then('I should see the "{text}" message')

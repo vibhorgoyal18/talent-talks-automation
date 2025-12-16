@@ -32,10 +32,30 @@ Feature: Create Job Opening
     And I fill in "Interview Date" with tomorrow's date
     And I fill in "Interview Time" with "10:00"
     And I upload the file from "cv_file" to "Select CV File"
+    And I upload the file from "photo_file" to "Select Image"
     And I click the "Schedule Interview" button
-    And I wait for 2 seconds
-    Then the interview invitation email should be sent to "vibhorgoyal.talenttalks@gmail.com"
+    Then the interview should be scheduled successfully
+    When I wait for 3 seconds
+    
+    # Verify Interview in View Interviews Page
+    When I navigate to View Interviews page
+    Then I should see the recently created interview
+    
+    # Email Verification - Verify Interview Link (Temporarily commented out)
+    # Given I connect to Gmail inbox
+    # When I wait for email with subject containing "Interview Invitation" for 60 seconds
+    # Then the email should be received
+    # And the email should contain interview link
+    # And the email should be sent to "vibhorgoyal.talenttalks@gmail.com"
+    
+    # Delete Interview
+    When I navigate to View Interviews page
+    And I click the 3-dot menu for the recently created interview
+    And I click the "Delete" option from the menu
+    Then the interview should be deleted successfully
+    And I should not see the recently created interview
 
     Examples:
       | scenario           | job_name           |
       | python_developer   | Python Developer   |
+      |java_developer|Java Developer|

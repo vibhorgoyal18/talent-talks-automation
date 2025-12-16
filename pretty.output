@@ -3,83 +3,192 @@ Feature: Create Job Opening # features/create_job_opening.feature:1
   I want to create new job openings
   So that I can start the recruitment process for positions
   @ui @job @smoke @e2e
-  Scenario Outline: Create job opening and verify it appears in the list -- @1.1              # features/create_job_opening.feature:41
-    Given I am logged in as a valid user                                                      # features/steps/create_job_opening_steps.py:20
-    And I navigate to the Create Job Opening page                                             # features/steps/create_job_opening_steps.py:39
-    When I load job opening data for "python_developer"                                       # features/steps/create_job_opening_steps.py:52
+  Scenario Outline: Create job opening and verify it appears in the list -- @1.1              # features/create_job_opening.feature:60
+    Given I am logged in as a valid user                                                      # features/steps/create_job_opening_steps.py:21
+    And I navigate to the Create Job Opening page                                             # features/steps/create_job_opening_steps.py:40
+    When I load job opening data for "python_developer"                                       # features/steps/create_job_opening_steps.py:53
     And I fill in "Job Opening Name" with value from scenario "job_name"                      # features/steps/common_steps.py:35
     And I fill in "Enter or paste job description" with value from scenario "job_description" # features/steps/common_steps.py:35
-    And I set "Interview Duration (minutes)" to 30                                            # features/steps/common_steps.py:181
-    And I check the "Enable Resume Evaluation" checkbox                                       # features/steps/common_steps.py:191
-    And I set "Resume Evaluation Percentage" to 100                                           # features/steps/common_steps.py:181
+    And I set "Interview Duration (minutes)" to 30                                            # features/steps/common_steps.py:187
+    And I check the "Enable Resume Evaluation" checkbox                                       # features/steps/common_steps.py:197
+    And I set "Resume Evaluation Percentage" to 100                                           # features/steps/common_steps.py:187
     And I click the "Create Job Opening" button                                               # features/steps/common_steps.py:92
-    And I wait for 2 seconds                                                                  # features/steps/common_steps.py:164
-    When I navigate to View Job Openings page                                                 # features/steps/create_job_opening_steps.py:221
-    Then I should see the item stored as "created_job_name" in the list                       # features/steps/common_steps.py:251
-    And the item stored as "created_job_name" should have status "Active"                     # features/steps/common_steps.py:268
-    When I load candidate data for "python_developer"                                         # features/steps/create_job_opening_steps.py:294
+    And I wait for 2 seconds                                                                  # features/steps/common_steps.py:170
+    When I navigate to View Job Openings page                                                 # features/steps/create_job_opening_steps.py:222
+    Then I should see the item stored as "created_job_name" in the list                       # features/steps/common_steps.py:257
+    And the item stored as "created_job_name" should have status "Active"                     # features/steps/common_steps.py:274
+    When I load candidate data for "python_developer"                                         # features/steps/create_job_opening_steps.py:295
     And I navigate to "/interviews/new" page                                                  # features/steps/common_steps.py:15
     And I select from "Select Job Opening" the value stored as "created_job_name"             # features/steps/common_steps.py:69
     And I fill in "Candidate Name" with value from scenario "candidate_name"                  # features/steps/common_steps.py:35
     And I fill in "Candidate Email" with value from scenario "candidate_email"                # features/steps/common_steps.py:35
-    And I fill in "Interview Date" with tomorrow's date                                       # features/steps/create_job_opening_steps.py:310
+    And I fill in "Interview Date" with tomorrow's date                                       # features/steps/create_job_opening_steps.py:321
     And I fill in "Interview Time" with "10:00"                                               # features/steps/common_steps.py:24
     And I upload the file from "cv_file" to "Select CV File"                                  # features/steps/common_steps.py:110
+    And I upload the file from "photo_file" to "Select Image"                                 # features/steps/common_steps.py:110
     And I click the "Schedule Interview" button                                               # features/steps/common_steps.py:92
-    And I wait for 2 seconds                                                                  # features/steps/common_steps.py:164
-    Then the interview invitation email should be sent to "vibhorgoyal.talenttalks@gmail.com" # features/steps/create_job_opening_steps.py:402
+    Then the interview should be scheduled successfully                                       # features/steps/create_job_opening_steps.py:390
+      ASSERT FAILED: Interview was not scheduled - still on the schedule page with no success or error toast
+
+    When I wait for 3 seconds                                                                 # None
+    When I navigate to View Interviews page                                                   # None
+    Then I should see the recently created interview                                          # None
+    When I navigate to View Interviews page                                                   # None
+    And I click the 3-dot menu for the recently created interview                             # None
+    And I click the "Delete" option from the menu                                             # None
+    Then the interview should be deleted successfully                                         # None
+    And I should not see the recently created interview                                       # None
+----
+CAPTURED LOG: before_scenario
+LOG_INFO:talent-talks-automation: Starting scenario: Create job opening and verify it appears in the list -- @1.1
+----
+CAPTURED LOG: after_scenario
+LOG_INFO:talent-talks-automation: Finished scenario: Create job opening and verify it appears in the list -- @1.1  - Status: Status.failed
+---- CAPTURED_SCENARIO_OUTPUT_END ----
 
   @ui @job @smoke @e2e
-  Scenario Outline: Create job opening and verify it appears in the list -- @1.2              # features/create_job_opening.feature:42
-    Given I am logged in as a valid user                                                      # features/steps/create_job_opening_steps.py:20
-    And I navigate to the Create Job Opening page                                             # features/steps/create_job_opening_steps.py:39
-    When I load job opening data for "java_developer"                                         # features/steps/create_job_opening_steps.py:52
+  Scenario Outline: Create job opening and verify it appears in the list -- @1.2              # features/create_job_opening.feature:61
+    Given I am logged in as a valid user                                                      # features/steps/create_job_opening_steps.py:21
+    And I navigate to the Create Job Opening page                                             # features/steps/create_job_opening_steps.py:40
+    When I load job opening data for "java_developer"                                         # features/steps/create_job_opening_steps.py:53
     And I fill in "Job Opening Name" with value from scenario "job_name"                      # features/steps/common_steps.py:35
     And I fill in "Enter or paste job description" with value from scenario "job_description" # features/steps/common_steps.py:35
-    And I set "Interview Duration (minutes)" to 30                                            # features/steps/common_steps.py:181
-    And I check the "Enable Resume Evaluation" checkbox                                       # features/steps/common_steps.py:191
-    And I set "Resume Evaluation Percentage" to 100                                           # features/steps/common_steps.py:181
+    And I set "Interview Duration (minutes)" to 30                                            # features/steps/common_steps.py:187
+    And I check the "Enable Resume Evaluation" checkbox                                       # features/steps/common_steps.py:197
+    And I set "Resume Evaluation Percentage" to 100                                           # features/steps/common_steps.py:187
     And I click the "Create Job Opening" button                                               # features/steps/common_steps.py:92
-    And I wait for 2 seconds                                                                  # features/steps/common_steps.py:164
-    When I navigate to View Job Openings page                                                 # features/steps/create_job_opening_steps.py:221
-    Then I should see the item stored as "created_job_name" in the list                       # features/steps/common_steps.py:251
-    And the item stored as "created_job_name" should have status "Active"                     # features/steps/common_steps.py:268
-    When I load candidate data for "java_developer"                                           # features/steps/create_job_opening_steps.py:294
+    And I wait for 2 seconds                                                                  # features/steps/common_steps.py:170
+    When I navigate to View Job Openings page                                                 # features/steps/create_job_opening_steps.py:222
+    Then I should see the item stored as "created_job_name" in the list                       # features/steps/common_steps.py:257
+    And the item stored as "created_job_name" should have status "Active"                     # features/steps/common_steps.py:274
+    When I load candidate data for "java_developer"                                           # features/steps/create_job_opening_steps.py:295
     And I navigate to "/interviews/new" page                                                  # features/steps/common_steps.py:15
     And I select from "Select Job Opening" the value stored as "created_job_name"             # features/steps/common_steps.py:69
     And I fill in "Candidate Name" with value from scenario "candidate_name"                  # features/steps/common_steps.py:35
     And I fill in "Candidate Email" with value from scenario "candidate_email"                # features/steps/common_steps.py:35
-    And I fill in "Interview Date" with tomorrow's date                                       # features/steps/create_job_opening_steps.py:310
+    And I fill in "Interview Date" with tomorrow's date                                       # features/steps/create_job_opening_steps.py:321
     And I fill in "Interview Time" with "10:00"                                               # features/steps/common_steps.py:24
     And I upload the file from "cv_file" to "Select CV File"                                  # features/steps/common_steps.py:110
+    And I upload the file from "photo_file" to "Select Image"                                 # features/steps/common_steps.py:110
     And I click the "Schedule Interview" button                                               # features/steps/common_steps.py:92
-    And I wait for 2 seconds                                                                  # features/steps/common_steps.py:164
-    Then the interview invitation email should be sent to "vibhorgoyal.talenttalks@gmail.com" # features/steps/create_job_opening_steps.py:402
+    Then the interview should be scheduled successfully                                       # features/steps/create_job_opening_steps.py:390
+    When I wait for 3 seconds                                                                 # features/steps/common_steps.py:170
+    When I navigate to View Interviews page                                                   # features/steps/create_job_opening_steps.py:470
+    Then I should see the recently created interview                                          # features/steps/create_job_opening_steps.py:524
+    When I navigate to View Interviews page                                                   # features/steps/create_job_opening_steps.py:470
+    And I click the 3-dot menu for the recently created interview                             # features/steps/create_job_opening_steps.py:577
+      Traceback (most recent call last):
+        File "/Users/vibhorgoyal/PersonalWorkspace/talent-talks-automation/pages/view_interviews_page.py", line 130, in click_three_dot_menu_for_interview
+          if not row.is_visible():
+                 ~~~~~~~~~~~~~~^^
+        File "/Users/vibhorgoyal/PersonalWorkspace/talent-talks-automation/.venv/lib/python3.13/site-packages/playwright/sync_api/_generated.py", line 17228, in is_visible
+          self._sync(self._impl_obj.is_visible(timeout=timeout))
+          ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        File "/Users/vibhorgoyal/PersonalWorkspace/talent-talks-automation/.venv/lib/python3.13/site-packages/playwright/_impl/_sync_base.py", line 115, in _sync
+          return task.result()
+                 ~~~~~~~~~~~^^
+        File "/Users/vibhorgoyal/PersonalWorkspace/talent-talks-automation/.venv/lib/python3.13/site-packages/playwright/_impl/_locator.py", line 513, in is_visible
+          return await self._frame.is_visible(
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+          ...<2 lines>...
+          )
+          ^
+        File "/Users/vibhorgoyal/PersonalWorkspace/talent-talks-automation/.venv/lib/python3.13/site-packages/playwright/_impl/_frame.py", line 408, in is_visible
+          return await self._channel.send(
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^
+              "isVisible", self._timeout, locals_to_params(locals())
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+          )
+          ^
+        File "/Users/vibhorgoyal/PersonalWorkspace/talent-talks-automation/.venv/lib/python3.13/site-packages/playwright/_impl/_connection.py", line 69, in send
+          return await self._connection.wrap_api_call(
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+          ...<3 lines>...
+          )
+          ^
+        File "/Users/vibhorgoyal/PersonalWorkspace/talent-talks-automation/.venv/lib/python3.13/site-packages/playwright/_impl/_connection.py", line 559, in wrap_api_call
+          raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+      playwright._impl._errors.Error: Locator.is_visible: InvalidSelectorError: Error while parsing selector `row:has-text('Java Developer - 20251216_194916')` - unexpected symbol ":" at position 3
+          at syntaxError (<anonymous>:1690:11)
+          at parseAttributeSelector (<anonymous>:1839:5)
+          at Object.queryAll (<anonymous>:4830:22)
+          at InjectedScript._queryEngineAll (<anonymous>:6664:49)
+          at InjectedScript.querySelectorAll (<anonymous>:6651:30)
+          at InjectedScript.querySelector (<anonymous>:6576:25)
+          at eval (eval at evaluate (:290:30), <anonymous>:2:34)
+          at UtilityScript.evaluate (<anonymous>:292:16)
+          at UtilityScript.<anonymous> (<anonymous>:1:44)
+      Call log:
+          - checking visibility of locator("role=row:has-text('Java Developer - 20251216_194916')").first
+      
+      
+      During handling of the above exception, another exception occurred:
+      
+      Traceback (most recent call last):
+        File "/Users/vibhorgoyal/PersonalWorkspace/talent-talks-automation/.venv/lib/python3.13/site-packages/behave/model.py", line 1991, in run
+          match.run(runner.context)
+          ~~~~~~~~~^^^^^^^^^^^^^^^^
+        File "/Users/vibhorgoyal/PersonalWorkspace/talent-talks-automation/.venv/lib/python3.13/site-packages/behave/matchers.py", line 105, in run
+          self.func(context, *args, **kwargs)
+          ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+        File "features/steps/create_job_opening_steps.py", line 592, in step_click_three_dot_menu_for_interview
+          view_interviews_page.click_three_dot_menu_for_interview(identifier)
+          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+        File "/Users/vibhorgoyal/PersonalWorkspace/talent-talks-automation/pages/view_interviews_page.py", line 145, in click_three_dot_menu_for_interview
+          raise Exception(f"Failed to click 3-dot menu for interview '{identifier}': {str(e)}")
+      Exception: Failed to click 3-dot menu for interview 'Java Developer - 20251216_194916': Locator.is_visible: InvalidSelectorError: Error while parsing selector `row:has-text('Java Developer - 20251216_194916')` - unexpected symbol ":" at position 3
+          at syntaxError (<anonymous>:1690:11)
+          at parseAttributeSelector (<anonymous>:1839:5)
+          at Object.queryAll (<anonymous>:4830:22)
+          at InjectedScript._queryEngineAll (<anonymous>:6664:49)
+          at InjectedScript.querySelectorAll (<anonymous>:6651:30)
+          at InjectedScript.querySelector (<anonymous>:6576:25)
+          at eval (eval at evaluate (:290:30), <anonymous>:2:34)
+          at UtilityScript.evaluate (<anonymous>:292:16)
+          at UtilityScript.<anonymous> (<anonymous>:1:44)
+      Call log:
+          - checking visibility of locator("role=row:has-text('Java Developer - 20251216_194916')").first
 
-  @ui @job @smoke @e2e
-  Scenario Outline: Create job opening and verify it appears in the list -- @1.3              # features/create_job_opening.feature:43
-    Given I am logged in as a valid user                                                      # features/steps/create_job_opening_steps.py:20
-    And I navigate to the Create Job Opening page                                             # features/steps/create_job_opening_steps.py:39
-    When I load job opening data for "frontend_developer"                                     # features/steps/create_job_opening_steps.py:52
-    And I fill in "Job Opening Name" with value from scenario "job_name"                      # features/steps/common_steps.py:35
-    And I fill in "Enter or paste job description" with value from scenario "job_description" # features/steps/common_steps.py:35
-    And I set "Interview Duration (minutes)" to 30                                            # features/steps/common_steps.py:181
-    And I check the "Enable Resume Evaluation" checkbox                                       # features/steps/common_steps.py:191
-    And I set "Resume Evaluation Percentage" to 100                                           # features/steps/common_steps.py:181
-    And I click the "Create Job Opening" button                                               # features/steps/common_steps.py:92
-    And I wait for 2 seconds                                                                  # features/steps/common_steps.py:164
-    When I navigate to View Job Openings page                                                 # features/steps/create_job_opening_steps.py:221
-    Then I should see the item stored as "created_job_name" in the list                       # features/steps/common_steps.py:251
-    And the item stored as "created_job_name" should have status "Active"                     # features/steps/common_steps.py:268
-    When I load candidate data for "frontend_developer"                                       # features/steps/create_job_opening_steps.py:294
-    And I navigate to "/interviews/new" page                                                  # features/steps/common_steps.py:15
-    And I select from "Select Job Opening" the value stored as "created_job_name"             # features/steps/common_steps.py:69
-    And I fill in "Candidate Name" with value from scenario "candidate_name"                  # features/steps/common_steps.py:35
-    And I fill in "Candidate Email" with value from scenario "candidate_email"                # features/steps/common_steps.py:35
-    And I fill in "Interview Date" with tomorrow's date                                       # features/steps/create_job_opening_steps.py:310
-    And I fill in "Interview Time" with "10:00"                                               # features/steps/common_steps.py:24
-    And I upload the file from "cv_file" to "Select CV File"                                  # features/steps/common_steps.py:110
-    And I click the "Schedule Interview" button                                               # features/steps/common_steps.py:92
-    And I wait for 2 seconds                                                                  # features/steps/common_steps.py:164
-    Then the interview invitation email should be sent to "vibhorgoyal.talenttalks@gmail.com" # features/steps/create_job_opening_steps.py:402
+    And I click the "Delete" option from the menu                                             # None
+    Then the interview should be deleted successfully                                         # None
+    And I should not see the recently created interview                                       # None
+----
+CAPTURED LOG: before_scenario
+LOG_INFO:talent-talks-automation: Starting scenario: Create job opening and verify it appears in the list -- @1.2
+----
+CAPTURED LOG: after_scenario
+LOG_INFO:talent-talks-automation: Finished scenario: Create job opening and verify it appears in the list -- @1.2  - Status: Status.error
+---- CAPTURED_SCENARIO_OUTPUT_END ----
+
+Feature: Email inbox verification # features/email.feature:1
+  As a tester
+  I want to read emails from Gmail inbox
+  So that I can verify email notifications are received
+  @email
+  Scenario: Fetch latest emails from inbox  # features/email.feature:7
+    Given I connect to Gmail inbox          # features/steps/email_steps.py:9
+    When I fetch the latest "5" emails      # features/steps/email_steps.py:26
+    Then I should see the email list        # features/steps/email_steps.py:40
+
+  @email
+  Scenario: Search for specific email                   # features/email.feature:13
+    Given I connect to Gmail inbox                      # features/steps/email_steps.py:9
+    When I search for emails with subject "TalentTalks" # features/steps/email_steps.py:33
+    Then I should see matching emails                   # features/steps/email_steps.py:63
+
+Feature: Login functionality # features/login.feature:1
+  As a site visitor
+  I want to login
+  So that I can access protected areas
+  @ui
+  Scenario: Login with invalid credentials shows error  # features/login.feature:7
+    Given I open the login page                         # features/steps/login_steps.py:9
+    When I sign in with "invalid_login"                 # features/steps/login_steps.py:16
+    Then I should see "error"                           # features/steps/login_steps.py:27
+
+  @ui
+  Scenario: Login with valid credentials redirects to dashboard  # features/login.feature:13
+    Given I open the login page                                  # features/steps/login_steps.py:9
+    When I sign in with "valid_login"                            # features/steps/login_steps.py:16
+    Then I should see "success"                                  # features/steps/login_steps.py:27
 

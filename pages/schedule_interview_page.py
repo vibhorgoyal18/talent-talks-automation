@@ -26,8 +26,11 @@ class ScheduleInterviewPage:
     SCHEDULE_BUTTON = "role=button[name='Schedule Interview']"
     CANCEL_BUTTON = "role=button[name='Cancel']"
     
-    # Success message
-    SUCCESS_MESSAGE = "text=Interview scheduled successfully"
+    # Toast/Success message selectors
+    TOAST_MESSAGE = ".Toastify__toast-container"
+    SUCCESS_TOAST = ".Toastify__toast--success"
+    ERROR_TOAST = ".Toastify__toast--error"
+    TOAST_TEXT = ".Toastify__toast-body"
 
     def __init__(self, wrapper: PlaywrightWrapper, base_url: str) -> None:
         self.wrapper = wrapper
@@ -75,17 +78,26 @@ class ScheduleInterviewPage:
         """Click the Schedule Interview button."""
         self.wrapper.click(self.SCHEDULE_BUTTON)
 
-    def is_success_message_displayed(self) -> bool:
-        """Check if the success message is displayed or if we navigated away from the form."""
-        # Check if we're still on the schedule page
-        current_url = self.wrapper.page.url
-        
-        # If we navigated away, consider it success
-        if "/interviews/new" not in current_url:
-            return True
-            
-        # Otherwise check for success message
-        return self.wrapper.is_visible(self.SUCCESS_MESSAGE, timeout=2000)
+    def is_success_toast_displayed(self) -> bool:
+        """Check if the success toast message is displayed."""
+        # Wait for toast to appear
+        try:
+            return self.wrapper.is_visible(self.SUCCESS_TOAST, timeout=5000)
+        except Exception:
+            return False
+    
+    def get_toast_message(self) -> str:
+        """Get the text from the toast message."""
+        if self.wrapper.is_visible(self.TOAST_TEXT, timeout=2000):
+            return self.wrapper.get_text(self.TOAST_TEXT)
+        return ""
+    
+    def is_error_toast_displayed(self) -> bool:
+        """Check if an error toast message is displayed."""
+        try:
+            return self.wrapper.is_visible(self.ERROR_TOAST, timeout=2000)
+        except Exception:
+            return False
 
     def schedule_interview(
         self,

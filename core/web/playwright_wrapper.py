@@ -19,11 +19,19 @@ class PlaywrightWrapper:
         self.page.click(selector, timeout=self.timeout)
 
     def type_text(self, selector: str, text: str, clear: bool = True) -> None:
-        """Type text into an input field."""
+        """Type text into an input field and validate it was set successfully."""
         if clear:
             self.page.fill(selector, text, timeout=self.timeout)
         else:
             self.page.locator(selector).press_sequentially(text)
+        
+        # Validate the value was set successfully
+        locator = self.page.locator(selector)
+        actual_value = locator.input_value(timeout=2000)
+        if actual_value != text:
+            raise ValueError(
+                f"Failed to set value. Expected: '{text}', but got: '{actual_value}' for selector: {selector}"
+            )
 
     def get_text(self, selector: str) -> str:
         """Get the text content of an element."""

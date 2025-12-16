@@ -1,6 +1,7 @@
 - When adding configuration entries to `.env`, ensure the same keys exist in `.env.example` with safe dummy values so contributors know which variables to provide.
 - When making any changes to the framework (structure, utilities, configurations, or core components), update `README.md` to reflect those changes.
 - Document any working patterns, conventions, or implementation details in this file (`copilot-instructions.md`) so Copilot understands how to create tests and where to find test data.
+- **ALWAYS rerun the test after making changes** to verify the implementation works correctly. If the test fails, debug and fix the issue immediately before moving on.
 - Test data files are located in the `data/` directory. Reference data using `context.data_loader.find_by_key()` in step definitions.
 - Step definitions are located in `features/steps/`. Follow the existing pattern using `@given`, `@when`, `@then` decorators from behave.
 - Page objects are located in `pages/`. Each page class should accept `wrapper` and `base_url` in the constructor.
@@ -161,13 +162,20 @@ class YourPage:
 - **Browser options**: `chromium` (default), `firefox`, `webkit`
 - View traces at https://trace.playwright.dev or run `playwright show-trace trace.zip`
 
+### 7. GitHub Actions & CI/CD
+- **Workflow file**: `.github/workflows/test-and-report.yml`
+- Tests run automatically on push to `main` or `feature/*` branches
+- Allure reports are published to GitHub Pages at `https://<username>.github.io/<repo-name>/`
+- Reports include test history from previous runs for trend analysis
+- Requires GitHub Actions write permissions and GitHub Pages enabled (see README.md)
+
 ## Debugging Failed Tests
 
 When a test fails:
 1. **Use Playwright MCP tools** to inspect the page and identify the correct selectors
 2. Navigate to the failing URL using `mcp_playwright_browser_navigate`
 3. Take an accessibility snapshot using `mcp_playwright_browser_snapshot` to see available elements
-4. **Always read test credentials from `data/test_data.xlsx`** before using Playwright MCP to test login or authentication flows
+4. **Always read test credentials from `data/test_data.json`** before using Playwright MCP to test login or authentication flows
 5. Update the page object selectors based on actual page structure
 6. Re-run the test to verify the fix
 7. Document any fixes in `CHANGELOG.md`
