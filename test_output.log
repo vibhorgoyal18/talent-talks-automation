@@ -2,92 +2,56 @@ USING RUNNER: behave.runner:Runner
 Feature: Create Job Opening # features/create_job_opening.feature:1
   As an HR manager
   I want to create new job openings
-  So that I can start the recruitment process for positions2025-12-14 21:03:56,763 - INFO - talent-talks-automation - Starting scenario: Create job opening and verify it appears in the list -- @1.1 
+  So that I can start the recruitment process for positions2025-12-16 13:01:24,908 - INFO - talent-talks-automation - Starting scenario: Create job opening and verify it appears in the list -- @1.1 
 
   @ui @job @smoke @e2e
-  Scenario Outline: Create job opening and verify it appears in the list -- @1.1              # features/create_job_opening.feature:53
+  Scenario Outline: Create job opening and verify it appears in the list -- @1.1              # features/create_job_opening.feature:60
     Given I am logged in as a valid user                                                      # features/steps/create_job_opening_steps.py:21
-2025-12-14 21:04:00,914 - INFO - talent-talks-automation - Successfully logged in as valid user
-    And I navigate to the Create Job Opening page                                             # features/steps/create_job_opening_steps.py:40
-2025-12-14 21:04:00,978 - INFO - talent-talks-automation - Navigated to Create Job Opening page
-    When I load job opening data for "python_developer"                                       # features/steps/create_job_opening_steps.py:53
-2025-12-14 21:04:00,978 - INFO - talent-talks-automation - Loaded job opening data for scenario: python_developer
-2025-12-14 21:04:00,978 - INFO - talent-talks-automation - Unique job name: Python Developer - 20251214_210400
-    And I fill in "Job Opening Name" with value from scenario "job_name"                      # features/steps/common_steps.py:35
-2025-12-14 21:04:00,990 - INFO - talent-talks-automation - Filled in 'Job Opening Name' with 'Python Developer - 20251214_210400' from scenario data
-    And I fill in "Enter or paste job description" with value from scenario "job_description" # features/steps/common_steps.py:35
-2025-12-14 21:04:01,000 - INFO - talent-talks-automation - Filled in 'Enter or paste job description' with 'Looking for an experienced Python developer with Django and FastAPI skills' from scenario data
-    And I set "Interview Duration (minutes)" to 30                                            # features/steps/common_steps.py:187
-2025-12-14 21:04:01,014 - INFO - talent-talks-automation - Set 'Interview Duration (minutes)' to 30
-    And I check the "Enable Resume Evaluation" checkbox                                       # features/steps/common_steps.py:197
-2025-12-14 21:04:01,046 - INFO - talent-talks-automation - Checked checkbox: 'Enable Resume Evaluation'
-    And I set "Resume Evaluation Percentage" to 100                                           # features/steps/common_steps.py:187
-2025-12-14 21:04:01,057 - INFO - talent-talks-automation - Set 'Resume Evaluation Percentage' to 100
-    And I click the "Create Job Opening" button                                               # features/steps/common_steps.py:92
-2025-12-14 21:04:01,087 - INFO - talent-talks-automation - Clicked button: 'Create Job Opening'
-    And I wait for 2 seconds                                                                  # features/steps/common_steps.py:170
-2025-12-14 21:04:03,089 - INFO - talent-talks-automation - Waited for 2 seconds
-    When I navigate to View Job Openings page                                                 # features/steps/create_job_opening_steps.py:222
-2025-12-14 21:04:03,090 - INFO - talent-talks-automation - Waiting for job to be saved in database
-2025-12-14 21:04:08,092 - INFO - talent-talks-automation - Clicking View Job Openings button in sidebar
-2025-12-14 21:04:08,273 - INFO - talent-talks-automation - Searching for job: Python Developer - 20251214_210400
-2025-12-14 21:04:09,305 - INFO - talent-talks-automation - Navigated to View Job Openings page
-    Then I should see the item stored as "created_job_name" in the list                       # features/steps/common_steps.py:257
-2025-12-14 21:04:09,308 - INFO - talent-talks-automation - Verified item is in list: 'Python Developer - 20251214_210400' (from context.created_job_name)
-    And the item stored as "created_job_name" should have status "Active"                     # features/steps/common_steps.py:274
-2025-12-14 21:04:09,313 - INFO - talent-talks-automation - Verified item 'Python Developer - 20251214_210400' has status: 'Active'
-    When I load candidate data for "python_developer"                                         # features/steps/create_job_opening_steps.py:295
-2025-12-14 21:04:09,313 - INFO - talent-talks-automation - Loaded candidate data for scenario: python_developer
-2025-12-14 21:04:09,313 - INFO - talent-talks-automation - Candidate: Test Candidate Python, Email: vibhorgoyal.talenttalks@gmail.com
-    And I navigate to "/interviews/new" page                                                  # features/steps/common_steps.py:15
-2025-12-14 21:04:09,584 - INFO - talent-talks-automation - Navigated to: https://talenttalks.vlinkinfo.com/interviews/new
-    And I select from "Select Job Opening" the value stored as "created_job_name"             # features/steps/common_steps.py:69
-2025-12-14 21:04:11,062 - INFO - talent-talks-automation - Selected 'Python Developer - 20251214_210400' from 'Select Job Opening' (from context.created_job_name)
-    And I fill in "Candidate Name" with value from scenario "candidate_name"                  # features/steps/common_steps.py:35
-2025-12-14 21:04:11,089 - INFO - talent-talks-automation - Filled in 'Candidate Name' with 'Test Candidate Python' from scenario data
-    And I fill in "Candidate Email" with value from scenario "candidate_email"                # features/steps/common_steps.py:35
-2025-12-14 21:04:11,109 - INFO - talent-talks-automation - Filled in 'Candidate Email' with 'vibhorgoyal.talenttalks@gmail.com' from scenario data
-    And I fill in "Interview Date" with tomorrow's date                                       # features/steps/create_job_opening_steps.py:311
-2025-12-14 21:04:11,133 - INFO - talent-talks-automation - Filled in 'Interview Date' with tomorrow's date: 2025-12-15
-    And I fill in "Interview Time" with "10:00"                                               # features/steps/common_steps.py:24
-2025-12-14 21:04:11,153 - INFO - talent-talks-automation - Filled in 'Interview Time' with '10:00'
-    And I upload the file from "cv_file" to "Select CV File"                                  # features/steps/common_steps.py:110
-2025-12-14 21:04:11,677 - INFO - talent-talks-automation - Uploaded file '/Users/vibhorgoyal/PersonalWorkspace/talent-talks-automation/data/test_files/sample_cv.pdf' using 'Select CV File'
-    And I upload the file from "photo_file" to "Select Image"                                 # features/steps/common_steps.py:110
-2025-12-14 21:04:12,195 - INFO - talent-talks-automation - Uploaded file '/Users/vibhorgoyal/PersonalWorkspace/talent-talks-automation/data/test_files/Vibhor_Photo.jpg' using 'Select Image'
-    And I click the "Schedule Interview" button                                               # features/steps/common_steps.py:92
-2025-12-14 21:04:12,232 - INFO - talent-talks-automation - Clicked button: 'Schedule Interview'
-    Then the interview should be scheduled successfully                                       # features/steps/create_job_opening_steps.py:380
-2025-12-14 21:04:22,243 - INFO - talent-talks-automation - Current URL after scheduling: https://talenttalks.vlinkinfo.com/interviews
-2025-12-14 21:04:22,243 - INFO - talent-talks-automation - Successfully navigated away from schedule page
-2025-12-14 21:04:22,326 - INFO - talent-talks-automation - Interview scheduling step completed
-2025-12-14 21:04:22,326 - INFO - talent-talks-automation - Candidate email stored in context: vibhorgoyal.talenttalks@gmail.com
-    When I wait for 3 seconds                                                                 # features/steps/common_steps.py:170
-2025-12-14 21:04:25,329 - INFO - talent-talks-automation - Waited for 3 seconds
-    When I navigate to View Interviews page                                                   # features/steps/create_job_opening_steps.py:460
-2025-12-14 21:04:25,331 - INFO - talent-talks-automation - Waiting for interview to be saved in database
-2025-12-14 21:04:28,334 - INFO - talent-talks-automation - Clicking View Interviews button in sidebar
-2025-12-14 21:04:29,544 - INFO - talent-talks-automation - Navigated to View Interviews page
-    Then I should see the recently created interview                                          # features/steps/create_job_opening_steps.py:514
-2025-12-14 21:04:31,561 - INFO - talent-talks-automation - Searching for interview by candidate name: Test Candidate Python
-2025-12-14 21:04:31,561 - INFO - talent-talks-automation - Interview found in the list (Candidate: Test Candidate Python, Job: Python Developer - 20251214_210400)
-    Given I connect to Gmail inbox                                                            # features/steps/email_steps.py:9
-2025-12-14 21:04:32,646 - INFO - talent-talks-automation - Connected to Gmail: vibhorgoyal.talenttalks@gmail.com
-    When I wait for email with subject containing "Interview Invitation" for 60 seconds       # features/steps/email_steps.py:89
-2025-12-14 21:04:32,647 - INFO - talent-talks-automation - Waiting for email with subject containing: Interview Invitation
-2025-12-14 21:05:34,687 - WARNING - talent-talks-automation - Email not received within 60 seconds
-    Then the email should be received                                                         # features/steps/email_steps.py:112
-      ASSERT FAILED: Email was not received
+      ASSERT FAILED: Dashboard did not load after login
 
-2025-12-14 21:05:34,735 - INFO - talent-talks-automation - Finished scenario: Create job opening and verify it appears in the list -- @1.1  - Status: Status.failed
+2025-12-16 13:01:34,058 - INFO - talent-talks-automation - Finished scenario: Create job opening and verify it appears in the list -- @1.1  - Status: Status.failed
+    And I navigate to the Create Job Opening page                                             # None
+    When I load job opening data for "python_developer"                                       # None
+    And I fill in "Job Opening Name" with value from scenario "job_name"                      # None
+    And I fill in "Enter or paste job description" with value from scenario "job_description" # None
+    And I set "Interview Duration (minutes)" to 30                                            # None
+    And I check the "Enable Resume Evaluation" checkbox                                       # None
+    And I set "Resume Evaluation Percentage" to 100                                           # None
+    And I click the "Create Job Opening" button                                               # None
+    And I wait for 2 seconds                                                                  # None
+    When I navigate to View Job Openings page                                                 # None
+    Then I should see the item stored as "created_job_name" in the list                       # None
+    And the item stored as "created_job_name" should have status "Active"                     # None
+    When I load candidate data for "python_developer"                                         # None
+    And I navigate to "/interviews/new" page                                                  # None
+    And I select from "Select Job Opening" the value stored as "created_job_name"             # None
+    And I fill in "Candidate Name" with value from scenario "candidate_name"                  # None
+    And I fill in "Candidate Email" with value from scenario "candidate_email"                # None
+    And I fill in "Interview Date" with tomorrow's date                                       # None
+    And I fill in "Interview Time" with "10:00"                                               # None
+    And I upload the file from "cv_file" to "Select CV File"                                  # None
+    And I upload the file from "photo_file" to "Select Image"                                 # None
+    And I click the "Schedule Interview" button                                               # None
+    Then the interview should be scheduled successfully                                       # None
+    When I wait for 3 seconds                                                                 # None
+    When I navigate to View Interviews page                                                   # None
+    Then I should see the recently created interview                                          # None
+    Given I connect to Gmail inbox                                                            # None
+    When I wait for email with subject containing "Interview Invitation" for 60 seconds       # None
+    Then the email should be received                                                         # None
     And the email should contain interview link                                               # None
     And the email should be sent to "vibhorgoyal.talenttalks@gmail.com"                       # None
+    When I navigate to View Interviews page                                                   # None
+    And I click the 3-dot menu for the recently created interview                             # None
+    And I click the "Delete" option from the menu                                             # None
+    Then the interview should be deleted successfully                                         # None
+    And I should not see the recently created interview                                       # None
 
 
 Failing scenarios:
-  features/create_job_opening.feature:53  Create job opening and verify it appears in the list -- @1.1 
+  features/create_job_opening.feature:60  Create job opening and verify it appears in the list -- @1.1 
 
 0 features passed, 1 failed, 0 skipped
 0 scenarios passed, 1 failed, 0 skipped
-29 steps passed, 1 failed, 2 skipped
-Took 1min 37.917s
+0 steps passed, 1 failed, 36 skipped
+Took 0min 9.094s

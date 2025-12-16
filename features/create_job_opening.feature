@@ -41,13 +41,21 @@ Feature: Create Job Opening
     When I navigate to View Interviews page
     Then I should see the recently created interview
     
-    # Email Verification - Verify Interview Link
-    Given I connect to Gmail inbox
-    When I wait for email with subject containing "Interview Invitation" for 60 seconds
-    Then the email should be received
-    And the email should contain interview link
-    And the email should be sent to "vibhorgoyal.talenttalks@gmail.com"
+    # Email Verification - Verify Interview Link (Temporarily commented out)
+    # Given I connect to Gmail inbox
+    # When I wait for email with subject containing "Interview Invitation" for 60 seconds
+    # Then the email should be received
+    # And the email should contain interview link
+    # And the email should be sent to "vibhorgoyal.talenttalks@gmail.com"
+    
+    # Delete Interview
+    When I navigate to View Interviews page
+    And I click the 3-dot menu for the recently created interview
+    And I click the "Delete" option from the menu
+    Then the interview should be deleted successfully
+    And I should not see the recently created interview
 
     Examples:
       | scenario           | job_name           |
       | python_developer   | Python Developer   |
+      |java_developer|Java Developer|

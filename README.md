@@ -105,6 +105,37 @@ BDD UI automation framework using Behave (Gherkin), Playwright, Allure reporting
   allure serve allure-results
   ```
 
+## GitHub Actions & Continuous Integration
+
+The framework includes automated testing with Allure report publishing via GitHub Actions:
+
+- **Workflow:** `.github/workflows/test-and-report.yml`
+- **Triggers:** Push to `main`, `feature/*` branches, or pull requests
+- **Features:**
+  - Runs tests with Playwright in headless mode
+  - Generates Allure reports with test history
+  - Publishes reports to GitHub Pages at `https://<username>.github.io/<repo-name>/`
+  
+### Setup Instructions:
+
+1. **Enable GitHub Actions write permissions:**
+   - Go to repository Settings → Actions → General
+   - Under Workflow permissions, select "Read and write permissions"
+   - Click Save
+
+2. **Configure GitHub Pages:**
+   - After first workflow run, go to Settings → Pages
+   - Under Build and deployment:
+     - Source: "Deploy from a branch"
+     - Branch: `gh-pages`, directory: `/ (root)`
+   - Click Save
+
+3. **Add secrets (optional):**
+   - Go to Settings → Secrets and variables → Actions
+   - Add `BASE_URL` for test environment (defaults to production if not set)
+
+The Allure report will be available at your GitHub Pages URL after each test run.
+
 ## Data & Configuration Strategy
 
 - `.env` drives runtime configuration. Keys use `ENV__OPTION` syntax (e.g., `STAGE__BASE_URL`). `TEST_ENV` selects the namespace, defaulting to `DEFAULT`.

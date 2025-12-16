@@ -294,18 +294,28 @@ def step_verify_job_status(context: Context, job_name: str, expected_status: str
 
 @when('I load candidate data for "{scenario}"')
 def step_load_candidate_data(context: Context, scenario: str):
-    """Load candidate data from test data and store in context."""
+    """Load candidate data from test data and store in context with unique timestamp."""
     ctx = StepContext(context)
     
     # Load candidate data
     candidate_data = ctx.data_loader.find_by_key("candidate_data", "scenario", scenario)
     
+    # Append short timestamp to candidate name to make it unique
+    timestamp = datetime.now().strftime("%m%d_%H%M")
+    base_name = candidate_data["candidate_name"].replace("Test Candidate ", "")
+    unique_candidate_name = f"{base_name}_{timestamp}"
+    
     # Store in context for use by generic steps
-    context.current_scenario_data = candidate_data
+    context.current_scenario_data = {
+        "candidate_name": unique_candidate_name,
+        "candidate_email": candidate_data["candidate_email"],
+        "cv_file": candidate_data["cv_file"],
+        "photo_file": candidate_data["photo_file"],
+    }
     context.candidate_email = candidate_data["candidate_email"]
     
     ctx.logger.info(f"Loaded candidate data for scenario: {scenario}")
-    ctx.logger.info(f"Candidate: {candidate_data['candidate_name']}, Email: {candidate_data['candidate_email']}")
+    ctx.logger.info(f"Candidate: {unique_candidate_name}, Email: {candidate_data['candidate_email']}")
 
 
 @when('I fill in "{field_label}" with tomorrow\'s date')
@@ -562,4 +572,80 @@ def step_verify_interview_status(context: Context, candidate_name: str, expected
     
     ctx.logger.info(f"Interview for candidate '{actual_candidate_name}' has correct status: {expected_status}")
     AllureManager.attach_text("Interview Status", f"{actual_candidate_name}: {actual_status}")
+
+
+@when("I click the 3-dot menu for the recently created interview")
+def step_click_three_dot_menu_for_interview(context: Context):
+    """Click the 3-dot menu button for the recently created interview."""
+    ctx = StepContext(context)
+    
+    # Get identifier from context (prefer job name, fallback to candidate name)
+    job_name = getattr(context, 'created_job_name', None)
+    candidate_name = getattr(context, 'current_scenario_data', {}).get('candidate_name')
+    
+    identifier = job_name if job_name else candidate_name
+    
+    if not identifier:
+        raise ValueError("No interview identifier (job name or candidate name) found in context")
+    
+    view_interviews_page = ViewInterviewsPage(ctx.wrapper, ctx.base_url)
+    view_interviews_page.click_three_dot_menu_for_interview(identifier)
+    
+    ctx.logger.info(f"Clicked 3-dot menu for interview: {identifier}")
+    AllureManager.attach_screenshot(ctx.wrapper, "3-Dot Menu Opened")
+
+
+@when('I click the "{option}" option from the menu')
+def step_click_menu_option(context: Context, option: str):
+    """Click a specific option from the dropdown menu."""
+    ctx = StepContext(context)
+    
+    view_interviews_page = ViewInterviewsPage(ctx.wrapper, ctx.base_url)
+    
+    if option.lower() == "delete":
+        view_interviews_page.click_delete_from_menu()
+        ctx.logger.info(f"Clicked '{option}' option from menu")
+        AllureManager.attach_screenshot(ctx.wrapper, f"Clicked {option} Option")
+    else:
+        raise ValueError(f"Unsupported menu option: {option}")
+
+
+@then("the interview should be deleted successfully")
+def step_verify_interview_deleted(context: Context):
+    """Verify the interview was deleted successfully by confirming the delete action."""
+    ctx = StepContext(context)
+    
+    view_interviews_page = ViewInterviewsPage(ctx.wrapper, ctx.base_url)
+    
+    # Confirm the delete if a confirmation dialog appears
+    view_interviews_page.confirm_delete()
+    
+    ctx.logger.info("Interview delete action confirmed")
+    AllureManager.attach_screenshot(ctx.wrapper, "After Delete Confirmation")
+
+
+@then("I should not see the recently created interview")
+def step_verify_interview_not_present(context: Context):
+    """Verify the recently deleted interview is no longer present in the list."""
+    ctx = StepContext(context)
+    
+    # Get identifier from context (prefer job name, fallback to candidate name)
+    job_name = getattr(context, 'created_job_name', None)
+    candidate_name = getattr(context, 'current_scenario_data', {}).get('candidate_name')
+    
+    identifier = job_name if job_name else candidate_name
+    
+    if not identifier:
+        raise ValueError("No interview identifier (job name or candidate name) found in context")
+    
+    view_interviews_page = ViewInterviewsPage(ctx.wrapper, ctx.base_url)
+    
+    # Verify the interview is no longer present
+    is_deleted = view_interviews_page.is_interview_deleted(identifier)
+    
+    assert is_deleted, \
+        f"Interview '{identifier}' is still present in the list after deletion"
+    
+    ctx.logger.info(f"Verified interview '{identifier}' is no longer in the list")
+    AllureManager.attach_screenshot(ctx.wrapper, "Interview Deleted - List View")
 
