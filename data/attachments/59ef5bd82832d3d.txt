@@ -1,0 +1,44 @@
+
+--- Email 1 ---
+Subject: Security alert
+From: Google <no-reply@accounts.google.com>
+Date: Fri, 05 Dec 2025 14:48:08 GMT
+Preview: [image: Google]
+App password created to sign in to your account
+
+
+vibhorgoyal.talenttalks@gmail....
+
+
+--- Email 2 ---
+Subject: 2-Step Verification turned on
+From: Google <no-reply@accounts.google.com>
+Date: Fri, 05 Dec 2025 14:47:37 GMT
+Preview: [image: Google]
+2-Step Verification turned on
+
+
+vibhorgoyal.talenttalks@gmail.com
+
+Your Google...
+
+
+--- Email 3 ---
+Subject: Security alert
+From: Google <no-reply@accounts.google.com>
+Date: Fri, 05 Dec 2025 14:47:16 GMT
+Preview: [image: Google]
+New passkey added to your account
+
+
+vibhorgoyal.talenttalks@gmail.com
+If you di...
+
+
+--- Email 4 ---
+Subject: Your Account is Live: Finish Setting Up Your Business on Google
+From: Google Community Team <googlecommunityteam-noreply@google.com>
+Date: Tue, 02 Dec 2025 06:09:34 -0800
+Preview: GOOGLE BUSINESS PROFILE
+Next step: Finish setting up your business on Google
+Now you can start gro...
