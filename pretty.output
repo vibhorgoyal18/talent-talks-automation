@@ -3,7 +3,7 @@ Feature: Create Job Opening # features/create_job_opening.feature:1
   I want to create new job openings
   So that I can start the recruitment process for positions
   @ui @job @smoke @e2e
-  Scenario Outline: Create job opening and verify it appears in the list "python_developer" -- @1.1   # features/create_job_opening.feature:65
+  Scenario Outline: Create job opening and verify it appears in the list "python_developer" -- @1.1   # features/create_job_opening.feature:69
     Given I am logged in as a valid user                                                              # features/steps/create_job_opening_steps.py:21
     And I navigate to the Create Job Opening page                                                     # features/steps/create_job_opening_steps.py:40
     When I load job opening data for "python_developer"                                               # features/steps/create_job_opening_steps.py:53
@@ -28,14 +28,5 @@ Feature: Create Job Opening # features/create_job_opening.feature:1
     And I upload the file from "photo_file" to "Select Image"                                         # features/steps/common_steps.py:110
     And I click the "Schedule Interview" button                                                       # features/steps/common_steps.py:92
     Then the interview should be scheduled successfully                                               # features/steps/create_job_opening_steps.py:390
-    When I wait for 3 seconds                                                                         # features/steps/common_steps.py:170
-    When I navigate to View Interviews page                                                           # features/steps/create_job_opening_steps.py:470
-    And I search for the recently created interview                                                   # features/steps/create_job_opening_steps.py:524
-    Then I should see the recently created interview                                                  # features/steps/create_job_opening_steps.py:545
-    When I click the 3-dot menu for the recently created interview                                    # features/steps/create_job_opening_steps.py:593
-    And I click the "Send Invite" option from the menu                                                # features/steps/create_job_opening_steps.py:614
-    When I click the 3-dot menu for the recently created interview                                    # features/steps/create_job_opening_steps.py:593
-    And I click the "Delete" option from the menu                                                     # features/steps/create_job_opening_steps.py:614
-    Then the interview should be deleted successfully                                                 # features/steps/create_job_opening_steps.py:645
-    And I should not see the recently created interview                                               # features/steps/create_job_opening_steps.py:659
+      ABORTED: By user (KeyboardInterrupt).
 

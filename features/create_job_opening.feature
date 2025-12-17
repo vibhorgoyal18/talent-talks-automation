@@ -53,6 +53,10 @@ Feature: Create Job Opening
     # Resend Interview Invite - Test resend functionality
     When I click the 3-dot menu for the recently created interview
       And I click the "Send Invite" option from the menu
+      Then the invite should be resent successfully
+      And I should receive the interview invitation email
+      And I should extract the interview URL from the email
+    When I wait for 2 seconds
 
     # Delete Interview - Still on View Interviews page from earlier
     When I click the 3-dot menu for the recently created interview

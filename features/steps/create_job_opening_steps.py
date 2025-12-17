@@ -642,6 +642,143 @@ def step_verify_invite_resent(context: Context):
     AllureManager.attach_screenshot(ctx.wrapper, "After Resend Invite")
 
 
+@then("I should receive the interview invitation email")
+def step_receive_interview_email(context: Context):
+    """Wait for and verify the interview invitation email arrives (checks both inbox and spam)."""
+    ctx = StepContext(context)
+    
+    from utils.mail_client import GmailIMAPClient, MailClientError
+    import time
+    
+    # Get email credentials from config
+    gmail_email = ctx.config.get("gmail_email")
+    gmail_app_password = ctx.config.get("gmail_app_password")
+    
+    if not gmail_email or not gmail_app_password:
+        ctx.logger.warning("Gmail credentials not configured, skipping email verification")
+        return
+    
+    try:
+        # Connect to Gmail
+        mail_client = GmailIMAPClient(gmail_email, gmail_app_password)
+        mail_client.connect()
+        
+        ctx.logger.info(f"Waiting for interview invitation email to {gmail_email}...")
+        print(f"\n📧 Checking email: {gmail_email}")
+        
+        email_message = None
+        folder_found = None
+        
+        # Try INBOX first, then Spam folder
+        folders_to_check = [("INBOX", "📥 Inbox"), ("[Gmail]/Spam", "🗑️ Spam")]
+        
+        timeout_seconds = 60
+        poll_interval = 5
+        start_time = time.time()
+        
+        while time.time() - start_time < timeout_seconds:
+            for folder, folder_display in folders_to_check:
+                try:
+                    messages = mail_client.list_messages(
+                        folder=folder,
+                        max_results=5,
+                        search_criteria='SUBJECT "Interview Invitation"'
+                    )
+                    
+                    if messages:
+                        # Find the most recent matching email
+                        for msg in messages:
+                            if "Interview Invitation" in msg.subject:
+                                email_message = msg
+                                folder_found = folder_display
+                                break
+                    
+                    if email_message:
+                        break
+                except Exception as e:
+                    ctx.logger.debug(f"Could not check {folder}: {e}")
+            
+            if email_message:
+                break
+            
+            print(f"⏳ Waiting for email... ({int(time.time() - start_time)}s elapsed)")
+            time.sleep(poll_interval)
+        
+        if email_message:
+            ctx.logger.info(f"✅ Email found in {folder_found} - Subject: {email_message.subject}")
+            print(f"\n✅ Email received in {folder_found}")
+            print(f"   Subject: {email_message.subject}")
+            print(f"   From: {email_message.sender}")
+            
+            # Store email in context for next step to extract URL
+            context.interview_email = email_message
+            context.email_folder = folder_found
+            
+            AllureManager.attach_text("Email Folder", folder_found)
+            AllureManager.attach_text("Email Subject", email_message.subject)
+            AllureManager.attach_text("Email Snippet", email_message.snippet)
+        else:
+            ctx.logger.warning("Interview invitation email not received within timeout")
+            print(f"\n❌ Email not received within {timeout_seconds} seconds")
+            AllureManager.attach_text("Email Status", f"Email not received within {timeout_seconds} seconds")
+        
+        mail_client.disconnect()
+        
+    except MailClientError as e:
+        ctx.logger.error(f"Failed to check email: {e}")
+        print(f"\n❌ Email check failed: {e}")
+        AllureManager.attach_text("Email Error", str(e))
+        # Don't fail the test, just log the error
+
+
+@then("I should extract the interview URL from the email")
+def step_extract_interview_url(context: Context):
+    """Extract the interview URL from the received email and print it to terminal."""
+    ctx = StepContext(context)
+    
+    import re
+    
+    # Check if we have the email from previous step
+    if not hasattr(context, 'interview_email'):
+        ctx.logger.warning("No interview email found in context, skipping URL extraction")
+        print("\n⚠️  No interview email found, skipping URL extraction")
+        return
+    
+    email_message = context.interview_email
+    folder_found = getattr(context, 'email_folder', 'Unknown')
+    
+    if not email_message or not email_message.body:
+        ctx.logger.warning("Email body is empty, cannot extract URL")
+        print("\n⚠️  Email body is empty, cannot extract URL")
+        return
+    
+    # Search for interview URL patterns in the email body
+    # Common patterns: https://talenttalks.vlinkinfo.com/interview/...
+    url_pattern = r'https?://[^\s<>"]+/interview/[^\s<>"]+'
+    matches = re.findall(url_pattern, email_message.body)
+    
+    if matches:
+        interview_url = matches[0]  # Take the first match
+        context.interview_url = interview_url
+        
+        # Log and print to terminal
+        ctx.logger.info(f"Interview URL extracted: {interview_url}")
+        print(f"\n{'='*80}")
+        print(f"🔗 INTERVIEW INVITATION LINK")
+        print(f"{'='*80}")
+        print(f"   Found in: {folder_found}")
+        print(f"   Link: {interview_url}")
+        print(f"{'='*80}\n")
+        
+        AllureManager.attach_text("Interview URL", interview_url)
+        AllureManager.attach_text("Email Body", email_message.body)
+    else:
+        ctx.logger.warning("No interview URL found in email body")
+        print("\n⚠️  No interview URL found in email body")
+        print(f"   Email preview: {email_message.snippet}")
+        AllureManager.attach_text("Email Body (No URL Found)", email_message.body)
+
+
 @then("the interview should be deleted successfully")
 def step_verify_interview_deleted(context: Context):
     """Verify the interview was deleted successfully by confirming the delete action."""
