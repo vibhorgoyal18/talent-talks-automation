@@ -28,5 +28,15 @@ Feature: Create Job Opening # features/create_job_opening.feature:1
     And I upload the file from "photo_file" to "Select Image"                                         # features/steps/common_steps.py:110
     And I click the "Schedule Interview" button                                                       # features/steps/common_steps.py:92
     Then the interview should be scheduled successfully                                               # features/steps/create_job_opening_steps.py:434
-      ABORTED: By user (KeyboardInterrupt).
+      Traceback (most recent call last):
+        File "/Users/vibhorgoyal/PersonalWorkspace/talent-talks-automation/.venv/lib/python3.13/site-packages/behave/model.py", line 1991, in run
+          match.run(runner.context)
+          ~~~~~~~~~^^^^^^^^^^^^^^^^
+        File "/Users/vibhorgoyal/PersonalWorkspace/talent-talks-automation/.venv/lib/python3.13/site-packages/behave/matchers.py", line 105, in run
+          self.func(context, *args, **kwargs)
+          ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+        File "features/steps/create_job_opening_steps.py", line 464, in step_verify_interview_scheduled
+          AllureManager.attach_text("Page Content", page_text)
+                                                    ^^^^^^^^^
+      NameError: name 'page_text' is not defined
 
