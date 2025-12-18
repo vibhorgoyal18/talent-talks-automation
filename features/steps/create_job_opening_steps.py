@@ -346,13 +346,13 @@ def step_fill_in_current_date(context: Context, field_label: str):
     ctx.logger.info(f"Filled in '{field_label}' with current date: {date_value}")
 
 
-@when('I fill in "{field_label}" with time 1 minute from now')
-def step_fill_in_time_one_minute(context: Context, field_label: str):
-    """Fill in a time field with a time 1 minute from now in HH:MM format."""
+@when('I fill in "{field_label}" with time {minutes:d} minute(s) from now')
+def step_fill_in_future_time(context: Context, field_label: str, minutes: int):
+    """Fill in a time field with a time N minutes from now in HH:MM format."""
     ctx = StepContext(context)
     
     from datetime import datetime, timedelta
-    future_time = datetime.now() + timedelta(minutes=1)
+    future_time = datetime.now() + timedelta(minutes=minutes)
     time_value = future_time.strftime("%H:%M")
     
     # Store the scheduled time in context for later verification
@@ -361,7 +361,13 @@ def step_fill_in_time_one_minute(context: Context, field_label: str):
     
     selector = f"role=textbox[name='{field_label}']"
     ctx.wrapper.type_text(selector, time_value)
-    ctx.logger.info(f"Filled in '{field_label}' with time 1 minute from now: {time_value}")
+    ctx.logger.info(f"Filled in '{field_label}' with time {minutes} minute(s) from now: {time_value}")
+
+
+@when('I fill in "{field_label}" with time 1 minute from now')
+def step_fill_in_time_one_minute(context: Context, field_label: str):
+    """Fill in a time field with a time 1 minute from now in HH:MM format."""
+    step_fill_in_future_time(context, field_label, 1)
 
 
 
@@ -491,7 +497,7 @@ def step_verify_interview_email_sent(context: Context, email: str):
 
 @when("I navigate to View Interviews page")
 def step_navigate_to_view_interviews(context: Context):
-    """Navigate to the View Interviews page by clicking the sidebar button."""
+    """Navigate to the View Interviews page by clicking the sidebar button or direct URL."""
     ctx = StepContext(context)
     
     from pages.dashboard_page import DashboardPage
@@ -503,9 +509,16 @@ def step_navigate_to_view_interviews(context: Context):
     ctx.logger.info("Waiting for interview to be saved in database")
     ctx.wrapper.page.wait_for_timeout(3000)
     
-    # Click the View Interviews button in the sidebar to navigate
-    ctx.logger.info("Clicking View Interviews button in sidebar")
-    dashboard_page.click_view_interviews()
+    # Check if we're on a page with sidebar (dashboard-like pages)
+    current_url = ctx.wrapper.page.url
+    if "interview?" in current_url:
+        # We're on the candidate interview page, navigate directly to the URL
+        ctx.logger.info("Navigating to View Interviews page via direct URL")
+        view_interviews_page.open()
+    else:
+        # We're on dashboard or similar, use sidebar button
+        ctx.logger.info("Clicking View Interviews button in sidebar")
+        dashboard_page.click_view_interviews()
     
     # Wait for navigation and page load
     ctx.wrapper.page.wait_for_load_state("networkidle")
@@ -804,9 +817,12 @@ def step_extract_interview_url(context: Context):
 def step_open_interview_link(context: Context):
     """
     Open the interview link that was extracted from the email.
+    Waits until the scheduled interview time if needed.
     Requires interview_url in context from previous step.
     """
     from pages.interview_page import InterviewPage
+    from datetime import datetime
+    import time
     
     ctx = StepContext(context)
     
@@ -815,6 +831,19 @@ def step_open_interview_link(context: Context):
         "No interview URL found in context. Must extract URL from email first."
     
     interview_url = context.interview_url
+    
+    # If we have a scheduled start time, wait until it arrives
+    if hasattr(context, 'interview_start_time'):
+        scheduled_time = context.interview_start_time
+        now = datetime.now()
+        
+        if now < scheduled_time:
+            wait_seconds = (scheduled_time - now).total_seconds()
+            ctx.logger.info(f"Interview scheduled for {scheduled_time.strftime('%H:%M:%S')}, "
+                          f"waiting {wait_seconds:.1f} seconds...")
+            print(f"\n⏳ Waiting {wait_seconds:.1f} seconds for interview to start at {scheduled_time.strftime('%H:%M:%S')}...")
+            time.sleep(wait_seconds + 5)  # Add 5 extra seconds buffer for server processing
+            ctx.logger.info("Wait completed, interview time has arrived")
     
     ctx.logger.info(f"Opening interview link: {interview_url}")
     print(f"\n🌐 Opening interview link: {interview_url}")
@@ -891,6 +920,76 @@ def step_verify_interview_ready(context: Context):
     
     ctx.logger.info("Interview verified as ready/started")
     AllureManager.attach_screenshot(ctx.wrapper, "Interview Ready")
+
+
+@when("I click the Start Interview button")
+def step_click_start_interview_button(context: Context):
+    """
+    Click the Start Interview button on the interview page.
+    """
+    from pages.interview_page import InterviewPage
+    
+    ctx = StepContext(context)
+    
+    # Interview page must exist from previous step
+    assert hasattr(context, 'interview_page'), \
+        "No interview page found in context. Must open interview link first."
+    
+    interview_page: InterviewPage = context.interview_page
+    
+    # Get page state before clicking
+    state_before = interview_page.get_interview_state_info()
+    ctx.logger.info(f"Page state before clicking Start: {state_before}")
+    
+    print(f"\n🖱️  Clicking Start Interview button...")
+    
+    # Click the start button
+    interview_page.click_start_interview()
+    
+    ctx.logger.info("Clicked Start Interview button")
+    print(f"✅ Start Interview button clicked")
+    
+    # Attach screenshot after clicking
+    AllureManager.attach_screenshot(ctx.wrapper, "After Clicking Start Interview")
+
+
+@then("the interview should actually start")
+def step_verify_interview_actually_started(context: Context):
+    """
+    Verify that the interview has actually started after clicking the Start Interview button.
+    This checks that the page transitions away from the welcome screen.
+    """
+    from pages.interview_page import InterviewPage
+    
+    ctx = StepContext(context)
+    
+    # Interview page must exist from previous step
+    assert hasattr(context, 'interview_page'), \
+        "No interview page found in context. Must open interview link first."
+    
+    interview_page: InterviewPage = context.interview_page
+    
+    # Get current state
+    state_after = interview_page.get_interview_state_info()
+    ctx.logger.info(f"Page state after clicking Start: {state_after}")
+    
+    print(f"\n🔍 Verifying interview has started...")
+    print(f"   Current URL: {state_after['url']}")
+    print(f"   Has welcome heading: {state_after['has_welcome_heading']}")
+    print(f"   Has start button: {state_after['has_start_button']}")
+    print(f"   Has video element: {state_after['has_video_element']}")
+    print(f"   Access denied: {state_after['has_access_denied']}")
+    
+    # Check if interview has actually started
+    has_started = interview_page.has_interview_started_after_click()
+    
+    assert has_started, \
+        f"Interview did not start - still on welcome page. State: {state_after}"
+    
+    print(f"✅ Interview has successfully started! Page transitioned away from welcome screen.")
+    
+    ctx.logger.info("Interview verified as started - page transitioned")
+    AllureManager.attach_screenshot(ctx.wrapper, "Interview Started - New Page")
 
 
 @then("the interview should be deleted successfully")

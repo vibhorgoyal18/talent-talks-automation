@@ -7,21 +7,31 @@ class InterviewPage:
     """Page Object for the Interview page (candidate-facing interview interface)."""
 
     # Interview start indicators
-    INTERVIEW_CONTAINER = ".interview-container, #interview-root, [data-testid='interview-page']"
-    INTERVIEW_HEADING = "role=heading[name*='Interview']"
-    
-    # Video/Camera elements
-    VIDEO_CONTAINER = "video, .video-container, [data-testid='video']"
+    INTERVIEW_HEADING = "role=heading[name*='TalentTalks']"
+    WELCOME_HEADING = "role=heading[name='Welcome to Your TalentTalks']"
     
     # Interview controls
-    START_INTERVIEW_BUTTON = "role=button[name*='Start'], role=button[name*='Begin']"
+    START_INTERVIEW_BUTTON = "role=button[name*='Start Interview']"
     
-    # Interview status indicators
-    INTERVIEW_ACTIVE_TEXT = "text=Interview in progress, text=Interview has started, text=Welcome to your interview"
+    # Page elements indicating interview page
+    HOW_IT_WORKS_HEADING = "role=heading[name='How It Works']"
+    TECH_CHECK_HEADING = "role=heading[name='Quick Tech Check']"
     
-    # Common page elements
-    CANDIDATE_NAME_DISPLAY = "[data-testid='candidate-name'], .candidate-name"
-    TIMER_DISPLAY = "[data-testid='timer'], .timer, .interview-timer"
+    # Error messages
+    ACCESS_DENIED_HEADING = "role=heading[name='Access Denied']"
+    ACCESS_DENIED_TEXT = "text=Interview link not yet active"
+    
+    # Interview Guidelines Modal
+    GUIDELINES_MODAL = "text=Interview Guidelines"
+    GUIDELINES_HEADING = "role=heading[name='Interview Guidelines']"
+    CONTINUE_BUTTON = "role=button[name='Continue']"
+    CLOSE_GUIDELINES_BUTTON = "role=button[name='Close Guidelines']"
+    
+    # Interview active indicators (after starting)
+    VIDEO_ELEMENT = "video"
+    CAMERA_PERMISSION_TEXT = "text=Camera, text=Microphone"
+    INTERVIEW_QUESTION_HEADING = "role=heading"  # Questions appear as headings during interview
+    RECORDING_INDICATOR = "text=Recording, text=REC"
 
     def __init__(self, wrapper: PlaywrightWrapper) -> None:
         self.wrapper = wrapper
@@ -31,23 +41,28 @@ class InterviewPage:
         self.wrapper.go_to(url)
 
     def is_interview_page_loaded(self) -> bool:
-        """Check if the interview page is loaded by looking for interview-related elements."""
+        """Check if the interview page is loaded by looking for interview-related elements.
+        Returns False if Access Denied page is shown."""
         try:
-            # Check for any of these elements that indicate interview page
             page = self.wrapper.page
             
             # Wait for page to load
             page.wait_for_load_state("domcontentloaded", timeout=10000)
             
-            # Check for interview container or heading
-            if page.locator(self.INTERVIEW_CONTAINER).first.is_visible(timeout=5000):
+            # First check if we got an Access Denied message
+            if page.locator(self.ACCESS_DENIED_HEADING).first.is_visible(timeout=2000):
+                return False
+            
+            # Check for welcome heading (main indicator)
+            if page.locator(self.WELCOME_HEADING).first.is_visible(timeout=5000):
                 return True
             
+            # Check for TalentTalks heading as fallback
             if page.locator(self.INTERVIEW_HEADING).first.is_visible(timeout=5000):
                 return True
                 
-            # Check for video container as fallback
-            if page.locator(self.VIDEO_CONTAINER).first.is_visible(timeout=5000):
+            # Check for "How It Works" section
+            if page.locator(self.HOW_IT_WORKS_HEADING).first.is_visible(timeout=5000):
                 return True
             
             return False
@@ -64,16 +79,8 @@ class InterviewPage:
             if start_button.is_visible(timeout=3000):
                 return True  # Interview is ready to start
             
-            # Check for active interview indicators
-            if page.locator(self.INTERVIEW_ACTIVE_TEXT).first.is_visible(timeout=3000):
-                return True
-            
-            # Check for video/camera (indicates interview interface is active)
-            if page.locator(self.VIDEO_CONTAINER).first.is_visible(timeout=3000):
-                return True
-            
-            # Check for timer (indicates interview is running)
-            if page.locator(self.TIMER_DISPLAY).first.is_visible(timeout=2000):
+            # Check for tech check section (indicates interview page is ready)
+            if page.locator(self.TECH_CHECK_HEADING).first.is_visible(timeout=3000):
                 return True
             
             return False
@@ -92,3 +99,110 @@ class InterviewPage:
         """Check if the URL contains interview-related parameters."""
         url = self.get_current_url()
         return "interview" in url.lower() and ("interviewId" in url or "name" in url)
+
+    def is_access_denied(self) -> bool:
+        """Check if the page shows Access Denied message."""
+        try:
+            page = self.wrapper.page
+            return page.locator(self.ACCESS_DENIED_HEADING).first.is_visible(timeout=2000)
+        except Exception:
+            return False
+
+    def get_access_denied_message(self) -> str:
+        """Get the Access Denied error message if present."""
+        try:
+            page = self.wrapper.page
+            if page.locator(self.ACCESS_DENIED_TEXT).first.is_visible(timeout=2000):
+                return page.locator(self.ACCESS_DENIED_TEXT).first.text_content()
+            return ""
+        except Exception:
+            return ""
+
+    def click_start_interview(self) -> None:
+        """Click the Start Interview button and handle the guidelines modal if it appears."""
+        page = self.wrapper.page
+        start_button = page.locator(self.START_INTERVIEW_BUTTON).first
+        start_button.click(timeout=10000)
+        
+        # Wait for guidelines modal to appear
+        page.wait_for_timeout(2000)
+        
+        # Check if guidelines modal appeared and click Continue
+        try:
+            if page.locator(self.GUIDELINES_HEADING).first.is_visible(timeout=3000):
+                continue_button = page.locator(self.CONTINUE_BUTTON).first
+                continue_button.click(timeout=5000)
+                page.wait_for_timeout(2000)
+                
+                # After dismissing guidelines modal, click Start Interview button again
+                # This second click triggers screen sharing and starts the interview
+                start_button_after = page.locator(self.START_INTERVIEW_BUTTON).first
+                if start_button_after.is_visible(timeout=3000):
+                    start_button_after.click(timeout=10000)
+                    # Wait longer for screen sharing permissions and interview to start
+                    page.wait_for_timeout(8000)
+        except Exception:
+            # Modal may not appear or already closed
+            pass
+
+    def has_interview_started_after_click(self) -> bool:
+        """
+        Check if the interview has actually started after clicking the button.
+        The interview starts when we transition away from the welcome page OR when video elements appear.
+        """
+        try:
+            page = self.wrapper.page
+            
+            # Wait for page transition or video to load
+            page.wait_for_timeout(3000)
+            
+            # Check we're not on an error page
+            if self.is_access_denied():
+                return False
+            
+            # Check if welcome heading is gone (indicates page transitioned)
+            try:
+                welcome_visible = page.locator(self.WELCOME_HEADING).first.is_visible(timeout=2000)
+            except:
+                welcome_visible = False
+            
+            # Check if start button is gone
+            try:
+                start_button_visible = page.locator(self.START_INTERVIEW_BUTTON).first.is_visible(timeout=2000)
+            except:
+                start_button_visible = False
+            
+            # If both welcome heading and start button are gone, interview has started/transitioned
+            if not welcome_visible and not start_button_visible:
+                return True
+            
+            # Check for video element (camera feed) - this indicates screen sharing started
+            try:
+                video_count = page.locator(self.VIDEO_ELEMENT).count()
+                if video_count > 0:
+                    video_visible = page.locator(self.VIDEO_ELEMENT).first.is_visible(timeout=3000)
+                    if video_visible:
+                        return True
+            except:
+                pass
+            
+            # Check if URL changed (some apps navigate after starting)
+            current_url = page.url
+            if "interview" in current_url and ("started" in current_url or "active" in current_url):
+                return True
+            
+            return False
+        except Exception:
+            return False
+
+    def get_interview_state_info(self) -> dict:
+        """Get information about the current state of the interview page for debugging."""
+        page = self.wrapper.page
+        return {
+            "url": page.url,
+            "title": page.title(),
+            "has_welcome_heading": page.locator(self.WELCOME_HEADING).first.is_visible(timeout=1000) if page.locator(self.WELCOME_HEADING).count() > 0 else False,
+            "has_start_button": page.locator(self.START_INTERVIEW_BUTTON).first.is_visible(timeout=1000) if page.locator(self.START_INTERVIEW_BUTTON).count() > 0 else False,
+            "has_video_element": page.locator(self.VIDEO_ELEMENT).first.is_visible(timeout=1000) if page.locator(self.VIDEO_ELEMENT).count() > 0 else False,
+            "has_access_denied": self.is_access_denied()
+        }
