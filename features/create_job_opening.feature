@@ -58,6 +58,12 @@ Feature: Create Job Opening
       And I should extract the interview URL from the email
     When I wait for 2 seconds
 
+    # Verify Interview Link - Open and verify interview is ready
+    When I open the interview link
+      Then the interview page should load successfully
+      And the interview should be ready to start
+    When I wait for 2 seconds
+
     # Delete Interview - Still on View Interviews page from earlier
     When I click the 3-dot menu for the recently created interview
       And I click the "Delete" option from the menu

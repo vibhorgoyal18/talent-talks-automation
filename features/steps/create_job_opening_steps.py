@@ -350,11 +350,16 @@ def step_schedule_interview_with_candidate(context: Context, scenario: str):
     if not job_name:
         raise AssertionError("Job name not found in context. Please create a job opening first.")
     
-    # Get interview date and time (use default values for now)
+    # Get interview date and time (1 minute from now for 30 mins)
     from datetime import datetime, timedelta
-    tomorrow = datetime.now() + timedelta(days=1)
-    interview_date = tomorrow.strftime("%Y-%m-%d")  # Format for date input type
-    interview_time = "10:00"  # Format: HH:MM (24-hour)
+    now = datetime.now()
+    interview_start = now + timedelta(minutes=1)
+    interview_date = interview_start.strftime("%Y-%m-%d")  # Format for date input type
+    interview_time = interview_start.strftime("%H:%M")  # Format: HH:MM (24-hour)
+    
+    # Store interview time in context for verification
+    context.interview_start_time = interview_start
+    context.interview_duration_minutes = 30
     
     # Navigate to schedule interview page
     schedule_page = ScheduleInterviewPage(ctx.wrapper, ctx.base_url)
@@ -776,6 +781,91 @@ def step_extract_interview_url(context: Context):
     
     AllureManager.attach_text("Interview URL", interview_url)
     AllureManager.attach_text("Email Body", email_message.body)
+
+
+@when("I open the interview link")
+def step_open_interview_link(context: Context):
+    """
+    Open the interview link that was extracted from the email.
+    Requires interview_url in context from previous step.
+    """
+    from pages.interview_page import InterviewPage
+    
+    ctx = StepContext(context)
+    
+    # Interview URL must exist from previous step
+    assert hasattr(context, 'interview_url'), \
+        "No interview URL found in context. Must extract URL from email first."
+    
+    interview_url = context.interview_url
+    
+    ctx.logger.info(f"Opening interview link: {interview_url}")
+    print(f"\n🌐 Opening interview link: {interview_url}")
+    
+    # Create interview page object and navigate
+    interview_page = InterviewPage(ctx.wrapper)
+    interview_page.navigate_to(interview_url)
+    
+    # Store page object in context
+    context.interview_page = interview_page
+    
+    ctx.logger.info("Interview link opened successfully")
+
+
+@then("the interview page should load successfully")
+def step_verify_interview_page_loaded(context: Context):
+    """
+    Verify that the interview page has loaded successfully.
+    """
+    from pages.interview_page import InterviewPage
+    
+    ctx = StepContext(context)
+    
+    # Interview page must exist from previous step
+    assert hasattr(context, 'interview_page'), \
+        "No interview page found in context. Must open interview link first."
+    
+    interview_page: InterviewPage = context.interview_page
+    
+    # Check if interview page loaded
+    assert interview_page.is_interview_page_loaded(), \
+        f"Interview page did not load. Current URL: {interview_page.get_current_url()}"
+    
+    # Verify URL has interview parameters
+    assert interview_page.has_interview_parameter(), \
+        f"URL does not contain interview parameters. URL: {interview_page.get_current_url()}"
+    
+    print(f"✅ Interview page loaded successfully")
+    print(f"📄 Page title: {interview_page.get_page_title()}")
+    print(f"🔗 Current URL: {interview_page.get_current_url()}")
+    
+    ctx.logger.info("Interview page loaded and verified")
+    AllureManager.attach_screenshot(ctx.wrapper, "Interview Page Loaded")
+
+
+@then("the interview should be ready to start")
+def step_verify_interview_ready(context: Context):
+    """
+    Verify that the interview is ready to start or has started.
+    """
+    from pages.interview_page import InterviewPage
+    
+    ctx = StepContext(context)
+    
+    # Interview page must exist from previous step
+    assert hasattr(context, 'interview_page'), \
+        "No interview page found in context. Must open interview link first."
+    
+    interview_page: InterviewPage = context.interview_page
+    
+    # Check if interview is started/ready
+    assert interview_page.is_interview_started(), \
+        f"Interview is not ready to start. Current URL: {interview_page.get_current_url()}"
+    
+    print(f"✅ Interview is ready to start or has started")
+    
+    ctx.logger.info("Interview verified as ready/started")
+    AllureManager.attach_screenshot(ctx.wrapper, "Interview Ready")
 
 
 @then("the interview should be deleted successfully")
