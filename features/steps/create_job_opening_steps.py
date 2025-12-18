@@ -364,6 +364,12 @@ def step_fill_in_future_time(context: Context, field_label: str, minutes: int):
     ctx.logger.info(f"Filled in '{field_label}' with time {minutes} minute(s) from now: {time_value}")
 
 
+@when('I fill in "{field_label}" with time 1 minute from now')
+def step_fill_in_time_one_minute(context: Context, field_label: str):
+    """Fill in a time field with a time 1 minute from now in HH:MM format."""
+    step_fill_in_future_time(context, field_label, 1)
+
+
 
 @when('I schedule an interview for the job opening with "{scenario}" candidate data')
 def step_schedule_interview_with_candidate(context: Context, scenario: str):
