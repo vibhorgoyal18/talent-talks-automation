@@ -80,21 +80,36 @@ class GmailIMAPClient:
         return "".join(result)
 
     def _get_email_body(self, msg: email.message.Message) -> str:
-        """Extract plain text body from email message."""
+        """Extract plain text or HTML body from email message."""
+        body_text = ""
+        body_html = ""
+        
         if msg.is_multipart():
             for part in msg.walk():
                 content_type = part.get_content_type()
-                if content_type == "text/plain":
-                    payload = part.get_payload(decode=True)
-                    if payload:
-                        charset = part.get_content_charset() or "utf-8"
-                        return payload.decode(charset, errors="replace")
+                payload = part.get_payload(decode=True)
+                if payload:
+                    charset = part.get_content_charset() or "utf-8"
+                    decoded_payload = payload.decode(charset, errors="replace")
+                    
+                    if content_type == "text/plain":
+                        body_text = decoded_payload
+                    elif content_type == "text/html":
+                        body_html = decoded_payload
         else:
             payload = msg.get_payload(decode=True)
             if payload:
                 charset = msg.get_content_charset() or "utf-8"
-                return payload.decode(charset, errors="replace")
-        return ""
+                decoded_payload = payload.decode(charset, errors="replace")
+                content_type = msg.get_content_type()
+                
+                if content_type == "text/plain":
+                    body_text = decoded_payload
+                elif content_type == "text/html":
+                    body_html = decoded_payload
+        
+        # Prefer plain text, but fall back to HTML if plain text is empty
+        return body_text if body_text else body_html
 
     def list_messages(
         self, 

@@ -28,5 +28,18 @@ Feature: Create Job Opening # features/create_job_opening.feature:1
     And I upload the file from "photo_file" to "Select Image"                                         # features/steps/common_steps.py:110
     And I click the "Schedule Interview" button                                                       # features/steps/common_steps.py:92
     Then the interview should be scheduled successfully                                               # features/steps/create_job_opening_steps.py:390
-      ABORTED: By user (KeyboardInterrupt).
+    When I wait for 3 seconds                                                                         # features/steps/common_steps.py:170
+    When I navigate to View Interviews page                                                           # features/steps/create_job_opening_steps.py:470
+    And I search for the recently created interview                                                   # features/steps/create_job_opening_steps.py:524
+    Then I should see the recently created interview                                                  # features/steps/create_job_opening_steps.py:545
+    When I click the 3-dot menu for the recently created interview                                    # features/steps/create_job_opening_steps.py:593
+    And I click the "Send Invite" option from the menu                                                # features/steps/create_job_opening_steps.py:614
+    Then the invite should be resent successfully                                                     # features/steps/create_job_opening_steps.py:633
+    And I should receive the interview invitation email                                               # features/steps/create_job_opening_steps.py:645
+    And I should extract the interview URL from the email                                             # features/steps/create_job_opening_steps.py:734
+    When I wait for 2 seconds                                                                         # features/steps/common_steps.py:170
+    When I click the 3-dot menu for the recently created interview                                    # features/steps/create_job_opening_steps.py:593
+    And I click the "Delete" option from the menu                                                     # features/steps/create_job_opening_steps.py:614
+    Then the interview should be deleted successfully                                                 # features/steps/create_job_opening_steps.py:782
+    And I should not see the recently created interview                                               # features/steps/create_job_opening_steps.py:796
 

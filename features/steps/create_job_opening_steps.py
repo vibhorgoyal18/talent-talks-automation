@@ -679,16 +679,17 @@ def step_receive_interview_email(context: Context):
         while time.time() - start_time < timeout_seconds:
             for folder, folder_display in folders_to_check:
                 try:
+                    # Search for "Interview Link for Candidate" which is the actual subject
                     messages = mail_client.list_messages(
                         folder=folder,
                         max_results=5,
-                        search_criteria='SUBJECT "Interview Invitation"'
+                        search_criteria='SUBJECT "Interview Link"'
                     )
                     
                     if messages:
                         # Find the most recent matching email
                         for msg in messages:
-                            if "Interview Invitation" in msg.subject:
+                            if "Interview Link" in msg.subject:
                                 email_message = msg
                                 folder_found = folder_display
                                 break
@@ -753,8 +754,9 @@ def step_extract_interview_url(context: Context):
         return
     
     # Search for interview URL patterns in the email body
-    # Common patterns: https://talenttalks.vlinkinfo.com/interview/...
-    url_pattern = r'https?://[^\s<>"]+/interview/[^\s<>"]+'
+    # Pattern matches: https://talenttalks.vlinkinfo.com/interview?...
+    # Also matches: https://talenttalks.vlinkinfo.com/interview/...
+    url_pattern = r'https?://[^\s<>"]+/interview[^\s<>"]*'
     matches = re.findall(url_pattern, email_message.body)
     
     if matches:
