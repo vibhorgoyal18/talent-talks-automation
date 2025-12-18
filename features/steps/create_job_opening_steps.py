@@ -346,13 +346,13 @@ def step_fill_in_current_date(context: Context, field_label: str):
     ctx.logger.info(f"Filled in '{field_label}' with current date: {date_value}")
 
 
-@when('I fill in "{field_label}" with time {minutes:d} minute(s) from now')
-def step_fill_in_future_time(context: Context, field_label: str, minutes: int):
-    """Fill in a time field with a time N minutes from now in HH:MM format."""
+@when('I fill in "{field_label}" with time 1 minute from now')
+def step_fill_in_time_one_minute(context: Context, field_label: str):
+    """Fill in a time field with a time 1 minute from now in HH:MM format."""
     ctx = StepContext(context)
     
     from datetime import datetime, timedelta
-    future_time = datetime.now() + timedelta(minutes=minutes)
+    future_time = datetime.now() + timedelta(minutes=1)
     time_value = future_time.strftime("%H:%M")
     
     # Store the scheduled time in context for later verification
@@ -361,13 +361,7 @@ def step_fill_in_future_time(context: Context, field_label: str, minutes: int):
     
     selector = f"role=textbox[name='{field_label}']"
     ctx.wrapper.type_text(selector, time_value)
-    ctx.logger.info(f"Filled in '{field_label}' with time {minutes} minute(s) from now: {time_value}")
-
-
-@when('I fill in "{field_label}" with time 1 minute from now')
-def step_fill_in_time_one_minute(context: Context, field_label: str):
-    """Fill in a time field with a time 1 minute from now in HH:MM format."""
-    step_fill_in_future_time(context, field_label, 1)
+    ctx.logger.info(f"Filled in '{field_label}' with time 1 minute from now: {time_value}")
 
 
 
