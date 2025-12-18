@@ -1,11 +1,32 @@
-Feature: Email Verification for Interview Invite # features/test_email_only.feature:1
-  As an interviewer
-  I want to verify the interview invitation email
-  So that candidates receive the correct interview link
-  @email @test
-  Scenario: Verify interview email can be fetched           # features/test_email_only.feature:7
-    Given I have Gmail credentials configured               # features/steps/test_email_steps.py:10
-    When I search for the latest interview invitation email # features/steps/test_email_steps.py:27
-    Then I should find the email in inbox or spam           # features/steps/test_email_steps.py:68
-    And I should be able to extract the interview URL       # features/steps/test_email_steps.py:80
+Feature: Create Job Opening # features/create_job_opening.feature:1
+  As an HR manager
+  I want to create new job openings
+  So that I can start the recruitment process for positions
+  @ui @job @smoke @e2e
+  Scenario Outline: Create job opening and verify it appears in the list "python_developer" -- @1.1   # features/create_job_opening.feature:69
+    Given I am logged in as a valid user                                                              # features/steps/create_job_opening_steps.py:21
+    And I navigate to the Create Job Opening page                                                     # features/steps/create_job_opening_steps.py:40
+    When I load job opening data for "python_developer"                                               # features/steps/create_job_opening_steps.py:53
+    And I fill in "Job Opening Name" with value from scenario "job_name"                              # features/steps/common_steps.py:35
+    And I fill in "Enter or paste job description" with value from scenario "job_description"         # features/steps/common_steps.py:35
+    And I set "Interview Duration (minutes)" to 30                                                    # features/steps/common_steps.py:187
+    And I check the "Enable Resume Evaluation" checkbox                                               # features/steps/common_steps.py:197
+    And I set "Resume Evaluation Percentage" to 100                                                   # features/steps/common_steps.py:187
+    And I click the "Create Job Opening" button                                                       # features/steps/common_steps.py:92
+    And I wait for 2 seconds                                                                          # features/steps/common_steps.py:170
+    When I navigate to View Job Openings page                                                         # features/steps/create_job_opening_steps.py:222
+    Then I should see the item stored as "created_job_name" in the list                               # features/steps/common_steps.py:257
+    And the item stored as "created_job_name" should have status "Active"                             # features/steps/common_steps.py:274
+    When I load candidate data for "python_developer"                                                 # features/steps/create_job_opening_steps.py:295
+    And I navigate to "/interviews/new" page                                                          # features/steps/common_steps.py:15
+    And I select from "Select Job Opening" the value stored as "created_job_name"                     # features/steps/common_steps.py:69
+    And I fill in "Candidate Name" with value from scenario "candidate_name"                          # features/steps/common_steps.py:35
+    And I fill in "Candidate Email" with value from scenario "candidate_email"                        # features/steps/common_steps.py:35
+    And I fill in "Interview Date" with tomorrow's date                                               # features/steps/create_job_opening_steps.py:321
+    And I fill in "Interview Time" with "10:00"                                                       # features/steps/common_steps.py:24
+    And I upload the file from "cv_file" to "Select CV File"                                          # features/steps/common_steps.py:110
+    And I upload the file from "photo_file" to "Select Image"                                         # features/steps/common_steps.py:110
+    And I click the "Schedule Interview" button                                                       # features/steps/common_steps.py:92
+    Then the interview should be scheduled successfully                                               # features/steps/create_job_opening_steps.py:390
+      ABORTED: By user (KeyboardInterrupt).
 
