@@ -1,1 +1,0 @@
-{'scenario': 'valid_login', 'username': 'jitender.sachdeva@vlinkinfo.com', 'password': 'Vlink@123'}
