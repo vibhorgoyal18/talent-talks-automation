@@ -6,6 +6,51 @@
 - Step definitions are located in `features/steps/`. Follow the existing pattern using `@given`, `@when`, `@then` decorators from behave.
 - Page objects are located in `pages/`. Each page class should accept `wrapper` and `base_url` in the constructor.
 
+## ⚠️ IMPORTANT: Adding New Features - No Assumptions Allowed
+
+**CRITICAL RULE**: When implementing any new feature or test scenario, **DO NOT make assumptions** about page structure, element selectors, or user flows.
+
+**MANDATORY PROCESS**:
+1. **First, use Playwright MCP tools** to navigate to the actual page and inspect it live
+2. **Take snapshots** using `mcp_playwright_browser_snapshot` to see the exact DOM structure
+3. **Verify element selectors** by testing clicks, types, and interactions directly in the browser
+4. **Document the exact steps** you observe (element names, accessible roles, text content, XPath if needed)
+5. **Only then** write the page object and step definitions based on the verified selectors
+
+**Tools to use for exploration**:
+- `mcp_playwright_browser_navigate` - Navigate to the URL
+- `mcp_playwright_browser_snapshot` - Get accessibility snapshot of page elements
+- `mcp_playwright_browser_click` - Test clicking elements with exact selectors
+- `mcp_playwright_browser_evaluate` - Run JavaScript to inspect page state
+- `mcp_playwright_browser_take_screenshot` - Capture visual state for reference
+
+**Why this matters**:
+- Prevents test failures due to incorrect selectors
+- Ensures compatibility with actual UI implementation
+- Reduces debugging time and rework
+- Captures accurate element names, roles, and accessible labels
+- Identifies dynamic content that requires special handling (e.g., job names split across HTML elements)
+
+**Example workflow**:
+```
+User: "Add feature to verify interview has started"
+
+❌ WRONG: Assume there's a "Start Interview" button and write code directly
+✅ CORRECT: 
+1. Navigate to interview page using playwright-mcp
+2. Take snapshot to see what elements exist
+3. Test clicking elements to verify they work
+4. Document findings: "Interview page shows 'Access Denied' until scheduled time"
+5. Write code based on verified behavior
+```
+
+**This rule applies to**:
+- New page objects
+- New step definitions  
+- Changes to existing selectors
+- Email content verification
+- Any user interaction flow
+
 ## Framework Architecture
 
 ```
