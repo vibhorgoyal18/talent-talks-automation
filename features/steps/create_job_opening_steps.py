@@ -332,6 +332,39 @@ def step_fill_in_tomorrows_date(context: Context, field_label: str):
     ctx.logger.info(f"Filled in '{field_label}' with tomorrow's date: {date_value}")
 
 
+@when('I fill in "{field_label}" with current date')
+def step_fill_in_current_date(context: Context, field_label: str):
+    """Fill in a date field with today's date in YYYY-MM-DD format."""
+    ctx = StepContext(context)
+    
+    from datetime import datetime
+    today = datetime.now()
+    date_value = today.strftime("%Y-%m-%d")
+    
+    selector = f"role=textbox[name='{field_label}']"
+    ctx.wrapper.type_text(selector, date_value)
+    ctx.logger.info(f"Filled in '{field_label}' with current date: {date_value}")
+
+
+@when('I fill in "{field_label}" with time {minutes:d} minute(s) from now')
+def step_fill_in_future_time(context: Context, field_label: str, minutes: int):
+    """Fill in a time field with a time N minutes from now in HH:MM format."""
+    ctx = StepContext(context)
+    
+    from datetime import datetime, timedelta
+    future_time = datetime.now() + timedelta(minutes=minutes)
+    time_value = future_time.strftime("%H:%M")
+    
+    # Store the scheduled time in context for later verification
+    context.interview_start_time = future_time
+    context.interview_duration_minutes = 30
+    
+    selector = f"role=textbox[name='{field_label}']"
+    ctx.wrapper.type_text(selector, time_value)
+    ctx.logger.info(f"Filled in '{field_label}' with time {minutes} minute(s) from now: {time_value}")
+
+
+
 @when('I schedule an interview for the job opening with "{scenario}" candidate data')
 def step_schedule_interview_with_candidate(context: Context, scenario: str):
     """

@@ -24,14 +24,14 @@ Feature: Create Job Opening
       Then I should see the item stored as "created_job_name" in the list
       And the item stored as "created_job_name" should have status "Active"
 
-    # Schedule Interview - Granular Steps
+    # Schedule Interview - Granular Steps (scheduled 1 minute from now for 30 mins)
     When I load candidate data for "<scenario>"
       And I navigate to "/interviews/new" page
       And I select from "Select Job Opening" the value stored as "created_job_name"
       And I fill in "Candidate Name" with value from scenario "candidate_name"
       And I fill in "Candidate Email" with value from scenario "candidate_email"
-      And I fill in "Interview Date" with tomorrow's date
-      And I fill in "Interview Time" with "10:00"
+      And I fill in "Interview Date" with current date
+      And I fill in "Interview Time" with time 1 minute from now
       And I upload the file from "cv_file" to "Select CV File"
       And I upload the file from "photo_file" to "Select Image"
       And I click the "Schedule Interview" button
