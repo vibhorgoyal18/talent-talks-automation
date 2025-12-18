@@ -855,6 +855,7 @@ def step_open_interview_link(context: Context):
 def step_verify_interview_page_loaded(context: Context):
     """
     Verify that the interview page has loaded successfully.
+    Takes a screenshot for documentation.
     """
     from pages.interview_page import InterviewPage
     
@@ -866,6 +867,9 @@ def step_verify_interview_page_loaded(context: Context):
     
     interview_page: InterviewPage = context.interview_page
     
+    # Wait for page to fully render
+    ctx.wrapper.page.wait_for_timeout(2000)
+    
     # Check if interview page loaded
     assert interview_page.is_interview_page_loaded(), \
         f"Interview page did not load. Current URL: {interview_page.get_current_url()}"
@@ -874,12 +878,16 @@ def step_verify_interview_page_loaded(context: Context):
     assert interview_page.has_interview_parameter(), \
         f"URL does not contain interview parameters. URL: {interview_page.get_current_url()}"
     
+    # Take screenshot immediately after verification
+    AllureManager.attach_screenshot(ctx.wrapper, "Interview Page Loaded")
+    
     print(f"✅ Interview page loaded successfully")
     print(f"📄 Page title: {interview_page.get_page_title()}")
     print(f"🔗 Current URL: {interview_page.get_current_url()}")
+    print(f"📸 Screenshot attached to test report")
     
     ctx.logger.info("Interview page loaded and verified")
-    AllureManager.attach_screenshot(ctx.wrapper, "Interview Page Loaded")
+    ctx.logger.info("Screenshot captured and attached to Allure report")
 
 
 @then("the interview should be ready to start")
