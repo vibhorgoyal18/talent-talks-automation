@@ -654,9 +654,9 @@ def step_receive_interview_email(context: Context):
     gmail_email = ctx.config.get("gmail_email")
     gmail_app_password = ctx.config.get("gmail_app_password")
     
-    if not gmail_email or not gmail_app_password:
-        ctx.logger.warning("Gmail credentials not configured, skipping email verification")
-        return
+    # Gmail credentials are mandatory
+    assert gmail_email, "Gmail email not configured in .env file (DEFAULT__GMAIL_EMAIL)"
+    assert gmail_app_password, "Gmail app password not configured in .env file (DEFAULT__GMAIL_APP_PASSWORD)"
     
     try:
         # Connect to Gmail
@@ -705,31 +705,31 @@ def step_receive_interview_email(context: Context):
             print(f"⏳ Waiting for email... ({int(time.time() - start_time)}s elapsed)")
             time.sleep(poll_interval)
         
-        if email_message:
-            ctx.logger.info(f"✅ Email found in {folder_found} - Subject: {email_message.subject}")
-            print(f"\n✅ Email received in {folder_found}")
-            print(f"   Subject: {email_message.subject}")
-            print(f"   From: {email_message.sender}")
-            
-            # Store email in context for next step to extract URL
-            context.interview_email = email_message
-            context.email_folder = folder_found
-            
-            AllureManager.attach_text("Email Folder", folder_found)
-            AllureManager.attach_text("Email Subject", email_message.subject)
-            AllureManager.attach_text("Email Snippet", email_message.snippet)
-        else:
-            ctx.logger.warning("Interview invitation email not received within timeout")
-            print(f"\n❌ Email not received within {timeout_seconds} seconds")
-            AllureManager.attach_text("Email Status", f"Email not received within {timeout_seconds} seconds")
-        
         mail_client.disconnect()
         
+        # Email must be found - fail the test if not
+        assert email_message is not None, \
+            f"Interview invitation email not received within {timeout_seconds} seconds. " \
+            f"Checked folders: INBOX and Spam. Subject should contain 'Interview Link'"
+        
+        ctx.logger.info(f"✅ Email found in {folder_found} - Subject: {email_message.subject}")
+        print(f"\n✅ Email received in {folder_found}")
+        print(f"   Subject: {email_message.subject}")
+        print(f"   From: {email_message.sender}")
+        
+        # Store email in context for next step to extract URL
+        context.interview_email = email_message
+        context.email_folder = folder_found
+        
+        AllureManager.attach_text("Email Folder", folder_found)
+        AllureManager.attach_text("Email Subject", email_message.subject)
+        AllureManager.attach_text("Email Snippet", email_message.snippet)
+        
     except MailClientError as e:
-        ctx.logger.error(f"Failed to check email: {e}")
-        print(f"\n❌ Email check failed: {e}")
+        ctx.logger.error(f"Failed to connect to Gmail: {e}")
+        print(f"\n❌ Gmail connection failed: {e}")
         AllureManager.attach_text("Email Error", str(e))
-        # Don't fail the test, just log the error
+        raise AssertionError(f"Failed to connect to Gmail: {e}")
 
 
 @then("I should extract the interview URL from the email")
@@ -739,19 +739,17 @@ def step_extract_interview_url(context: Context):
     
     import re
     
-    # Check if we have the email from previous step
-    if not hasattr(context, 'interview_email'):
-        ctx.logger.warning("No interview email found in context, skipping URL extraction")
-        print("\n⚠️  No interview email found, skipping URL extraction")
-        return
+    # Email must be available from previous step
+    assert hasattr(context, 'interview_email'), \
+        "No interview email found in context. Previous step must have failed."
     
     email_message = context.interview_email
     folder_found = getattr(context, 'email_folder', 'Unknown')
     
-    if not email_message or not email_message.body:
-        ctx.logger.warning("Email body is empty, cannot extract URL")
-        print("\n⚠️  Email body is empty, cannot extract URL")
-        return
+    # Email body must not be empty
+    assert email_message, "Email message is None"
+    assert email_message.body, \
+        f"Email body is empty. Subject: {email_message.subject}, From: {email_message.sender}"
     
     # Search for interview URL patterns in the email body
     # Pattern matches: https://talenttalks.vlinkinfo.com/interview?...
@@ -759,26 +757,25 @@ def step_extract_interview_url(context: Context):
     url_pattern = r'https?://[^\s<>"]+/interview[^\s<>"]*'
     matches = re.findall(url_pattern, email_message.body)
     
-    if matches:
-        interview_url = matches[0]  # Take the first match
-        context.interview_url = interview_url
-        
-        # Log and print to terminal
-        ctx.logger.info(f"Interview URL extracted: {interview_url}")
-        print(f"\n{'='*80}")
-        print(f"🔗 INTERVIEW INVITATION LINK")
-        print(f"{'='*80}")
-        print(f"   Found in: {folder_found}")
-        print(f"   Link: {interview_url}")
-        print(f"{'='*80}\n")
-        
-        AllureManager.attach_text("Interview URL", interview_url)
-        AllureManager.attach_text("Email Body", email_message.body)
-    else:
-        ctx.logger.warning("No interview URL found in email body")
-        print("\n⚠️  No interview URL found in email body")
-        print(f"   Email preview: {email_message.snippet}")
-        AllureManager.attach_text("Email Body (No URL Found)", email_message.body)
+    # URL must be found in email
+    assert matches, \
+        f"No interview URL found in email body ({len(email_message.body)} characters). " \
+        f"Expected pattern: https://...talenttalks.../interview?... or /interview/..."
+    
+    interview_url = matches[0]  # Take the first match
+    context.interview_url = interview_url
+    
+    # Log and print to terminal
+    ctx.logger.info(f"Interview URL extracted: {interview_url}")
+    print(f"\n{'='*80}")
+    print(f"🔗 INTERVIEW INVITATION LINK")
+    print(f"{'='*80}")
+    print(f"   Found in: {folder_found}")
+    print(f"   Link: {interview_url}")
+    print(f"{'='*80}\n")
+    
+    AllureManager.attach_text("Interview URL", interview_url)
+    AllureManager.attach_text("Email Body", email_message.body)
 
 
 @then("the interview should be deleted successfully")
