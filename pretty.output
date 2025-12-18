@@ -28,24 +28,5 @@ Feature: Create Job Opening # features/create_job_opening.feature:1
     And I upload the file from "photo_file" to "Select Image"                                         # features/steps/common_steps.py:110
     And I click the "Schedule Interview" button                                                       # features/steps/common_steps.py:92
     Then the interview should be scheduled successfully                                               # features/steps/create_job_opening_steps.py:434
-    When I wait for 3 seconds                                                                         # features/steps/common_steps.py:170
-    When I navigate to View Interviews page                                                           # features/steps/create_job_opening_steps.py:514
-    And I search for the recently created interview                                                   # features/steps/create_job_opening_steps.py:568
-    Then I should see the recently created interview                                                  # features/steps/create_job_opening_steps.py:589
-    When I click the 3-dot menu for the recently created interview                                    # features/steps/create_job_opening_steps.py:637
-    And I click the "Send Invite" option from the menu                                                # features/steps/create_job_opening_steps.py:658
-    Then the invite should be resent successfully                                                     # features/steps/create_job_opening_steps.py:677
-    And I should receive the interview invitation email                                               # features/steps/create_job_opening_steps.py:689
-    And I should extract the interview URL from the email                                             # features/steps/create_job_opening_steps.py:779
-    When I wait for 2 seconds                                                                         # features/steps/common_steps.py:170
-    When I open the interview link                                                                    # features/steps/create_job_opening_steps.py:825
-    Then the interview page should load successfully                                                  # features/steps/create_job_opening_steps.py:854
-      ASSERT FAILED: Interview page did not load. Current URL: https://talenttalks.vlinkinfo.com/interview?name=Python_1218_1346&interviewId=6943b84b0b28b3b89e3bdf52
-
-    And the interview should be ready to start                                                        # None
-    When I wait for 2 seconds                                                                         # None
-    When I click the 3-dot menu for the recently created interview                                    # None
-    And I click the "Delete" option from the menu                                                     # None
-    Then the interview should be deleted successfully                                                 # None
-    And I should not see the recently created interview                                               # None
+      ABORTED: By user (KeyboardInterrupt).
 
