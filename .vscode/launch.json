@@ -8,9 +8,13 @@
       "module": "behave",
       "args": ["features/login.feature", "--no-capture"],
       "console": "integratedTerminal",
+      "justMyCode": false,
+      "cwd": "${workspaceFolder}",
+      "pythonArgs": [],
       "env": {
         "PWDEBUG": "1"
-      }
+      },
+      "subProcess": true
     },
     {
       "name": "Debug Behave (Headed)",
@@ -19,10 +23,14 @@
       "module": "behave",
       "args": ["${file}", "--no-capture"],
       "console": "integratedTerminal",
+      "justMyCode": false,
+      "cwd": "${workspaceFolder}",
+      "pythonArgs": [],
       "env": {
         "DEFAULT__HEADLESS": "false",
         "DEFAULT__SLOW_MO": "500"
-      }
+      },
+      "subProcess": true
     },
     {
       "name": "Debug Current Feature",
@@ -31,9 +39,13 @@
       "module": "behave",
       "args": ["${file}", "--no-capture"],
       "console": "integratedTerminal",
+      "justMyCode": false,
+      "cwd": "${workspaceFolder}",
+      "pythonArgs": [],
       "env": {
         "PWDEBUG": "1"
-      }
+      },
+      "subProcess": true
     }
   ]
 }
