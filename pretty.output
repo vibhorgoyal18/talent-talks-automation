@@ -3,49 +3,30 @@ Feature: Create Job Opening # features/create_job_opening.feature:1
   I want to create new job openings
   So that I can start the recruitment process for positions
   @ui @job @smoke @e2e
-  Scenario Outline: Create job opening and verify it appears in the list "python_developer" -- @1.1   # features/create_job_opening.feature:75
-    Given I am logged in as a valid user                                                              # features/steps/create_job_opening_steps.py:21
-    And I navigate to the Create Job Opening page                                                     # features/steps/create_job_opening_steps.py:40
-    When I load job opening data for "python_developer"                                               # features/steps/create_job_opening_steps.py:53
-    And I fill in "Job Opening Name" with value from scenario "job_name"                              # features/steps/common_steps.py:35
-    And I fill in "Enter or paste job description" with value from scenario "job_description"         # features/steps/common_steps.py:35
-    And I set "Interview Duration (minutes)" to 30                                                    # features/steps/common_steps.py:187
-    And I check the "Enable Resume Evaluation" checkbox                                               # features/steps/common_steps.py:197
-    And I set "Resume Evaluation Percentage" to 100                                                   # features/steps/common_steps.py:187
-    And I click the "Create Job Opening" button                                                       # features/steps/common_steps.py:92
-    And I wait for 2 seconds                                                                          # features/steps/common_steps.py:170
-    When I navigate to View Job Openings page                                                         # features/steps/create_job_opening_steps.py:222
-    Then I should see the item stored as "created_job_name" in the list                               # features/steps/common_steps.py:257
-    And the item stored as "created_job_name" should have status "Active"                             # features/steps/common_steps.py:274
-    When I load candidate data for "python_developer"                                                 # features/steps/create_job_opening_steps.py:295
-    And I navigate to "/interviews/new" page                                                          # features/steps/common_steps.py:15
-    And I select from "Select Job Opening" the value stored as "created_job_name"                     # features/steps/common_steps.py:69
-    And I fill in "Candidate Name" with value from scenario "candidate_name"                          # features/steps/common_steps.py:35
-    And I fill in "Candidate Email" with value from scenario "candidate_email"                        # features/steps/common_steps.py:35
-    And I fill in "Interview Date" with current date                                                  # features/steps/create_job_opening_steps.py:335
-    And I fill in "Interview Time" with time 1 minute from now                                        # features/steps/create_job_opening_steps.py:367
-    And I upload the file from "cv_file" to "Select CV File"                                          # features/steps/common_steps.py:110
-    And I upload the file from "photo_file" to "Select Image"                                         # features/steps/common_steps.py:110
-    And I click the "Schedule Interview" button                                                       # features/steps/common_steps.py:92
-    Then the interview should be scheduled successfully                                               # features/steps/create_job_opening_steps.py:434
-    When I wait for 3 seconds                                                                         # features/steps/common_steps.py:170
-    When I navigate to View Interviews page                                                           # features/steps/create_job_opening_steps.py:498
-    And I search for the recently created interview                                                   # features/steps/create_job_opening_steps.py:552
-    Then I should see the recently created interview                                                  # features/steps/create_job_opening_steps.py:573
-    When I click the 3-dot menu for the recently created interview                                    # features/steps/create_job_opening_steps.py:621
-    And I click the "Send Invite" option from the menu                                                # features/steps/create_job_opening_steps.py:642
-    Then the invite should be resent successfully                                                     # features/steps/create_job_opening_steps.py:661
-    And I should receive the interview invitation email                                               # features/steps/create_job_opening_steps.py:673
+  Scenario Outline: Create job opening and verify it appears in the list "python_developer" -- @1.1                              # features/create_job_opening.feature:91
+    Given I am logged in as a valid user                                                                                         # features/steps/create_job_opening_steps.py:21
+    And I navigate to the Create Job Opening page                                                                                # features/steps/create_job_opening_steps.py:40
+    When I load job opening data for "python_developer"                                                                          # features/steps/create_job_opening_steps.py:53
+    And I fill in "Job Opening Name" with value from scenario "job_name"                                                         # features/steps/common_steps.py:35
+    And I fill in "Enter or paste job description" with value from scenario "job_description"                                    # features/steps/common_steps.py:35
+    And I set "Interview Duration (minutes)" to 30                                                                               # features/steps/common_steps.py:187
+    And I check the "Enable Resume Evaluation" checkbox                                                                          # features/steps/common_steps.py:197
+    And I set "Resume Evaluation Percentage" to 100                                                                              # features/steps/common_steps.py:187
+    And I click the "Create Job Opening" button                                                                                  # features/steps/common_steps.py:92
+    And I wait for 2 seconds                                                                                                     # features/steps/common_steps.py:170
+    When I navigate to View Job Openings page                                                                                    # features/steps/create_job_opening_steps.py:222
+    Then I should see the item stored as "created_job_name" in the list                                                          # features/steps/common_steps.py:257
+    And the item stored as "created_job_name" should have status "Active"                                                        # features/steps/common_steps.py:274
+    When I load candidate data for "python_developer"                                                                            # features/steps/create_job_opening_steps.py:295
+    And I navigate to "/interviews/new" page                                                                                     # features/steps/common_steps.py:15
+    And I select from "Select Job Opening" the value stored as "created_job_name"                                                # features/steps/common_steps.py:69
+    And I fill in "Candidate Name" with value from scenario "candidate_name"                                                     # features/steps/common_steps.py:35
+    And I fill in "Candidate Email" with value from scenario "candidate_email"                                                   # features/steps/common_steps.py:35
+    And I fill in "Interview Date" with current date                                                                             # features/steps/create_job_opening_steps.py:335
+    And I fill in "Interview Time" with time 1 minute from now                                                                   # features/steps/create_job_opening_steps.py:367
+    And I upload the file from "cv_file" to "Select CV File"                                                                     # features/steps/common_steps.py:110
+    And I upload the file from "photo_file" to "Select Image"                                                                    # features/steps/common_steps.py:110
+    And I click the "Schedule Interview" button                                                                                  # features/steps/common_steps.py:92
+    Then the interview should be scheduled successfully                                                                          # features/steps/create_job_opening_steps.py:434
       ABORTED: By user (KeyboardInterrupt).
-
-    And I should extract the interview URL from the email                                             # None
-    When I wait for 2 seconds                                                                         # None
-    When I open the interview link                                                                    # None
-    Then the interview page should load successfully                                                  # None
-    And the interview should be ready to start                                                        # None
-    When I wait for 2 seconds                                                                         # None
-    When I click the 3-dot menu for the recently created interview                                    # None
-    And I click the "Delete" option from the menu                                                     # None
-    Then the interview should be deleted successfully                                                 # None
-    And I should not see the recently created interview                                               # None
 
