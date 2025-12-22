@@ -1,2 +1,2 @@
 "DESCRIPTION","DURATION IN MS","NAME","PARENT SUITE","START TIME","STATUS","STOP TIME","SUB SUITE","SUITE","TEST CLASS","TEST METHOD"
-"","82324","Create job opening and verify it appears in the list ""python_developer"" -- @1.1 ","","Mon Dec 22 09:30:34 UTC 2025","failed","Mon Dec 22 09:31:56 UTC 2025","","","",""
+"","82940","Create job opening and verify it appears in the list ""python_developer"" -- @1.1 ","","Mon Dec 22 09:45:37 UTC 2025","failed","Mon Dec 22 09:47:00 UTC 2025","","","",""
