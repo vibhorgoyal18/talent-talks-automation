@@ -1,1 +1,1 @@
-{"total":1,"items":[{"uid":"5c0715b94024a29e70189b9d39cddd3a","name":"Create Job Opening","statistic":{"failed":1,"broken":0,"skipped":0,"passed":0,"unknown":0,"total":1}}]}
+{"total":2,"items":[{"uid":"5c0715b94024a29e70189b9d39cddd3a","name":"Create Job Opening","statistic":{"failed":1,"broken":0,"skipped":0,"passed":0,"unknown":0,"total":1}},{"uid":"20f0fc42da1670ac9f6434c57c65c10b","name":"Test TTS + CDP Integration","statistic":{"failed":0,"broken":1,"skipped":0,"passed":0,"unknown":0,"total":1}}]}
