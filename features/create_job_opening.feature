@@ -73,6 +73,11 @@ Feature: Create Job Opening
       Then the transcript panel should be visible
       And the transcript should contain the AI greeting message
 
+    # Send Candidate Response - Simulate candidate speaking using CDP injection
+    When I send candidate response "I am doing great, thank you for asking. I have five years of Python development experience."
+      And I wait for 3 seconds
+      Then the transcript should contain the candidate response
+
     # Delete Interview - Navigate back to View Interviews page
     # When I navigate to View Interviews page
     #   And I search for the recently created interview

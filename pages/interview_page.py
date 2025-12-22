@@ -239,3 +239,134 @@ class InterviewPage:
                 transcript_lines.append(text.strip())
         
         return transcript_lines
+
+    def send_candidate_response(self, response_text: str) -> None:
+        """Send a candidate response using CDP and direct Speech API injection.
+        
+        This method attempts multiple approaches:
+        1. Direct injection into SpeechRecognition instance via CDP
+        2. Fallback to custom event dispatch
+        
+        Args:
+            response_text: The text to simulate as candidate speech
+        """
+        page = self.wrapper.page
+        
+        # Create a CDP session for low-level browser control
+        cdp = page.context.new_cdp_session(page)
+        
+        try:
+            # Use CDP Runtime.evaluate to inject the response directly
+            result = cdp.send("Runtime.evaluate", {
+                "expression": f"""
+                    (function() {{
+                        const responseText = {repr(response_text)};
+                        
+                        // Strategy 1: Find and trigger SpeechRecognition instance
+                        let foundRecognition = false;
+                        
+                        // Search for SpeechRecognition instances in window
+                        for (let prop in window) {{
+                            try {{
+                                const obj = window[prop];
+                                if (obj && typeof obj === 'object') {{
+                                    const constructor = obj.constructor;
+                                    if (constructor && 
+                                        (constructor.name === 'SpeechRecognition' ||
+                                         constructor.name === 'webkitSpeechRecognition')) {{
+                                        
+                                        // Found an instance! Trigger onresult
+                                        if (obj.onresult) {{
+                                            const mockEvent = {{
+                                                results: [[
+                                                    {{
+                                                        transcript: responseText,
+                                                        confidence: 0.95,
+                                                        isFinal: true
+                                                    }}
+                                                ]],
+                                                resultIndex: 0,
+                                                type: 'result'
+                                            }};
+                                            
+                                            mockEvent.results[0].isFinal = true;
+                                            mockEvent.results.length = 1;
+                                            
+                                            obj.onresult(mockEvent);
+                                            foundRecognition = true;
+                                            
+                                            console.log('[CDP] Triggered SpeechRecognition.onresult');
+                                        }}
+                                    }}
+                                }}
+                            }} catch (e) {{
+                                // Ignore property access errors
+                            }}
+                        }}
+                        
+                        // Strategy 2: Try React's internal instance
+                        if (!foundRecognition) {{
+                            const reactRoot = document.querySelector('[data-reactroot], #root, #app');
+                            if (reactRoot && reactRoot._reactRootContainer) {{
+                                // React 16/17 approach - traverse fiber tree
+                                console.log('[CDP] Attempting React fiber traversal...');
+                            }}
+                        }}
+                        
+                        // Strategy 3: Dispatch custom event for app to handle
+                        document.dispatchEvent(new CustomEvent('mockCandidateResponse', {{
+                            detail: {{
+                                transcript: responseText,
+                                confidence: 0.95,
+                                timestamp: Date.now()
+                            }}
+                        }}));
+                        
+                        console.log('[CDP] Dispatched mockCandidateResponse event');
+                        
+                        return {{
+                            success: true,
+                            foundRecognition: foundRecognition,
+                            transcript: responseText
+                        }};
+                    }})()
+                """,
+                "returnByValue": True,
+                "awaitPromise": False
+            })
+            
+            # Log the result
+            if result.get("result", {}).get("value", {}).get("foundRecognition"):
+                print(f"✓ Successfully injected candidate response via SpeechRecognition")
+            else:
+                print(f"⚠ Fallback: Dispatched custom event for response")
+            
+            # Wait for the response to be processed
+            page.wait_for_timeout(3000)
+            
+        except Exception as e:
+            print(f"⚠ CDP injection failed: {e}")
+            print(f"Attempting direct page.evaluate fallback...")
+            
+            # Fallback to regular page.evaluate
+            page.evaluate("""
+                (responseText) => {
+                    document.dispatchEvent(new CustomEvent('mockCandidateResponse', {
+                        detail: {
+                            transcript: responseText,
+                            confidence: 0.95,
+                            timestamp: Date.now()
+                        }
+                    }));
+                    console.log('[Fallback] Dispatched mockCandidateResponse');
+                }
+            """, response_text)
+            
+            page.wait_for_timeout(3000)
+            
+        finally:
+            # Always detach CDP session
+            try:
+                cdp.detach()
+            except:
+                pass

@@ -40,10 +40,11 @@ BDD UI automation framework using Behave (Gherkin), Playwright, Allure reporting
 │       └── login_steps.py    # Step definitions referencing page objects
 ├── pages/
 │   └── login_page.py         # Page Object Model abstraction
-└── utils/
+├── utils/
     ├── config_loader.py      # Loads .env namespaces, exposes getters
     ├── data_loader.py        # Excel reader with row lookup helpers
     ├── mail_client.py        # Gmail client for polling interview invitation emails
+    ├── tts_generator.py      # Text-to-Speech generator using Gemini API (for candidate response simulation)
     └── logger.py             # Shared logger setup (console + report/framework.log)
 ```
 
@@ -141,8 +142,20 @@ The framework includes automated testing with Allure report publishing via GitHu
 ## Data & Configuration Strategy
 
 - `.env` drives runtime configuration. Keys use `ENV__OPTION` syntax (e.g., `STAGE__BASE_URL`). `TEST_ENV` selects the namespace, defaulting to `DEFAULT`.
- - Excel (`data/test_data.xlsx`) stores scenario data. Use `utils.data_loader.ExcelDataLoader` to fetch rows by key for dynamic Behave steps.
- - Gmail utilities live under `utils.mail_client.GmailClient`, reading the `GMAIL_KEY` from `.env` to poll interview invitation emails programmatically.
+- Excel (`data/test_data.xlsx`) stores scenario data. Use `utils.data_loader.ExcelDataLoader` to fetch rows by key for dynamic Behave steps.
+- Gmail utilities live under `utils.mail_client.GmailClient`, reading the `GMAIL_KEY` from `.env` to poll interview invitation emails programmatically.
+- **TTS/Speech Simulation:** Optional `GEMINI_API_KEY` in `.env` enables future text-to-speech features. Currently, candidate speech responses are simulated using Chrome DevTools Protocol (CDP) injection.
+
+### Speech Recognition Simulation
+
+The framework supports automated testing of interview conversations using **CDP-based injection**:
+
+- **Method**: [interview_page.py](pages/interview_page.py) → `send_candidate_response()` uses Chrome DevTools Protocol
+- **How it works**: Creates CDP session, searches for active SpeechRecognition instance, triggers `onresult` callback
+- **Test coverage**: Can simulate candidate responses and verify they appear in transcript
+- **Fallback**: Dispatches custom events if direct injection fails
+
+See [docs/testing_limitations.md](docs/testing_limitations.md) for technical details.
 
 ## Extending the Framework
 

@@ -228,3 +228,15 @@ When a test fails:
 5. Update the page object selectors based on actual page structure
 6. Re-run the test to verify the fix
 7. Document any fixes in `CHANGELOG.md`
+
+## Known Limitations
+
+### Speech Recognition API Testing
+The interview application uses the browser's native Web Speech Recognition API, which presents challenges for automated testing:
+- ✅ Can verify transcript panel functionality (open/close, visibility)
+- ✅ Can verify AI messages appear in transcript
+- ❌ Cannot reliably simulate candidate speech responses in automated tests
+
+**Reason**: The SpeechRecognition instance is created when the interview starts, making it difficult to mock. See [docs/testing_limitations.md](docs/testing_limitations.md) for detailed workarounds.
+
+**Current approach**: Automated tests verify transcript infrastructure; full conversation testing requires manual verification or advanced mocking strategies.

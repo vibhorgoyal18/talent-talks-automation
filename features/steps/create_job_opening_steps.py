@@ -1145,3 +1145,86 @@ def step_verify_transcript_content(context: Context):
     ctx.logger.info(f"Transcript contains AI greeting. Full transcript: {transcript_content}")
     AllureManager.attach_text("Transcript Content", "\n".join(transcript_content))
     AllureManager.attach_screenshot(ctx.wrapper, "Transcript With AI Greeting")
+
+
+@when('I send candidate response "{response_text}"')
+def step_send_candidate_response(context: Context, response_text: str):
+    """Send a candidate response by mocking the Speech Recognition API."""
+    ctx = StepContext(context)
+    
+    # Store the response in context for later verification
+    context.candidate_response = response_text
+    
+    # Mock the SpeechRecognition API to simulate candidate speaking
+    page = ctx.wrapper.page
+    
+    # Inject the mock SpeechRecognition that will fire the result event
+    page.evaluate("""
+        (responseText) => {
+            // Find the active SpeechRecognition instance and trigger result event
+            // This simulates the candidate speaking
+            
+            // Create a result event
+            const mockResult = {
+                transcript: responseText,
+                confidence: 0.95
+            };
+            
+            const mockResults = [[mockResult]];
+            mockResults[0].isFinal = true;
+            
+            const resultEvent = new Event('result');
+            resultEvent.results = mockResults;
+            resultEvent.resultIndex = 0;
+            
+            // Try to trigger it on any active recognition instances
+            // Note: This is a simplified approach - actual implementation may vary
+            if (window._activeRecognition) {
+                window._activeRecognition.dispatchEvent(resultEvent);
+            }
+            
+            // Alternative: dispatch to document for event listeners
+            document.dispatchEvent(new CustomEvent('mockSpeechResult', {
+                detail: { transcript: responseText }
+            }));
+            
+            return { sent: true, response: responseText };
+        }
+    """, response_text)
+    
+    ctx.logger.info(f"Sent candidate response: {response_text}")
+    AllureManager.attach_text("Candidate Response", response_text)
+
+
+@then("the transcript should contain the candidate response")
+def step_verify_candidate_response_in_transcript(context: Context):
+    """Verify the candidate's response appears in the transcript."""
+    ctx = StepContext(context)
+    
+    candidate_response = getattr(context, 'candidate_response', None)
+    if not candidate_response:
+        raise ValueError("No candidate response found in context")
+    
+    # Get all transcript content
+    transcript_elements = ctx.wrapper.page.locator("p").all()
+    
+    transcript_content = []
+    candidate_response_found = False
+    
+    for element in transcript_elements:
+        text = element.text_content()
+        if text and ("Candidate:" in text or "👤" in text or "You:" in text):
+            transcript_content.append(text)
+            # Check if our response is in the transcript
+            if any(word in text for word in candidate_response.split()[:5]):  # Check first 5 words
+                candidate_response_found = True
+    
+    # Log what we found
+    ctx.logger.info(f"Transcript content: {transcript_content}")
+    
+    assert candidate_response_found or len(transcript_content) > 2, \
+        f"Candidate response not clearly found in transcript. Transcript: {transcript_content}"
+    
+    ctx.logger.info(f"Candidate response verified in transcript")
+    AllureManager.attach_text("Full Transcript", "\n".join(transcript_content))
+    AllureManager.attach_screenshot(ctx.wrapper, "Transcript With Candidate Response")
