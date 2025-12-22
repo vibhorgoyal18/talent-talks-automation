@@ -1149,29 +1149,53 @@ def step_verify_transcript_content(context: Context):
 
 @when('I send candidate response "{response_text}"')
 def step_send_candidate_response(context: Context, response_text: str):
-    """Send a candidate response using Gemini TTS processing and CDP injection."""
+    """Send a candidate response using Gemini TTS to generate audio and inject via fake microphone."""
     ctx = StepContext(context)
     
     from utils.ai.tts import GeminiTTS
     from pages.interview_page import InterviewPage
+    import os
     
-    # Process the text with Gemini TTS to make it more natural/conversational
+    # Initialize TTS
     ctx.logger.info(f"Processing candidate response with Gemini TTS: {response_text}")
     tts = GeminiTTS()
-    processed_text = tts.generate_speech(response_text)
-    ctx.logger.info(f"Gemini processed text: {processed_text}")
     
-    # Store both original and processed in context for verification
-    context.candidate_response = response_text
-    context.processed_response = processed_text
-    
-    # Use InterviewPage to send the response via CDP
-    interview_page = InterviewPage(ctx.wrapper)
-    interview_page.send_candidate_response(processed_text)
-    
-    ctx.logger.info(f"Sent processed candidate response via CDP")
-    AllureManager.attach_text("Original Response", response_text)
-    AllureManager.attach_text("Gemini Processed Response", processed_text)
+    # Generate audio file from the text
+    try:
+        audio_file_path = tts.generate_audio_file(response_text)
+        ctx.logger.info(f"Generated audio file: {audio_file_path}")
+        
+        # Store for verification
+        context.candidate_response = response_text
+        context.audio_file_path = audio_file_path
+        
+        # Use InterviewPage to inject the audio via fake microphone
+        interview_page = InterviewPage(ctx.wrapper)
+        interview_page.send_candidate_response(response_text, audio_file_path)
+        
+        ctx.logger.info(f"Injected audio file into fake microphone - SpeechRecognition should process it")
+        AllureManager.attach_text("Original Response", response_text)
+        AllureManager.attach_text("Audio File", audio_file_path)
+        
+        # Clean up audio file after use
+        if os.path.exists(audio_file_path):
+            os.remove(audio_file_path)
+            ctx.logger.info(f"Cleaned up audio file: {audio_file_path}")
+            
+    except Exception as e:
+        ctx.logger.error(f"Failed to generate/inject audio: {e}")
+        ctx.logger.info(f"Falling back to text-based CDP injection")
+        
+        # Fallback to text processing
+        processed_text = tts.generate_speech(response_text)
+        context.candidate_response = response_text
+        context.processed_response = processed_text
+        
+        interview_page = InterviewPage(ctx.wrapper)
+        interview_page.send_candidate_response(processed_text)
+        
+        AllureManager.attach_text("Original Response", response_text)
+        AllureManager.attach_text("Processed Response (Text Fallback)", processed_text)
 
 
 @then("the transcript should contain the candidate response")

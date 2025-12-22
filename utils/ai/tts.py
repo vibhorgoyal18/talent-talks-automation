@@ -84,6 +84,49 @@ class GeminiTTS:
         except Exception as e:
             logger.error(f"Error processing text for speech: {e}")
             return text  # Return original text as fallback
+    
+    def generate_audio_file(self, text: str, output_path: str = None) -> str:
+        """Generate an actual audio file from text using TTS.
+        
+        Since Gemini TTS API is not yet available (as of Dec 2024), this uses:
+        1. LLM to process text naturally
+        2. gTTS (Google Text-to-Speech) to generate audio
+        
+        Args:
+            text: The text to convert to speech
+            output_path: Path where to save the audio file. If None, creates temp file.
+            
+        Returns:
+            Path to the generated audio file
+        """
+        import os
+        import tempfile
+        from gtts import gTTS
+        
+        # Process text with LLM first
+        processed_text = self.process_text_with_llm(
+            text,
+            instruction="Convert this to natural conversational speech. Keep it concise."
+        )
+        
+        logger.info(f"Generating audio for: {processed_text[:100]}...")
+        
+        # Create output path if not provided
+        if not output_path:
+            fd, output_path = tempfile.mkstemp(suffix='.mp3', prefix='candidate_response_')
+            os.close(fd)
+        
+        try:
+            # Generate audio using gTTS
+            tts = gTTS(text=processed_text, lang='en', slow=False)
+            tts.save(output_path)
+            logger.info(f"Audio file generated: {output_path}")
+            return output_path
+            
+        except Exception as e:
+            logger.error(f"Failed to generate audio file: {e}")
+            # Fallback: Create a silent audio file or raise error
+            raise RuntimeError(f"Audio generation failed: {e}")
 
     def process_text_with_llm(self, text: str, instruction: str = "Simplify this text for speech:") -> str:
         """Process text using LangChain LLM before TTS conversion.

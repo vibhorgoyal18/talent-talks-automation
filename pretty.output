@@ -28,5 +28,23 @@ Feature: Create Job Opening # features/create_job_opening.feature:1
     And I upload the file from "photo_file" to "Select Image"                                                                    # features/steps/common_steps.py:110
     And I click the "Schedule Interview" button                                                                                  # features/steps/common_steps.py:92
     Then the interview should be scheduled successfully                                                                          # features/steps/create_job_opening_steps.py:434
-      ABORTED: By user (KeyboardInterrupt).
-
+    When I wait for 3 seconds                                                                                                    # features/steps/common_steps.py:170
+    When I navigate to View Interviews page                                                                                      # features/steps/create_job_opening_steps.py:498
+    And I search for the recently created interview                                                                              # features/steps/create_job_opening_steps.py:607
+    Then I should see the recently created interview                                                                             # features/steps/create_job_opening_steps.py:628
+    When I click the 3-dot menu for the recently created interview                                                               # features/steps/create_job_opening_steps.py:676
+    And I click the "Send Invite" option from the menu                                                                           # features/steps/create_job_opening_steps.py:697
+    Then the invite should be resent successfully                                                                                # features/steps/create_job_opening_steps.py:716
+    And I should receive the interview invitation email                                                                          # features/steps/create_job_opening_steps.py:728
+    And I should extract the interview URL from the email                                                                        # features/steps/create_job_opening_steps.py:818
+    When I wait for 2 seconds                                                                                                    # features/steps/common_steps.py:170
+    When I open the interview link                                                                                               # features/steps/create_job_opening_steps.py:864
+    Then the interview page should load successfully                                                                             # features/steps/create_job_opening_steps.py:909
+    And the interview should be ready to start                                                                                   # features/steps/create_job_opening_steps.py:948
+    When I click the Start Interview button                                                                                      # features/steps/create_job_opening_steps.py:973
+    Then the interview should actually start                                                                                     # features/steps/create_job_opening_steps.py:1004
+    When I wait for 2 seconds                                                                                                    # features/steps/common_steps.py:170
+    When I click the "Show Transcripts" button in the interview                                                                  # features/steps/create_job_opening_steps.py:1083
+    Then the transcript panel should be visible                                                                                  # features/steps/create_job_opening_steps.py:1105
+    And the transcript should contain the AI greeting message                                                                    # features/steps/create_job_opening_steps.py:1120
+    When I send candidate response "I am doing great, thank you for asking. I have five years of Python development experience." # features/steps/create_job_opening_steps.py:1150

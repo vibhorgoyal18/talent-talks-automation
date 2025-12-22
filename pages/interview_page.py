@@ -240,19 +240,29 @@ class InterviewPage:
         
         return transcript_lines
 
-    def send_candidate_response(self, response_text: str) -> None:
-        """Send a candidate response using CDP and direct Speech API injection.
+    def send_candidate_response(self, response_text: str, audio_file_path: str = None) -> None:
+        """Send a candidate response by injecting audio into the browser's microphone stream.
         
-        This method attempts multiple approaches:
-        1. Direct injection into SpeechRecognition instance via CDP
-        2. Fallback to custom event dispatch
+        This method creates a fake audio stream from an audio file and feeds it to the
+        browser as if it came from the microphone, allowing the SpeechRecognition API
+        to process it naturally.
         
         Args:
-            response_text: The text to simulate as candidate speech
+            response_text: The text of the response (used for logging/fallback)
+            audio_file_path: Path to the audio file to play. If None, will use text-based injection.
         """
         page = self.wrapper.page
         
-        # Create a CDP session for low-level browser control
+        if audio_file_path:
+            # Use audio file injection approach
+            self._inject_audio_file(audio_file_path, response_text)
+        else:
+            # Fallback to text-based CDP injection (current approach)
+            self._inject_text_via_cdp(response_text)
+    
+    def _inject_text_via_cdp(self, response_text: str) -> None:
+        """Legacy approach: Inject text directly via CDP (may not work with real SpeechRecognition)."""
+        page = self.wrapper.page
         cdp = page.context.new_cdp_session(page)
         
         try:
@@ -370,3 +380,104 @@ class InterviewPage:
                 cdp.detach()
             except:
                 pass
+    
+    def _inject_audio_file(self, audio_file_path: str, response_text: str) -> None:
+        """Inject an audio file into the browser's microphone stream.
+        
+        This creates a fake MediaStream from an audio file and overrides getUserMedia
+        to provide this stream instead of the real microphone.
+        
+        Args:
+            audio_file_path: Path to the audio file (WAV, MP3, etc.)
+            response_text: The text content (for logging)
+        """
+        page = self.wrapper.page
+        
+        # First, read the audio file and convert to base64
+        import base64
+        import os
+        
+        if not os.path.exists(audio_file_path):
+            raise FileNotFoundError(f"Audio file not found: {audio_file_path}")
+        
+        with open(audio_file_path, 'rb') as f:
+            audio_data = base64.b64encode(f.read()).decode('utf-8')
+        
+        # Determine MIME type from file extension
+        ext = os.path.splitext(audio_file_path)[1].lower()
+        mime_types = {
+            '.wav': 'audio/wav',
+            '.mp3': 'audio/mpeg',
+            '.ogg': 'audio/ogg',
+            '.webm': 'audio/webm'
+        }
+        mime_type = mime_types.get(ext, 'audio/wav')
+        
+        # Inject JavaScript to override getUserMedia and play the audio
+        page.evaluate("""
+            async (audioData, mimeType, responseText) => {
+                console.log('[Audio Injection] Starting fake microphone setup...');
+                console.log('[Audio Injection] Response text:', responseText);
+                
+                // Create audio blob from base64 data
+                const binaryString = atob(audioData);
+                const bytes = new Uint8Array(binaryString.length);
+                for (let i = 0; i < binaryString.length; i++) {
+                    bytes[i] = binaryString.charCodeAt(i);
+                }
+                const audioBlob = new Blob([bytes], { type: mimeType });
+                const audioUrl = URL.createObjectURL(audioBlob);
+                
+                // Create audio element
+                const audio = new Audio(audioUrl);
+                
+                // Create AudioContext and destination for fake stream
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const mediaStreamDestination = audioContext.createMediaStreamDestination();
+                
+                // Create source from audio element
+                const source = audioContext.createMediaElementSource(audio);
+                source.connect(mediaStreamDestination);
+                
+                // Also connect to speakers so we can hear it (optional, for debugging)
+                source.connect(audioContext.destination);
+                
+                // Store the fake stream globally
+                window.__fakeAudioStream = mediaStreamDestination.stream;
+                
+                // Override getUserMedia to return our fake stream
+                const originalGetUserMedia = navigator.mediaDevices.getUserMedia.bind(navigator.mediaDevices);
+                navigator.mediaDevices.getUserMedia = async function(constraints) {
+                    console.log('[Audio Injection] getUserMedia called with constraints:', constraints);
+                    
+                    if (constraints && constraints.audio) {
+                        console.log('[Audio Injection] Returning fake audio stream');
+                        // Play the audio
+                        await audio.play();
+                        return window.__fakeAudioStream;
+                    }
+                    
+                    // For video or other requests, use original
+                    return originalGetUserMedia(constraints);
+                };
+                
+                console.log('[Audio Injection] Fake microphone setup complete');
+                console.log('[Audio Injection] Audio duration:', audio.duration, 'seconds');
+                
+                // Play the audio to start feeding the stream
+                await audio.play();
+                
+                return {
+                    success: true,
+                    duration: audio.duration,
+                    message: 'Fake microphone injected successfully'
+                };
+            }
+        """, audio_data, mime_type, response_text)
+        
+        print(f"✓ Injected audio file: {audio_file_path}")
+        print(f"✓ SpeechRecognition should now process this audio")
+        
+        # Wait for audio to play and be processed
+        # TODO: Get actual audio duration and wait for that
+        page.wait_for_timeout(5000)
