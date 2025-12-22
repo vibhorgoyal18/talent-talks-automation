@@ -501,13 +501,61 @@ def step_navigate_to_view_interviews(context: Context):
     ctx = StepContext(context)
     
     from pages.dashboard_page import DashboardPage
+    from core.web.playwright_wrapper import PlaywrightWrapper
     
     view_interviews_page = ViewInterviewsPage(ctx.wrapper, ctx.base_url)
     dashboard_page = DashboardPage(ctx.wrapper, ctx.base_url)
     
+    # Check if page/context is closed (can happen after interview interaction)
+    try:
+        current_url = ctx.wrapper.page.url
+        is_page_open = True
+    except Exception as e:
+        ctx.logger.warning(f"Page might be closed: {e}")
+        is_page_open = False
+    
+    # If page is closed, create a new page in the same context
+    if not is_page_open:
+        ctx.logger.info("Page was closed, creating new page")
+        try:
+            new_page = context.browser_context.new_page()
+            context.page = new_page
+            context.wrapper = PlaywrightWrapper(new_page, timeout=ctx.wrapper.timeout)
+            ctx = StepContext(context)  # Refresh context
+            view_interviews_page = ViewInterviewsPage(ctx.wrapper, ctx.base_url)
+            ctx.logger.info("New page created successfully")
+        except Exception as e:
+            ctx.logger.error(f"Failed to create new page: {e}")
+            raise
+        
+        # Navigate to View Interviews page
+        view_interviews_page.open()
+        view_interviews_page.wait_for_page_load()
+        assert view_interviews_page.is_loaded(), "View Interviews page did not load"
+        ctx.logger.info("Navigated to View Interviews page with new page")
+        return
+    
     # Wait a moment for the interview to be saved in the database
     ctx.logger.info("Waiting for interview to be saved in database")
-    ctx.wrapper.page.wait_for_timeout(3000)
+    try:
+        ctx.wrapper.page.wait_for_timeout(3000)
+    except Exception as e:
+        ctx.logger.warning(f"Wait timeout failed: {e}")
+        # Likely page closed during wait, handle it
+        try:
+            new_page = context.browser_context.new_page()
+            context.page = new_page
+            context.wrapper = PlaywrightWrapper(new_page, timeout=ctx.wrapper.timeout)
+            ctx = StepContext(context)
+            view_interviews_page = ViewInterviewsPage(ctx.wrapper, ctx.base_url)
+            view_interviews_page.open()
+            view_interviews_page.wait_for_page_load()
+            assert view_interviews_page.is_loaded(), "View Interviews page did not load"
+            ctx.logger.info("Navigated to View Interviews page after page recreation")
+            return
+        except Exception as inner_e:
+            ctx.logger.error(f"Failed to recover from page closure: {inner_e}")
+            raise
     
     # Check if we're on a page with sidebar (dashboard-like pages)
     current_url = ctx.wrapper.page.url
@@ -1031,3 +1079,69 @@ def step_verify_interview_not_present(context: Context):
     ctx.logger.info(f"Verified interview '{identifier}' is no longer in the list")
     AllureManager.attach_screenshot(ctx.wrapper, "Interview Deleted - List View")
 
+
+@when('I click the "Show Transcripts" button in the interview')
+def step_click_show_transcripts(context: Context):
+    """Click the Show Transcripts button during the interview."""
+    ctx = StepContext(context)
+    
+    interview_page = context.interview_page
+    if not interview_page:
+        raise ValueError(
+            "No interview page found in context. Must start interview first."
+        )
+    
+    # Click the Show Transcripts button
+    show_transcripts_button = ctx.wrapper.page.locator("role=button[name*='Show Transcripts']").first
+    show_transcripts_button.click(timeout=5000)
+    
+    # Wait for transcript panel to appear
+    ctx.wrapper.page.wait_for_timeout(2000)
+    
+    ctx.logger.info("Clicked 'Show Transcripts' button")
+    AllureManager.attach_screenshot(ctx.wrapper, "Transcript Panel Opened")
+
+
+@then("the transcript panel should be visible")
+def step_verify_transcript_panel_visible(context: Context):
+    """Verify the transcript panel is visible."""
+    ctx = StepContext(context)
+    
+    # Check for "Hide Transcripts" button which indicates the panel is open
+    hide_button = ctx.wrapper.page.locator("role=button[name*='Hide Transcripts']").first
+    is_visible = hide_button.is_visible(timeout=3000)
+    
+    assert is_visible, "Transcript panel is not visible (Hide Transcripts button not found)"
+    
+    ctx.logger.info("Transcript panel is visible")
+    AllureManager.attach_screenshot(ctx.wrapper, "Transcript Panel Visible")
+
+
+@then("the transcript should contain the AI greeting message")
+def step_verify_transcript_content(context: Context):
+    """Verify the transcript contains the AI greeting message."""
+    ctx = StepContext(context)
+    
+    # Get all paragraph elements that might contain transcript
+    transcript_elements = ctx.wrapper.page.locator("p").all()
+    
+    # Look for the AI greeting message
+    ai_greeting_found = False
+    transcript_content = []
+    
+    for element in transcript_elements:
+        text = element.text_content()
+        if text and ("AI:" in text or "👤" in text):
+            transcript_content.append(text)
+            if "Hello" in text or "TalentTalks" in text:
+                ai_greeting_found = True
+    
+    # Store transcript in context for potential debugging
+    context.transcript_content = transcript_content
+    
+    assert ai_greeting_found, \
+        f"AI greeting message not found in transcript. Content: {transcript_content}"
+    
+    ctx.logger.info(f"Transcript contains AI greeting. Full transcript: {transcript_content}")
+    AllureManager.attach_text("Transcript Content", "\n".join(transcript_content))
+    AllureManager.attach_screenshot(ctx.wrapper, "Transcript With AI Greeting")

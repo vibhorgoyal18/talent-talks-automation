@@ -19,17 +19,30 @@ class BrowserFactory:
         headless = self._config.get("headless", "false").lower() == "true"
         slow_mo = self._config.get_int("slow_mo", 0)
 
+        # Chrome flags for media/screen sharing
+        args = [
+            "--use-fake-ui-for-media-stream",  # Auto-accept media permissions
+            "--use-fake-device-for-media-stream",  # Use fake camera/microphone
+            "--auto-select-desktop-capture-source=Entire screen",  # Auto-select entire screen
+            "--enable-usermedia-screen-capturing",  # Enable screen capture
+            "--allow-http-screen-capture",  # Allow screen capture over HTTP
+            "--disable-features=UserMediaCaptureOnFocus",  # Don't require focus
+        ]
+        
+        # Additional flags for headless mode (GitHub Actions)
+        if headless:
+            args.extend([
+                "--no-sandbox",  # Required for container environments
+                "--disable-dev-shm-usage",  # Overcome limited resource problems
+                "--disable-gpu",  # Disable GPU hardware acceleration
+                "--disable-software-rasterizer",  # Disable software rasterizer
+                "--disable-setuid-sandbox",  # Required for container environments
+            ])
+
         options = {
             "headless": headless,
             "slow_mo": slow_mo,
-            "args": [
-                "--use-fake-ui-for-media-stream",  # Auto-accept media permissions
-                "--use-fake-device-for-media-stream",  # Use fake camera/microphone
-                "--auto-select-desktop-capture-source=Entire screen",  # Auto-select entire screen
-                "--enable-usermedia-screen-capturing",  # Enable screen capture
-                "--allow-http-screen-capture",  # Allow screen capture over HTTP
-                "--disable-features=UserMediaCaptureOnFocus",  # Don't require focus
-            ],
+            "args": args,
         }
 
         return options
@@ -39,7 +52,7 @@ class BrowserFactory:
         return {
             "viewport": {"width": 1920, "height": 1080},
             "ignore_https_errors": True,
-            # Note: display-capture is handled via browser args, not context permissions
+            "permissions": ["camera", "microphone"],  # Grant media permissions
         }
 
     def create_browser(self) -> tuple[Playwright, Browser, BrowserContext, Page]:

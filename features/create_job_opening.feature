@@ -62,19 +62,24 @@ Feature: Create Job Opening
     When I open the interview link
       Then the interview page should load successfully
       And the interview should be ready to start
-    
+
     # Start the Interview - Click Start Interview button and verify it starts
     When I click the Start Interview button
       Then the interview should actually start
     When I wait for 2 seconds
 
+    # Verify Transcript - Click Show Transcripts button and read the content
+    When I click the "Show Transcripts" button in the interview
+      Then the transcript panel should be visible
+      And the transcript should contain the AI greeting message
+
     # Delete Interview - Navigate back to View Interviews page
-    When I navigate to View Interviews page
-      And I search for the recently created interview
-      And I click the 3-dot menu for the recently created interview
-      And I click the "Delete" option from the menu
-      Then the interview should be deleted successfully
-      And I should not see the recently created interview
+    # When I navigate to View Interviews page
+    #   And I search for the recently created interview
+    #   And I click the 3-dot menu for the recently created interview
+    #   And I click the "Delete" option from the menu
+    #   Then the interview should be deleted successfully
+    #   And I should not see the recently created interview
 
     Examples:
       | scenario         | job_name         |

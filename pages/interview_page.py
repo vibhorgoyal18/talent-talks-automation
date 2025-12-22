@@ -32,6 +32,11 @@ class InterviewPage:
     CAMERA_PERMISSION_TEXT = "text=Camera, text=Microphone"
     INTERVIEW_QUESTION_HEADING = "role=heading"  # Questions appear as headings during interview
     RECORDING_INDICATOR = "text=Recording, text=REC"
+    
+    # Transcript controls
+    SHOW_TRANSCRIPTS_BUTTON = "role=button[name*='Show Transcripts']"
+    HIDE_TRANSCRIPTS_BUTTON = "role=button[name*='Hide Transcripts']"
+    TRANSCRIPT_CONTENT = "p"  # Transcript appears in paragraph elements
 
     def __init__(self, wrapper: PlaywrightWrapper) -> None:
         self.wrapper = wrapper
@@ -206,3 +211,31 @@ class InterviewPage:
             "has_video_element": page.locator(self.VIDEO_ELEMENT).first.is_visible(timeout=1000) if page.locator(self.VIDEO_ELEMENT).count() > 0 else False,
             "has_access_denied": self.is_access_denied()
         }
+    def click_show_transcripts(self) -> None:
+        """Click the Show Transcripts button to display the transcript panel."""
+        page = self.wrapper.page
+        show_button = page.locator(self.SHOW_TRANSCRIPTS_BUTTON).first
+        show_button.click(timeout=5000)
+        page.wait_for_timeout(1000)
+
+    def is_transcript_panel_visible(self) -> bool:
+        """Check if the transcript panel is visible (by checking for Hide Transcripts button)."""
+        try:
+            page = self.wrapper.page
+            hide_button = page.locator(self.HIDE_TRANSCRIPTS_BUTTON).first
+            return hide_button.is_visible(timeout=2000)
+        except Exception:
+            return False
+
+    def get_transcript_content(self) -> list[str]:
+        """Get all transcript content from the page."""
+        page = self.wrapper.page
+        transcript_elements = page.locator(self.TRANSCRIPT_CONTENT).all()
+        
+        transcript_lines = []
+        for element in transcript_elements:
+            text = element.text_content()
+            if text and ("AI:" in text or "👤" in text or "Candidate:" in text):
+                transcript_lines.append(text.strip())
+        
+        return transcript_lines
