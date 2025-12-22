@@ -19,7 +19,7 @@
             <!-- Greeting -->
             <tr>
               <td style="font-size: 15px; color: #333; line-height: 1.6;">
-                <p>Hi <b>Python_1222_0850</b>,</p>
+                <p>Hi <b>Python_1222_0930</b>,</p>
                 <p>
                   We are pleased to inform you that your interview has been successfully 
                   scheduled. Please click the button below to view your interview details 
@@ -31,7 +31,7 @@
             <!-- Button -->
             <tr>
               <td align="center" style="padding: 25px 0;">
-                <a href="https://talenttalks.vlinkinfo.com/interview?name=Python_1222_0850&interviewId=6949065ecb423cc8fe89df15" target="_blank"
+                <a href="https://talenttalks.vlinkinfo.com/interview?name=Python_1222_0930&interviewId=69490fcbcb423cc8fe89df63" target="_blank"
                    style="
                      padding: 12px 28px; 
                      background: #1a73e8; 
