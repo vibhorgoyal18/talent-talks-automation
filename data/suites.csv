@@ -1,3 +1,3 @@
 "DESCRIPTION","DURATION IN MS","NAME","PARENT SUITE","START TIME","STATUS","STOP TIME","SUB SUITE","SUITE","TEST CLASS","TEST METHOD"
-"","398","Send candidate response using Gemini TTS and CDP injection","","Mon Dec 22 11:12:55 UTC 2025","broken","Mon Dec 22 11:12:56 UTC 2025","","","",""
-"","83263","Create job opening and verify it appears in the list ""python_developer"" -- @1.1 ","","Mon Dec 22 11:11:32 UTC 2025","failed","Mon Dec 22 11:12:55 UTC 2025","","","",""
+"","80558","Create job opening and verify it appears in the list ""python_developer"" -- @1.1 ","","Mon Dec 22 11:24:42 UTC 2025","failed","Mon Dec 22 11:26:03 UTC 2025","","","",""
+"","399","Send candidate response using Gemini TTS and CDP injection","","Mon Dec 22 11:26:03 UTC 2025","broken","Mon Dec 22 11:26:03 UTC 2025","","","",""
