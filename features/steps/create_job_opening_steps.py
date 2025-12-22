@@ -1199,20 +1199,40 @@ def step_verify_candidate_response_in_transcript(context: Context):
         text = element.text_content()
         if text and ("Candidate:" in text or "👤" in text or "You:" in text):
             transcript_content.append(text)
+            
+            # Extract just the message part (after the prefix)
+            message_text = text
+            for prefix in ["Candidate:", "👤 Candidate:", "You:", "👤 You:"]:
+                if prefix in text:
+                    message_text = text.split(prefix, 1)[-1].strip()
+                    break
+            
             # Check if either original or processed response is in the transcript
-            # Check for processed response first (more likely to appear)
-            if processed_response and any(word in text for word in processed_response.split()[:5]):
-                candidate_response_found = True
-                ctx.logger.info(f"Found Gemini processed response in transcript: {text}")
+            # Look for at least 10 consecutive characters matching (to avoid false positives)
+            if processed_response and len(processed_response) > 10:
+                # Check for substantial overlap (at least 10 chars)
+                for i in range(len(processed_response) - 10):
+                    substring = processed_response[i:i+10]
+                    if substring.lower() in message_text.lower():
+                        candidate_response_found = True
+                        ctx.logger.info(f"Found Gemini processed response in transcript: {text}")
+                        break
+            
             # Also check original as fallback
-            elif any(word in text for word in candidate_response.split()[:5]):
-                candidate_response_found = True
-                ctx.logger.info(f"Found original response in transcript: {text}")
+            if not candidate_response_found and len(candidate_response) > 10:
+                for i in range(len(candidate_response) - 10):
+                    substring = candidate_response[i:i+10]
+                    if substring.lower() in message_text.lower():
+                        candidate_response_found = True
+                        ctx.logger.info(f"Found original response in transcript: {text}")
+                        break
     
     # Log what we found
     ctx.logger.info(f"Transcript content: {transcript_content}")
+    ctx.logger.info(f"Candidate response found: {candidate_response_found}")
     
-    assert candidate_response_found or len(transcript_content) > 2, \
+    # Assert that the candidate response was actually found
+    assert candidate_response_found, \
         f"Candidate response not found in transcript. Expected: '{processed_response or candidate_response}'. Transcript: {transcript_content}"
     
     ctx.logger.info(f"Candidate response verified in transcript")
