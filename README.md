@@ -41,10 +41,13 @@ BDD UI automation framework using Behave (Gherkin), Playwright, Allure reporting
 ├── pages/
 │   └── login_page.py         # Page Object Model abstraction
 ├── utils/
+    ├── ai/
+    │   ├── __init__.py       # AI utilities package
+    │   └── tts.py            # Text-to-Speech using Gemini API & LangChain
     ├── config_loader.py      # Loads .env namespaces, exposes getters
     ├── data_loader.py        # Excel reader with row lookup helpers
     ├── mail_client.py        # Gmail client for polling interview invitation emails
-    ├── tts_generator.py      # Text-to-Speech generator using Gemini API (for candidate response simulation)
+    ├── tts_generator.py      # Compatibility wrapper (deprecated, use utils.ai.tts)
     └── logger.py             # Shared logger setup (console + report/framework.log)
 ```
 
