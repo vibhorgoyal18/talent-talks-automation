@@ -413,10 +413,10 @@ class InterviewPage:
         }
         mime_type = mime_types.get(ext, 'audio/wav')
         
-        # Inject JavaScript to override getUserMedia and play the audio
+        # Inject JavaScript to feed audio into the active microphone stream
         page.evaluate("""
             async (audioData, mimeType, responseText) => {
-                console.log('[Audio Injection] Starting fake microphone setup...');
+                console.log('[Audio Injection] Simulating microphone input...');
                 console.log('[Audio Injection] Response text:', responseText);
                 
                 // Create audio blob from base64 data
@@ -431,46 +431,115 @@ class InterviewPage:
                 // Create audio element
                 const audio = new Audio(audioUrl);
                 
-                // Create AudioContext and destination for fake stream
-                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                const mediaStreamDestination = audioContext.createMediaStreamDestination();
+                // Wait for audio metadata to load to get duration
+                await new Promise((resolve) => {
+                    audio.onloadedmetadata = () => resolve();
+                    audio.load();
+                });
                 
-                // Create source from audio element
-                const source = audioContext.createMediaElementSource(audio);
-                source.connect(mediaStreamDestination);
-                
-                // Also connect to speakers so we can hear it (optional, for debugging)
-                source.connect(audioContext.destination);
-                
-                // Store the fake stream globally
-                window.__fakeAudioStream = mediaStreamDestination.stream;
-                
-                // Override getUserMedia to return our fake stream
-                const originalGetUserMedia = navigator.mediaDevices.getUserMedia.bind(navigator.mediaDevices);
-                navigator.mediaDevices.getUserMedia = async function(constraints) {
-                    console.log('[Audio Injection] getUserMedia called with constraints:', constraints);
-                    
-                    if (constraints && constraints.audio) {
-                        console.log('[Audio Injection] Returning fake audio stream');
-                        // Play the audio
-                        await audio.play();
-                        return window.__fakeAudioStream;
-                    }
-                    
-                    // For video or other requests, use original
-                    return originalGetUserMedia(constraints);
-                };
-                
-                console.log('[Audio Injection] Fake microphone setup complete');
                 console.log('[Audio Injection] Audio duration:', audio.duration, 'seconds');
                 
-                // Play the audio to start feeding the stream
-                await audio.play();
+                // Create AudioContext if not exists
+                if (!window.__audioContext) {
+                    window.__audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                }
+                const audioContext = window.__audioContext;
+                
+                // Create a destination for our fake microphone
+                if (!window.__fakeMicDestination) {
+                    window.__fakeMicDestination = audioContext.createMediaStreamDestination();
+                }
+                const destination = window.__fakeMicDestination;
+                
+                // Create source from audio file
+                const source = audioContext.createMediaElementSource(audio);
+                
+                // Connect audio to the fake microphone destination
+                source.connect(destination);
+                
+                // Also connect to output for debugging (optional - can remove in production)
+                source.connect(audioContext.destination);
+                
+                // Override getUserMedia BEFORE it's called or replace existing stream
+                const originalGetUserMedia = navigator.mediaDevices.getUserMedia;
+                navigator.mediaDevices.getUserMedia = async function(constraints) {
+                    console.log('[Audio Injection] getUserMedia intercepted');
+                    
+                    if (constraints && constraints.audio) {
+                        console.log('[Audio Injection] Returning fake microphone stream');
+                        
+                        // Play the audio through our fake mic
+                        try {
+                            await audio.play();
+                            console.log('[Audio Injection] Audio playing through fake microphone');
+                        } catch (e) {
+                            console.error('[Audio Injection] Audio play failed:', e);
+                        }
+                        
+                        return destination.stream;
+                    }
+                    
+                    // For other constraints, use original
+                    return originalGetUserMedia.call(navigator.mediaDevices, constraints);
+                };
+                
+                // If SpeechRecognition is already running, we need to restart it with our stream
+                // Find the SpeechRecognition instance
+                let recognition = null;
+                for (let key in window) {
+                    try {
+                        if (window[key] && 
+                            typeof window[key] === 'object' && 
+                            (window[key].constructor.name === 'SpeechRecognition' || 
+                             window[key].constructor.name === 'webkitSpeechRecognition')) {
+                            recognition = window[key];
+                            console.log('[Audio Injection] Found SpeechRecognition instance');
+                            break;
+                        }
+                    } catch (e) {
+                        // Skip
+                    }
+                }
+                
+                // If recognition is running, stop and restart it to use our fake mic
+                if (recognition) {
+                    console.log('[Audio Injection] Restarting SpeechRecognition with fake microphone...');
+                    
+                    // Stop current recognition
+                    const wasStarted = true; // Assume it was started
+                    try {
+                        recognition.stop();
+                    } catch (e) {
+                        console.log('[Audio Injection] Recognition already stopped');
+                    }
+                    
+                    // Wait a bit for it to fully stop
+                    await new Promise(resolve => setTimeout(resolve, 500));
+                    
+                    // Play our audio
+                    await audio.play();
+                    console.log('[Audio Injection] Playing audio...');
+                    
+                    // Restart recognition - it will now use our fake mic via getUserMedia
+                    if (wasStarted) {
+                        try {
+                            recognition.start();
+                            console.log('[Audio Injection] SpeechRecognition restarted with fake mic');
+                        } catch (e) {
+                            console.error('[Audio Injection] Failed to restart recognition:', e);
+                        }
+                    }
+                } else {
+                    // No active recognition yet, just play the audio
+                    // It will be picked up when recognition starts
+                    console.log('[Audio Injection] No active recognition, playing audio anyway');
+                    await audio.play();
+                }
                 
                 return {
                     success: true,
                     duration: audio.duration,
-                    message: 'Fake microphone injected successfully'
+                    message: 'Audio injected into fake microphone stream'
                 };
             }
         """, audio_data, mime_type, response_text)

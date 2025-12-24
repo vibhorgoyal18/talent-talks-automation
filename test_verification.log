@@ -1,0 +1,151 @@
+USING RUNNER: behave.runner:Runner
+Feature: Create Job Opening # features/create_job_opening.feature:1
+  As an HR manager
+  I want to create new job openings
+  So that I can start the recruitment process for positions2025-12-22 14:20:13,737 - INFO - talent-talks-automation - Starting scenario: Create job opening and verify it appears in the list "python_developer" -- @1.1 
+
+  @ui @job @smoke @e2e
+  Scenario Outline: Create job opening and verify it appears in the list "python_developer" -- @1.1   # features/create_job_opening.feature:86
+    Given I am logged in as a valid user                                                              # features/steps/create_job_opening_steps.py:21
+2025-12-22 14:20:19,480 - INFO - talent-talks-automation - Successfully logged in as valid user
+    And I navigate to the Create Job Opening page                                                     # features/steps/create_job_opening_steps.py:40
+2025-12-22 14:20:19,549 - INFO - talent-talks-automation - Navigated to Create Job Opening page
+    When I load job opening data for "python_developer"                                               # features/steps/create_job_opening_steps.py:53
+2025-12-22 14:20:19,550 - INFO - talent-talks-automation - Loaded job opening data for scenario: python_developer
+2025-12-22 14:20:19,550 - INFO - talent-talks-automation - Unique job name: Python Developer - 20251222_142019
+    And I fill in "Job Opening Name" with value from scenario "job_name"                              # features/steps/common_steps.py:35
+2025-12-22 14:20:19,564 - INFO - talent-talks-automation - Filled in 'Job Opening Name' with 'Python Developer - 20251222_142019' from scenario data
+    And I fill in "Enter or paste job description" with value from scenario "job_description"         # features/steps/common_steps.py:35
+2025-12-22 14:20:19,575 - INFO - talent-talks-automation - Filled in 'Enter or paste job description' with 'Looking for an experienced Python developer with Django and FastAPI skills' from scenario data
+    And I set "Interview Duration (minutes)" to 30                                                    # features/steps/common_steps.py:187
+2025-12-22 14:20:19,589 - INFO - talent-talks-automation - Set 'Interview Duration (minutes)' to 30
+    And I check the "Enable Resume Evaluation" checkbox                                               # features/steps/common_steps.py:197
+2025-12-22 14:20:19,620 - INFO - talent-talks-automation - Checked checkbox: 'Enable Resume Evaluation'
+    And I set "Resume Evaluation Percentage" to 100                                                   # features/steps/common_steps.py:187
+2025-12-22 14:20:19,629 - INFO - talent-talks-automation - Set 'Resume Evaluation Percentage' to 100
+    And I click the "Create Job Opening" button                                                       # features/steps/common_steps.py:92
+2025-12-22 14:20:19,660 - INFO - talent-talks-automation - Clicked button: 'Create Job Opening'
+    And I wait for 2 seconds                                                                          # features/steps/common_steps.py:170
+2025-12-22 14:20:21,663 - INFO - talent-talks-automation - Waited for 2 seconds
+    When I navigate to View Job Openings page                                                         # features/steps/create_job_opening_steps.py:222
+2025-12-22 14:20:21,663 - INFO - talent-talks-automation - Waiting for job to be saved in database
+2025-12-22 14:20:26,666 - INFO - talent-talks-automation - Clicking View Job Openings button in sidebar
+2025-12-22 14:20:26,946 - INFO - talent-talks-automation - Searching for job: Python Developer - 20251222_142019
+2025-12-22 14:20:27,993 - INFO - talent-talks-automation - Navigated to View Job Openings page
+    Then I should see the item stored as "created_job_name" in the list                               # features/steps/common_steps.py:257
+2025-12-22 14:20:27,998 - INFO - talent-talks-automation - Verified item is in list: 'Python Developer - 20251222_142019' (from context.created_job_name)
+    And the item stored as "created_job_name" should have status "Active"                             # features/steps/common_steps.py:274
+2025-12-22 14:20:28,004 - INFO - talent-talks-automation - Verified item 'Python Developer - 20251222_142019' has status: 'Active'
+    When I load candidate data for "python_developer"                                                 # features/steps/create_job_opening_steps.py:295
+2025-12-22 14:20:28,005 - INFO - talent-talks-automation - Loaded candidate data for scenario: python_developer
+2025-12-22 14:20:28,005 - INFO - talent-talks-automation - Candidate: Python_1222_1420, Email: vibhorgoyal.talenttalks@gmail.com
+    And I navigate to "/interviews/new" page                                                          # features/steps/common_steps.py:15
+2025-12-22 14:20:28,302 - INFO - talent-talks-automation - Navigated to: https://talenttalks.vlinkinfo.com/interviews/new
+    And I select from "Select Job Opening" the value stored as "created_job_name"                     # features/steps/common_steps.py:69
+2025-12-22 14:20:29,799 - INFO - talent-talks-automation - Selected 'Python Developer - 20251222_142019' from 'Select Job Opening' (from context.created_job_name)
+    And I fill in "Candidate Name" with value from scenario "candidate_name"                          # features/steps/common_steps.py:35
+2025-12-22 14:20:29,844 - INFO - talent-talks-automation - Filled in 'Candidate Name' with 'Python_1222_1420' from scenario data
+    And I fill in "Candidate Email" with value from scenario "candidate_email"                        # features/steps/common_steps.py:35
+2025-12-22 14:20:29,867 - INFO - talent-talks-automation - Filled in 'Candidate Email' with 'vibhorgoyal.talenttalks@gmail.com' from scenario data
+    And I fill in "Interview Date" with current date                                                  # features/steps/create_job_opening_steps.py:335
+2025-12-22 14:20:29,898 - INFO - talent-talks-automation - Filled in 'Interview Date' with current date: 2025-12-22
+    And I fill in "Interview Time" with time 1 minute from now                                        # features/steps/create_job_opening_steps.py:367
+2025-12-22 14:20:29,919 - INFO - talent-talks-automation - Filled in 'Interview Time' with time 1 minute(s) from now: 14:21
+    And I upload the file from "cv_file" to "Select CV File"                                          # features/steps/common_steps.py:110
+2025-12-22 14:20:30,444 - INFO - talent-talks-automation - Uploaded file '/Users/vibhorgoyal/PersonalWorkspace/talent-talks-automation/data/test_files/sample_cv.pdf' using 'Select CV File'
+    And I upload the file from "photo_file" to "Select Image"                                         # features/steps/common_steps.py:110
+2025-12-22 14:20:30,969 - INFO - talent-talks-automation - Uploaded file '/Users/vibhorgoyal/PersonalWorkspace/talent-talks-automation/data/test_files/Vibhor_Photo.jpg' using 'Select Image'
+    And I click the "Schedule Interview" button                                                       # features/steps/common_steps.py:92
+2025-12-22 14:20:31,204 - INFO - talent-talks-automation - Clicked button: 'Schedule Interview'
+    Then the interview should be scheduled successfully                                               # features/steps/create_job_opening_steps.py:434
+2025-12-22 14:20:34,209 - INFO - talent-talks-automation - Current URL after scheduling: https://talenttalks.vlinkinfo.com/interviews/new
+2025-12-22 14:20:34,209 - INFO - talent-talks-automation - Still on schedule page after 3 seconds - assuming schedule successful
+2025-12-22 14:20:34,209 - INFO - talent-talks-automation - Candidate email stored in context: vibhorgoyal.talenttalks@gmail.com
+    When I wait for 3 seconds                                                                         # features/steps/common_steps.py:170
+2025-12-22 14:20:37,215 - INFO - talent-talks-automation - Waited for 3 seconds
+    When I navigate to View Interviews page                                                           # features/steps/create_job_opening_steps.py:498
+2025-12-22 14:20:37,216 - INFO - talent-talks-automation - Waiting for interview to be saved in database
+2025-12-22 14:20:40,221 - INFO - talent-talks-automation - Clicking View Interviews button in sidebar
+2025-12-22 14:20:41,360 - INFO - talent-talks-automation - Navigated to View Interviews page
+    And I search for the recently created interview                                                   # features/steps/create_job_opening_steps.py:607
+2025-12-22 14:20:41,360 - INFO - talent-talks-automation - Searching for interview by job title: Python Developer - 20251222_142019
+2025-12-22 14:20:44,400 - INFO - talent-talks-automation - Search completed for: Python Developer - 20251222_142019
+    Then I should see the recently created interview                                                  # features/steps/create_job_opening_steps.py:628
+2025-12-22 14:20:45,439 - INFO - talent-talks-automation - Interview found in the list (Candidate: Python_1222_1420, Job: Python Developer - 20251222_142019)
+    When I click the 3-dot menu for the recently created interview                                    # features/steps/create_job_opening_steps.py:676
+2025-12-22 14:20:47,060 - INFO - talent-talks-automation - Clicked 3-dot menu for interview: Python_1222_1420
+    And I click the "Send Invite" option from the menu                                                # features/steps/create_job_opening_steps.py:697
+2025-12-22 14:20:48,680 - INFO - talent-talks-automation - Clicked 'Send Invite' option from menu
+    Then the invite should be resent successfully                                                     # features/steps/create_job_opening_steps.py:716
+2025-12-22 14:20:50,752 - INFO - talent-talks-automation - Interview invite resent successfully
+    And I should receive the interview invitation email                                               # features/steps/create_job_opening_steps.py:728
+2025-12-22 14:20:52,125 - INFO - talent-talks-automation - Waiting for interview invitation email to vibhorgoyal.talenttalks@gmail.com...
+2025-12-22 14:20:55,417 - INFO - talent-talks-automation - ✅ Email found in 🗑️ Spam - Subject: Interview Link for Candidate
+
+📧 Checking email: vibhorgoyal.talenttalks@gmail.com
+
+✅ Email received in 🗑️ Spam
+   Subject: Interview Link for Candidate
+   From: viabot23@gmail.com
+    And I should extract the interview URL from the email                                             # features/steps/create_job_opening_steps.py:818
+2025-12-22 14:20:55,419 - INFO - talent-talks-automation - Interview URL extracted: https://talenttalks.vlinkinfo.com/interview?name=Python_1222_1420&interviewId=69490658cb423cc8fe89df0f
+
+================================================================================
+🔗 INTERVIEW INVITATION LINK
+================================================================================
+   Found in: 🗑️ Spam
+   Link: https://talenttalks.vlinkinfo.com/interview?name=Python_1222_1420&interviewId=69490658cb423cc8fe89df0f
+================================================================================
+
+    When I wait for 2 seconds                                                                         # features/steps/common_steps.py:170
+2025-12-22 14:20:57,425 - INFO - talent-talks-automation - Waited for 2 seconds
+    When I open the interview link                                                                    # features/steps/create_job_opening_steps.py:864
+2025-12-22 14:20:57,432 - INFO - talent-talks-automation - Interview scheduled for 14:21:29, waiting 32.5 seconds...
+2025-12-22 14:21:34,903 - INFO - talent-talks-automation - Wait completed, interview time has arrived
+2025-12-22 14:21:34,903 - INFO - talent-talks-automation - Opening interview link: https://talenttalks.vlinkinfo.com/interview?name=Python_1222_1420&interviewId=69490658cb423cc8fe89df0f
+2025-12-22 14:21:35,374 - INFO - talent-talks-automation - Interview link opened successfully
+
+⏳ Waiting 32.5 seconds for interview to start at 14:21:29...
+
+🌐 Opening interview link: https://talenttalks.vlinkinfo.com/interview?name=Python_1222_1420&interviewId=69490658cb423cc8fe89df0f
+    Then the interview page should load successfully                                                  # features/steps/create_job_opening_steps.py:909
+2025-12-22 14:21:37,507 - INFO - talent-talks-automation - Interview page loaded and verified
+2025-12-22 14:21:37,507 - INFO - talent-talks-automation - Screenshot captured and attached to Allure report
+✅ Interview page loaded successfully
+📄 Page title: TalentTalks
+🔗 Current URL: https://talenttalks.vlinkinfo.com/interview?name=Python_1222_1420&interviewId=69490658cb423cc8fe89df0f
+📸 Screenshot attached to test report
+    And the interview should be ready to start                                                        # features/steps/create_job_opening_steps.py:948
+2025-12-22 14:21:37,508 - INFO - talent-talks-automation - Interview verified as ready/started
+✅ Interview is ready to start or has started
+    When I click the Start Interview button                                                           # features/steps/create_job_opening_steps.py:973
+2025-12-22 14:21:37,607 - INFO - talent-talks-automation - Page state before clicking Start: {'url': 'https://talenttalks.vlinkinfo.com/interview?name=Python_1222_1420&interviewId=69490658cb423cc8fe89df0f', 'title': 'TalentTalks', 'has_welcome_heading': True, 'has_start_button': True, 'has_video_element': False, 'has_access_denied': False}
+2025-12-22 14:21:41,659 - INFO - talent-talks-automation - Clicked Start Interview button
+
+🖱️  Clicking Start Interview button...
+✅ Start Interview button clicked
+    Then the interview should actually start                                                          # features/steps/create_job_opening_steps.py:1004
+2025-12-22 14:21:41,797 - INFO - talent-talks-automation - Page state after clicking Start: {'url': 'https://talenttalks.vlinkinfo.com/interview?name=Python_1222_1420&interviewId=69490658cb423cc8fe89df0f', 'title': 'TalentTalks', 'has_welcome_heading': False, 'has_start_button': False, 'has_video_element': False, 'has_access_denied': False}
+2025-12-22 14:21:44,809 - INFO - talent-talks-automation - Interview verified as started - page transitioned
+
+🔍 Verifying interview has started...
+   Current URL: https://talenttalks.vlinkinfo.com/interview?name=Python_1222_1420&interviewId=69490658cb423cc8fe89df0f
+   Has welcome heading: False
+   Has start button: False
+   Has video element: False
+   Access denied: False
+✅ Interview has successfully started! Page transitioned away from welcome screen.
+    When I wait for 2 seconds                                                                         # features/steps/common_steps.py:170
+2025-12-22 14:21:46,949 - INFO - talent-talks-automation - Waited for 2 seconds
+    When I click the "Show Transcripts" button in the interview                                       # features/steps/create_job_opening_steps.py:1083
+2025-12-22 14:21:48,972 - INFO - talent-talks-automation - Clicked 'Show Transcripts' button
+    Then the transcript panel should be visible                                                       # features/steps/create_job_opening_steps.py:1105
+2025-12-22 14:21:49,107 - INFO - talent-talks-automation - Transcript panel is visible
+    And the transcript should contain the AI greeting message                                         # features/steps/create_job_opening_steps.py:1120
+2025-12-22 14:21:49,230 - INFO - talent-talks-automation - Transcript contains AI greeting. Full transcript: ['👤 AI: Hello Python_1222_1420, how are you doing today?\nMy name is TalentTalks, and I’ll be conducting your technical interview today.', '👤 AI: Hello Python_1222_1420, how are you doing today?\nMy name is TalentTalks, and I’ll be conducting your technical interview today.']
+2025-12-22 14:21:49,346 - INFO - talent-talks-automation - Finished scenario: Create job opening and verify it appears in the list "python_developer" -- @1.1  - Status: Status.passed
+
+1 feature passed, 0 failed, 0 skipped
+1 scenario passed, 0 failed, 0 skipped
+43 steps passed, 0 failed, 0 skipped
+Took 1min 35.597s

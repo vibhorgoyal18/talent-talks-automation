@@ -1,0 +1,31 @@
+USING RUNNER: behave.runner:Runner
+Feature: Create Job Opening # features/create_job_opening.feature:1
+  As an HR manager
+  I want to create new job openings
+  So that I can start the recruitment process for positions2025-12-22 14:13:21,378 - INFO - talent-talks-automation - Starting scenario: Create job opening and verify it appears in the list "python_developer" -- @1.1 
+
+  @ui @job @smoke @e2e
+  Scenario Outline: Create job opening and verify it appears in the list "python_developer" -- @1.1   # features/create_job_opening.feature:81
+    Given I am logged in as a valid user                                                              # features/steps/create_job_opening_steps.py:21
+2025-12-22 14:13:26,639 - INFO - talent-talks-automation - Successfully logged in as valid user
+    And I navigate to the Create Job Opening page                                                     # features/steps/create_job_opening_steps.py:40
+2025-12-22 14:13:26,705 - INFO - talent-talks-automation - Navigated to Create Job Opening page
+    When I load job opening data for "python_developer"                                               # features/steps/create_job_opening_steps.py:53
+2025-12-22 14:13:26,705 - INFO - talent-talks-automation - Loaded job opening data for scenario: python_developer
+2025-12-22 14:13:26,705 - INFO - talent-talks-automation - Unique job name: Python Developer - 20251222_141326
+    And I fill in "Job Opening Name" with value from scenario "job_name"                              # features/steps/common_steps.py:35
+2025-12-22 14:13:26,720 - INFO - talent-talks-automation - Filled in 'Job Opening Name' with 'Python Developer - 20251222_141326' from scenario data
+    And I fill in "Enter or paste job description" with value from scenario "job_description"         # features/steps/common_steps.py:35
+2025-12-22 14:13:26,732 - INFO - talent-talks-automation - Filled in 'Enter or paste job description' with 'Looking for an experienced Python developer with Django and FastAPI skills' from scenario data
+    And I set "Interview Duration (minutes)" to 30                                                    # features/steps/common_steps.py:187
+2025-12-22 14:13:26,746 - INFO - talent-talks-automation - Set 'Interview Duration (minutes)' to 30
+    And I check the "Enable Resume Evaluation" checkbox                                               # features/steps/common_steps.py:197
+2025-12-22 14:13:26,776 - INFO - talent-talks-automation - Checked checkbox: 'Enable Resume Evaluation'
+    And I set "Resume Evaluation Percentage" to 100                                                   # features/steps/common_steps.py:187
+2025-12-22 14:13:26,786 - INFO - talent-talks-automation - Set 'Resume Evaluation Percentage' to 100
+    And I click the "Create Job Opening" button                                                       # features/steps/common_steps.py:92
+2025-12-22 14:13:26,819 - INFO - talent-talks-automation - Clicked button: 'Create Job Opening'
+    And I wait for 2 seconds                                                                          # features/steps/common_steps.py:170
+2025-12-22 14:13:28,822 - INFO - talent-talks-automation - Waited for 2 seconds
+    When I navigate to View Job Openings page                                                         # features/steps/create_job_opening_steps.py:222
+2025-12-22 14:13:28,822 - INFO - talent-talks-automation - Waiting for job to be saved in database

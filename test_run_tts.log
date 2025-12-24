@@ -1,69 +1,75 @@
+USING RUNNER: behave.runner:Runner
 Feature: Create Job Opening # features/create_job_opening.feature:1
   As an HR manager
   I want to create new job openings
-  So that I can start the recruitment process for positions
+  So that I can start the recruitment process for positions2025-12-22 15:44:42,729 - INFO - talent-talks-automation - Starting scenario: Create job opening and verify it appears in the list "python_developer" -- @1.1 
+
   @ui @job @smoke @e2e
   Scenario Outline: Create job opening and verify it appears in the list "python_developer" -- @1.1                              # features/create_job_opening.feature:91
     Given I am logged in as a valid user                                                                                         # features/steps/create_job_opening_steps.py:21
+2025-12-22 15:44:47,307 - INFO - talent-talks-automation - Successfully logged in as valid user
     And I navigate to the Create Job Opening page                                                                                # features/steps/create_job_opening_steps.py:40
+2025-12-22 15:44:47,374 - INFO - talent-talks-automation - Navigated to Create Job Opening page
     When I load job opening data for "python_developer"                                                                          # features/steps/create_job_opening_steps.py:53
+2025-12-22 15:44:47,375 - INFO - talent-talks-automation - Loaded job opening data for scenario: python_developer
+2025-12-22 15:44:47,375 - INFO - talent-talks-automation - Unique job name: Python Developer - 20251222_154447
     And I fill in "Job Opening Name" with value from scenario "job_name"                                                         # features/steps/common_steps.py:35
+2025-12-22 15:44:47,391 - INFO - talent-talks-automation - Filled in 'Job Opening Name' with 'Python Developer - 20251222_154447' from scenario data
     And I fill in "Enter or paste job description" with value from scenario "job_description"                                    # features/steps/common_steps.py:35
+2025-12-22 15:44:47,403 - INFO - talent-talks-automation - Filled in 'Enter or paste job description' with 'Looking for an experienced Python developer with Django and FastAPI skills' from scenario data
     And I set "Interview Duration (minutes)" to 30                                                                               # features/steps/common_steps.py:187
+2025-12-22 15:44:47,421 - INFO - talent-talks-automation - Set 'Interview Duration (minutes)' to 30
     And I check the "Enable Resume Evaluation" checkbox                                                                          # features/steps/common_steps.py:197
+2025-12-22 15:44:47,455 - INFO - talent-talks-automation - Checked checkbox: 'Enable Resume Evaluation'
     And I set "Resume Evaluation Percentage" to 100                                                                              # features/steps/common_steps.py:187
+2025-12-22 15:44:47,467 - INFO - talent-talks-automation - Set 'Resume Evaluation Percentage' to 100
     And I click the "Create Job Opening" button                                                                                  # features/steps/common_steps.py:92
+2025-12-22 15:44:47,501 - INFO - talent-talks-automation - Clicked button: 'Create Job Opening'
     And I wait for 2 seconds                                                                                                     # features/steps/common_steps.py:170
+2025-12-22 15:44:49,503 - INFO - talent-talks-automation - Waited for 2 seconds
     When I navigate to View Job Openings page                                                                                    # features/steps/create_job_opening_steps.py:222
+2025-12-22 15:44:49,503 - INFO - talent-talks-automation - Waiting for job to be saved in database
+2025-12-22 15:44:54,505 - INFO - talent-talks-automation - Clicking View Job Openings button in sidebar
+2025-12-22 15:44:54,801 - INFO - talent-talks-automation - Searching for job: Python Developer - 20251222_154447
+2025-12-22 15:44:55,845 - INFO - talent-talks-automation - Navigated to View Job Openings page
     Then I should see the item stored as "created_job_name" in the list                                                          # features/steps/common_steps.py:257
+2025-12-22 15:44:55,848 - INFO - talent-talks-automation - Verified item is in list: 'Python Developer - 20251222_154447' (from context.created_job_name)
     And the item stored as "created_job_name" should have status "Active"                                                        # features/steps/common_steps.py:274
+2025-12-22 15:44:55,851 - INFO - talent-talks-automation - Verified item 'Python Developer - 20251222_154447' has status: 'Active'
     When I load candidate data for "python_developer"                                                                            # features/steps/create_job_opening_steps.py:295
+2025-12-22 15:44:55,851 - INFO - talent-talks-automation - Loaded candidate data for scenario: python_developer
+2025-12-22 15:44:55,851 - INFO - talent-talks-automation - Candidate: Python_1222_1544, Email: vibhorgoyal.talenttalks@gmail.com
     And I navigate to "/interviews/new" page                                                                                     # features/steps/common_steps.py:15
+2025-12-22 15:44:56,135 - INFO - talent-talks-automation - Navigated to: https://talenttalks.vlinkinfo.com/interviews/new
     And I select from "Select Job Opening" the value stored as "created_job_name"                                                # features/steps/common_steps.py:69
+2025-12-22 15:44:57,610 - INFO - talent-talks-automation - Selected 'Python Developer - 20251222_154447' from 'Select Job Opening' (from context.created_job_name)
     And I fill in "Candidate Name" with value from scenario "candidate_name"                                                     # features/steps/common_steps.py:35
+2025-12-22 15:44:57,656 - INFO - talent-talks-automation - Filled in 'Candidate Name' with 'Python_1222_1544' from scenario data
     And I fill in "Candidate Email" with value from scenario "candidate_email"                                                   # features/steps/common_steps.py:35
+2025-12-22 15:44:57,682 - INFO - talent-talks-automation - Filled in 'Candidate Email' with 'vibhorgoyal.talenttalks@gmail.com' from scenario data
     And I fill in "Interview Date" with current date                                                                             # features/steps/create_job_opening_steps.py:335
+2025-12-22 15:44:57,716 - INFO - talent-talks-automation - Filled in 'Interview Date' with current date: 2025-12-22
     And I fill in "Interview Time" with time 1 minute from now                                                                   # features/steps/create_job_opening_steps.py:367
+2025-12-22 15:44:57,741 - INFO - talent-talks-automation - Filled in 'Interview Time' with time 1 minute(s) from now: 15:45
     And I upload the file from "cv_file" to "Select CV File"                                                                     # features/steps/common_steps.py:110
+2025-12-22 15:44:58,270 - INFO - talent-talks-automation - Uploaded file '/Users/vibhorgoyal/PersonalWorkspace/talent-talks-automation/data/test_files/sample_cv.pdf' using 'Select CV File'
     And I upload the file from "photo_file" to "Select Image"                                                                    # features/steps/common_steps.py:110
+2025-12-22 15:44:58,786 - INFO - talent-talks-automation - Uploaded file '/Users/vibhorgoyal/PersonalWorkspace/talent-talks-automation/data/test_files/Vibhor_Photo.jpg' using 'Select Image'
     And I click the "Schedule Interview" button                                                                                  # features/steps/common_steps.py:92
+2025-12-22 15:44:59,599 - INFO - talent-talks-automation - Clicked button: 'Schedule Interview'
     Then the interview should be scheduled successfully                                                                          # features/steps/create_job_opening_steps.py:434
+2025-12-22 15:45:02,602 - INFO - talent-talks-automation - Current URL after scheduling: https://talenttalks.vlinkinfo.com/interviews/new
+2025-12-22 15:45:02,602 - INFO - talent-talks-automation - Still on schedule page after 3 seconds - assuming schedule successful
+2025-12-22 15:45:02,602 - INFO - talent-talks-automation - Candidate email stored in context: vibhorgoyal.talenttalks@gmail.com
     When I wait for 3 seconds                                                                                                    # features/steps/common_steps.py:170
+2025-12-22 15:45:05,604 - INFO - talent-talks-automation - Waited for 3 seconds
     When I navigate to View Interviews page                                                                                      # features/steps/create_job_opening_steps.py:498
+2025-12-22 15:45:05,604 - INFO - talent-talks-automation - Waiting for interview to be saved in database
+2025-12-22 15:45:08,607 - INFO - talent-talks-automation - Clicking View Interviews button in sidebar
+2025-12-22 15:45:09,714 - INFO - talent-talks-automation - Navigated to View Interviews page
     And I search for the recently created interview                                                                              # features/steps/create_job_opening_steps.py:607
+2025-12-22 15:45:09,714 - INFO - talent-talks-automation - Searching for interview by job title: Python Developer - 20251222_154447
+2025-12-22 15:45:12,740 - INFO - talent-talks-automation - Search completed for: Python Developer - 20251222_154447
     Then I should see the recently created interview                                                                             # features/steps/create_job_opening_steps.py:628
+2025-12-22 15:45:13,758 - INFO - talent-talks-automation - Interview found in the list (Candidate: Python_1222_1544, Job: Python Developer - 20251222_154447)
     When I click the 3-dot menu for the recently created interview                                                               # features/steps/create_job_opening_steps.py:676
-    And I click the "Send Invite" option from the menu                                                                           # features/steps/create_job_opening_steps.py:697
-    Then the invite should be resent successfully                                                                                # features/steps/create_job_opening_steps.py:716
-    And I should receive the interview invitation email                                                                          # features/steps/create_job_opening_steps.py:728
-    And I should extract the interview URL from the email                                                                        # features/steps/create_job_opening_steps.py:818
-    When I wait for 2 seconds                                                                                                    # features/steps/common_steps.py:170
-    When I open the interview link                                                                                               # features/steps/create_job_opening_steps.py:864
-    Then the interview page should load successfully                                                                             # features/steps/create_job_opening_steps.py:909
-    And the interview should be ready to start                                                                                   # features/steps/create_job_opening_steps.py:948
-    When I click the Start Interview button                                                                                      # features/steps/create_job_opening_steps.py:973
-    Then the interview should actually start                                                                                     # features/steps/create_job_opening_steps.py:1004
-    When I wait for 2 seconds                                                                                                    # features/steps/common_steps.py:170
-    When I click the "Show Transcripts" button in the interview                                                                  # features/steps/create_job_opening_steps.py:1083
-    Then the transcript panel should be visible                                                                                  # features/steps/create_job_opening_steps.py:1105
-    And the transcript should contain the AI greeting message                                                                    # features/steps/create_job_opening_steps.py:1120
-    When I send candidate response "I am doing great, thank you for asking. I have five years of Python development experience." # features/steps/create_job_opening_steps.py:1150
-    And I wait for 3 seconds                                                                                                     # features/steps/common_steps.py:170
-    Then the transcript should contain the candidate response                                                                    # features/steps/create_job_opening_steps.py:1201
-      ASSERT FAILED: Candidate response not found in transcript. Expected: 'Here are a few options, choose the one that best fits the specific context and your personal style:
-      
-      **Option 1 (Most natural and common):**
-      "I'm doing great, thanks for asking! I've been working with Python for five years."
-      
-      **Option 2 (Slightly more direct):**
-      "Doing great, thanks! I have five years of Python experience."
-      
-      **Option 3 (Concise):**
-      "I'm doing great, thanks! Five years of Python development."
-      
-      **Key changes made:**
-      *   **"I am"** to **"I'm"** (contraction)
-      *   **"thank you for asking"** to **"thanks for asking"** or just **"thanks"** (more conversational)
-      *   **"I have five years of Python development experience"** to **"I've been working with Python for five years"** (sounds more active and natural) or **"I have five years of Python experience"** (more concise) or just stating the experience directly.'. Transcript: ['👤 AI: Hello Python_1224_1412, how are you doing today?\nMy name is TalentTalks, and I’ll be conducting your technical interview today.', '👤 AI: Hello Python_1224_1412, how are you doing today?\nMy name is TalentTalks, and I’ll be conducting your technical interview today.']
-
-

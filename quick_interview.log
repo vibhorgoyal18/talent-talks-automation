@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/Users/vibhorgoyal/PersonalWorkspace/talent-talks-automation/create_quick_interview.py", line 59, in create_quick_interview
+    schedule_page.fill_job_opening(candidate_data["job_opening"])
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'ScheduleInterviewPage' object has no attribute 'fill_job_opening'. Did you mean: 'select_job_opening'?
